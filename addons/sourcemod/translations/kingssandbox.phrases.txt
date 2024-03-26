@@ -1,0 +1,189 @@
+"Phrases"
+{
+	"CMD_Alpha"
+	{
+		"en"			"Usage: {green}[tag]alpha{default} <transparency value>"
+	}
+
+	"CMD_Color"
+	{
+		"en"			"Usage: {green}[tag]color{default} <color name> <all|hud>"
+	}
+
+	"CMD_Door"
+	{
+		"en"			"Usage: {green}[tag]door{default} <skin number>"
+	}
+
+	"CMD_Rotate"
+	{
+		"en"			"Usage: {green}[tag]rotate{default} <x> <y> <z>"
+	}
+
+	"CMD_SetURL"
+	{
+		"en"			"Usage: {green}[tag]seturl{default} <url>"
+	}
+
+	"CMD_Spawn"
+	{
+		"en"			"Usage: {green}[tag]spawn{default} <prop name>"
+	}
+
+	"CantFindTarget"
+	{
+		"en"			"Cannot find specified target."
+	}
+
+	"CantUseCommand-Prop"
+	{
+		"en"			"You cannot use this command on this prop."
+	}
+
+	"ColorNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Color {green}{1}{default} not found."
+	}
+
+	"Connecting"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Player {green}{1}{default} connecting from {green}{2}{default}"
+	}
+
+	"CreateAxis"
+	{
+		"en"			"Created {red}X{default}, {green}Y{default}, and {blue}Z{default} axis markers."
+	}
+
+	"DisableMotion"
+	{
+		"#format"		"{1:s}"
+		"en"			"Disabled motion on {1}."
+	}
+
+	"Disconnecting"
+	{
+		"#format"		"{1:s}"
+		"en"			"Player {green}{1}{default} disconnected"
+	}
+
+	"DoorLock"
+	{
+		"en"			"Door has been locked."
+	}
+
+	"DoorSpawn"
+	{
+		"en"			"Spawned {green}door{default} cel."
+	}
+
+	"DoorUnlock"
+	{
+		"en"			"Door has been unlocked."
+	}
+
+	"EnableMotion"
+	{
+		"#format"		"{1:s}"
+		"en"			"Enabled motion on {1}."
+	}
+
+	"FileNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Cannot find '{1}'. Plugin cannot run!"
+	}
+
+	"InternetSpawn"
+	{
+		"en"			"Spawned {green}internet{default} cel."
+	}
+
+	"MaxCelLimit"
+	{
+		"#format"		"{1:i}"
+		"en"			"You have reached the max cel limit. ({green}{1}{default})"
+	}
+
+	"MaxPropLimit"
+	{
+		"#format"		"{1:i}"
+		"en"			"You have reached the max prop limit. ({green}{1}{default})"
+	}
+
+	"NoKill"
+	{
+		"#format"		"{1:s}"
+		"en"			"Turned nokill {1}."
+	}
+
+	"NotLooking"
+	{
+		"en"			"You are not looking at anything."
+	}
+
+	"NotYours"
+	{
+		"#format"		"{1:s}"
+		"en"			"This {1} does not belong to you."
+	}
+
+	"OnlyOnInternetCels"
+	{
+		"en"			"You can only use this command on internet cels."
+	}
+
+	"PropNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Prop {green}{1}{default} not found."
+	}
+
+	"SetColor"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Set color on {1} to {green}{2}{default}."
+	}
+
+	"SetOwnerClient"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Set ownership of {green}{1}{default} to {green}{2}{default}."
+	}
+	"SetOwnerTarget"
+	{
+		"#format"		"{1:s},{2:s},{3:s}"
+		"en"			"{green}{1}{default} set ownership of {green}{2}{default} to {green}{3}{default}."
+	}
+
+	"SetSolidicity"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Turned solidicity {1} on {2}."
+	}
+
+	"SetTransparency"
+	{
+		"#format"		"{1:s},{2:i}"
+		"en"			"Set transparency on {1} to {green}{2}{default}."
+	}
+
+	"SetURL"
+	{
+		"en"			"Updated url on internet cel."
+	}
+
+	"SpawnProp"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned prop {green}{1}{default}."
+	}
+
+	"Remove"
+	{
+		"#format"		"{1:s}"
+		"en"			"Removed {1}."
+	}
+}

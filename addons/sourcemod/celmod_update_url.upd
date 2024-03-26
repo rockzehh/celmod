@@ -1,0 +1,46 @@
+"Updater"
+{
+	"Information"
+	{
+		"Version"
+		{
+			"Latest"		"1.2.0.0"
+			"Previously"	"1.1.0.0"
+		}
+		
+		"Notes"	"Added a beta of the lands feature."
+	}
+	
+	"Files"
+	{
+		"Patch"
+		{
+
+		}
+
+		"Plugin"	"Path_SM/data/kingssandbox/colors.txt"
+		"Plugin"	"Path_SM/data/kingssandbox/spawns.txt"
+		"Plugin"	"Path_SM/plugins/funcommands.smx"
+		"Plugin"	"Path_SM/plugins/kings_effects.smx"
+		"Plugin"	"Path_SM/plugins/kings_help.smx"
+		"Plugin"	"Path_SM/plugins/kings_hud.smx"
+		"Plugin"	"Path_SM/plugins/kings_land.smx"
+		"Plugin"	"Path_SM/plugins/kings_serverconvars.smx"
+		"Plugin"	"Path_SM/plugins/kingssandbox.smx"
+		"Plugin"	"Path_SM/scripting/include/kingssandbox.inc"
+		"Plugin"	"Path_SM/translations/kingssandbox.phrases.txt"
+		"Plugin"	"Path_SM/translations/ks-effects.phrases.txt"
+
+		"Source"	"Path_SM/scripting/funcommands.sp"
+		"Source"	"Path_SM/scripting/kings_effects.sp"
+		"Source"	"Path_SM/scripting/kings_help.sp"
+		"Source"	"Path_SM/scripting/kings_hud.sp"
+		"Source"	"Path_SM/scripting/kings_land.sp"
+		"Source"	"Path_SM/scripting/kings_serverconvers.sp"
+		"Source"	"Path_SM/scripting/kingssandbox.sp"
+		"Source"	"Path_SM/scripting/funcommands/ice.sp"
+		"Source"	"Path_SM/scripting/include/morecolors.inc"
+		"Source"	"Path_SM/translations/kingssandbox.phrases.txt"
+		"Source"	"Path_SM/translations/ks-effects.phrases.txt"
+	}
+}

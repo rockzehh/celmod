@@ -1,0 +1,7 @@
+"Phrases"
+{
+	"CMD_Animation"
+	{
+		"en"			"Usage: {green}[tag]anim{default} <name>"
+	}
+}

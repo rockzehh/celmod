@@ -1,0 +1,18 @@
+"Phrases"
+{
+	"CMD_Effect"
+	{
+		"en"			"Usage: {green}[tag]effect{default} <effect type>"
+	}
+
+	"InvalidEffect"
+	{
+		"en"			"Invalid effect type."
+	}
+
+	"SpawnEffect"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} effect cel."
+	}
+}

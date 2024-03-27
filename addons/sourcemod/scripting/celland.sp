@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#include <kingssandbox>
+#include <celmod>
 #include <sdkhooks>
 #include <sdktools>
 #include <smlib>
@@ -44,14 +44,14 @@ Land g_liLand[MAXENTS+1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
-	CreateNative("KS_CreateLandEntity", Native_CreateLandEntity);
-	CreateNative("KS_GetLandOwner", Native_GetLandOwner);
-	CreateNative("KS_IsClientInLand", Native_IsClientInLand);
-	CreateNative("KS_IsClientCrosshairInLand", Native_IsClientCrosshairInLand);
-	CreateNative("KS_IsEntityInLand", Native_IsEntityInLand);
-	CreateNative("KS_IsPositionInBox", Native_IsPositionInBox);
-	CreateNative("KS_DrawLand", Native_DrawLand);
-	CreateNative("KS_GetMiddleOfABox", Native_GetMiddleOfBox);
+	CreateNative("Cel_CreateLandEntity", Native_CreateLandEntity);
+	CreateNative("Cel_GetLandOwner", Native_GetLandOwner);
+	CreateNative("Cel_IsClientInLand", Native_IsClientInLand);
+	CreateNative("Cel_IsClientCrosshairInLand", Native_IsClientCrosshairInLand);
+	CreateNative("Cel_IsEntityInLand", Native_IsEntityInLand);
+	CreateNative("Cel_IsPositionInBox", Native_IsPositionInBox);
+	CreateNative("Cel_DrawLand", Native_DrawLand);
+	CreateNative("Cel_GetMiddleOfABox", Native_GetMiddleOfBox);
 	
 	g_bLate = bLate;
 	
@@ -60,11 +60,11 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo =
 {
-	name = "King's Sandbox: Land",
-	author = "King Nothing",
+	name = "CelMod: Land",
+	author = "rockzehh",
 	description = "Creates a personal building area.",
-	version = SANDBOX_VERSION,
-	url = "https://github.com/rockzehh/kingssandbox"
+	version = CEL_VERSION,
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
@@ -80,13 +80,13 @@ public void OnPluginStart()
 		}
 	}
 	
-	g_cvMaxLandSize = CreateConVar("ks_max_land_size", "1495.5", "Maximum land size allowed.");
+	g_cvMaxLandSize = CreateConVar("cel_max_land_size", "1495.5", "Maximum land size allowed.");
 	
 	g_cvMaxLandSize.AddChangeHook(KSLand_OnConVarChanged);
 	
 	g_fMaxLandSize = g_cvMaxLandSize.FloatValue;
 	
-	RegConsoleCmd("sm_land", Command_Land, "King's Sandbox: Creates a building zone.");
+	RegConsoleCmd("sm_land", Command_Land, "CelMod: Creates a building zone.");
 }
 
 public void OnClientPutInServer(int iClient)
@@ -161,7 +161,7 @@ public void KSLand_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, cons
 	if (cvConVar == g_cvMaxLandSize)
 	{
 		g_fMaxLandSize = g_cvMaxLandSize.FloatValue;
-		PrintToServer("King's Sandbox: Max land size updated to %s.", sNewValue);
+		PrintToServer("CelMod: Max land size updated to %s.", sNewValue);
 	}
 }
 
@@ -172,13 +172,13 @@ public Action Command_Land(int iClient, int iArgs)
 	{
 		case 0:
 		{
-			KS_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottom);
-			KS_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fOriginal);
+			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottom);
+			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fOriginal);
 			
 			g_liLand[iClient].bDrawing = true;
 			g_liLand[iClient].bGettingTop = true;
 			
-			KS_ReplyToCommand(iClient, "Started drawing land.");
+			Cel_ReplyToCommand(iClient, "Started drawing land.");
 			
 			g_liLand[iClient].iPosition = 1;
 		}
@@ -188,9 +188,9 @@ public Action Command_Land(int iClient, int iArgs)
 			g_liLand[iClient].bGettingTop = false;
 			g_liLand[iClient].bMade = true;
 			
-			KS_GetMiddleOfABox(g_liLand[iClient].fBottom, g_liLand[iClient].fTop, g_liLand[iClient].fMiddle);
+			Cel_GetMiddleOfABox(g_liLand[iClient].fBottom, g_liLand[iClient].fTop, g_liLand[iClient].fMiddle);
 			
-			KS_CreateLandEntity(GetClientUserId(iClient), g_liLand[iClient].fBottom, g_liLand[iClient].fTop);
+			Cel_CreateLandEntity(GetClientUserId(iClient), g_liLand[iClient].fBottom, g_liLand[iClient].fTop);
 			
 			g_liLand[iClient].iPosition = 2;
 		}
@@ -215,6 +215,8 @@ public Action Command_Land(int iClient, int iArgs)
 			g_liLand[iClient].iPosition = 0;
 		}
 	}
+	
+	return Plugin_Handled;
 }
 
 //Natives:
@@ -239,7 +241,7 @@ public int Native_CreateLandEntity(Handle hPlugin, int iNumParams)
 	DispatchSpawn(iEnt);
 	ActivateEntity(iEnt);
 	
-	KS_GetMiddleOfABox(fMin, fMax, fMiddle);
+	Cel_GetMiddleOfABox(fMin, fMax, fMiddle);
 	
 	TeleportEntity(iEnt, fMiddle, NULL_VECTOR, NULL_VECTOR);
 	
@@ -319,7 +321,7 @@ public int Native_IsClientInLand(Handle hPlugin, int iNumParams)
 		{
 			GetClientAbsOrigin(iClient, fOrigin);
 			
-			if(KS_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop, iClient))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop, iClient))
 			{
 				SetNativeCellRef(2, GetClientUserId(g_liLand[i].iOwner));
 				
@@ -347,9 +349,9 @@ public int Native_IsClientCrosshairInLand(Handle hPlugin, int iNumParams)
 	{
 		if (IsClientAuthorized(i))
 		{
-			KS_GetCrosshairHitOrigin(iClient, fOrigin);
+			Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 			
-			if(KS_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fBottomTop, 0))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fBottomTop, 0))
 			{
 				GetEntPropString(g_liLand[i].iEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
 				
@@ -386,7 +388,7 @@ public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 		{
 			Entity_GetAbsOrigin(iEntity, fOrigin);
 			
-			if(KS_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop, 0))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop, 0))
 			{
 				SetNativeCellRef(2, GetClientUserId(g_liLand[i].iOwner));
 				
@@ -591,6 +593,8 @@ public int Native_DrawLand(Handle hPlugin, int iNumParams)
 	TE_SetupBeamPoints(fLeftTopFront, fLeftTopBack, g_iLand, 0, 0, 0, fLife, 3.0, 3.0, 10, 0.0, iColor, 0); TE_SendToAll(0.0);
 	TE_SetupBeamPoints(fRightTopBack, fLeftTopBack, g_iLand, 0, 0, 0, fLife, 3.0, 3.0, 10, 0.0, iColor, 0); TE_SendToAll(0.0);
 	TE_SetupBeamPoints(fRightTopBack, fRightTopFront, g_iLand, 0, 0, 0, fLife, 3.0, 3.0, 10, 0.0, iColor, 0); TE_SendToAll(0.0);
+	
+	return true;
 }
 
 public int Native_GetMiddleOfBox(Handle hPlugin, int iNumParams)
@@ -611,6 +615,8 @@ public int Native_GetMiddleOfBox(Handle hPlugin, int iNumParams)
 	AddVectors(fMin, fMid, fBuffer);
 	
 	SetNativeArray(3, fBuffer, 3);
+	
+	return true;
 }
 
 //Outputs:
@@ -626,7 +632,7 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 	
 	if(!g_liLand[iActivator].bInLand)
 	{
-		KS_PrintToChat(iActivator, "You have entered {green}%N{default}'s land.", iOwner);
+		Cel_PrintToChat(iActivator, "You have entered {green}%N{default}'s land.", iOwner);
 	}
 	
 	g_liLand[iActivator].bInLand = true;
@@ -649,7 +655,7 @@ public Action Timer_GettingTop(Handle hTimer, any iPlayer)
 	
 	if(g_liLand[iClient].bGettingTop)
 	{
-		KS_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottomTop);
+		Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottomTop);
 		
 		Handle hTraceRay = TR_TraceRayEx(g_liLand[iClient].fBottomTop, g_fUp, MASK_ALL, RayType_Infinite);
 		
@@ -677,16 +683,20 @@ public Action Timer_GettingTop(Handle hTimer, any iPlayer)
 			}
 		}
 	}
+	
+	return Plugin_Continue;
 }
 
 public Action Timer_Land(Handle hTimer, any iPlayer)
 {
 	int iClient = GetClientOfUserId(iPlayer), iColor[4];
 	
-	KS_GetHudColor(iClient, iColor);
+	Cel_GetHudColor(iClient, iColor);
 	
 	if(g_liLand[iClient].bDrawing)
 	{
-		KS_DrawLand(g_liLand[iClient].fOriginal, g_liLand[iClient].fBottomTop, 0.1, iColor, true);
+		Cel_DrawLand(g_liLand[iClient].fOriginal, g_liLand[iClient].fBottomTop, 0.1, iColor, true);
 	}
+	
+	return Plugin_Continue;
 }

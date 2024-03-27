@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#include <kingssandbox>
+#include <celmod>
 #include <sdkhooks>
 #include <sdktools>
 #include <sourcemod>
@@ -17,36 +17,36 @@ int g_iEffectEntity[MAXENTS + 1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
-	CreateNative("KS_CheckEffectType", Native_CheckEffectType);
-	CreateNative("KS_GetEffectAttachment", Native_GetEffectAttachment);
-	CreateNative("KS_GetEffectType", Native_GetEffectType);
-	CreateNative("KS_GetEffectTypeFromName", Native_GetEffectTypeFromName);
-	CreateNative("KS_GetEffectTypeName", Native_GetEffectTypeName);
-	CreateNative("KS_IsEffectActive", Native_IsEffectActive);
-	CreateNative("KS_SetEffectActive", Native_SetEffectActive);
-	CreateNative("KS_SetEffectAttachment", Native_SetEffectAttachment);
-	CreateNative("KS_SetEffectType", Native_SetEffectType);
-	CreateNative("KS_SpawnEffect", Native_SpawnEffect);
+	CreateNative("Cel_CheckEffectType", Native_CheckEffectType);
+	CreateNative("Cel_GetEffectAttachment", Native_GetEffectAttachment);
+	CreateNative("Cel_GetEffectType", Native_GetEffectType);
+	CreateNative("Cel_GetEffectTypeFromName", Native_GetEffectTypeFromName);
+	CreateNative("Cel_GetEffectTypeName", Native_GetEffectTypeName);
+	CreateNative("Cel_IsEffectActive", Native_IsEffectActive);
+	CreateNative("Cel_SetEffectActive", Native_SetEffectActive);
+	CreateNative("Cel_SetEffectAttachment", Native_SetEffectAttachment);
+	CreateNative("Cel_SetEffectType", Native_SetEffectType);
+	CreateNative("Cel_SpawnEffect", Native_SpawnEffect);
 	
 	return APLRes_Success;
 }
 
 public Plugin myinfo = 
 {
-	name = "King's Sandbox: Effects", 
-	author = "King Nothing", 
+	name = "CelMod: Effects", 
+	author = "rockzehh", 
 	description = "Creates a effect effect.", 
-	version = SANDBOX_VERSION, 
-	url = "https://github.com/rockzehh/kingssandbox"
+	version = CEL_VERSION, 
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
 {
-	LoadTranslations("ks-effects.phrases");
+	LoadTranslations("celeffects.phrases");
 
-	g_hOnEffectSpawn = CreateGlobalForward("KS_OnEffectSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
+	g_hOnEffectSpawn = CreateGlobalForward("Cel_OnEffectSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 	
-	RegConsoleCmd("sm_effect", Command_Effect, "King's Sandbox: Spawns a working effect cel.");
+	RegConsoleCmd("sm_effect", Command_Effect, "CelMod: Spawns a working effect cel.");
 }
 
 //Plugin Commands:
@@ -57,23 +57,23 @@ public Action Command_Effect(int iClient, int iArgs)
 	
 	if (iArgs < 1)
 	{
-		KS_ReplyToCommand(iClient, "%t", "CMD_Effect");
+		Cel_ReplyToCommand(iClient, "%t", "CMD_Effect");
 		return Plugin_Handled;
 	}
 	
 	GetCmdArg(1, sEffect, sizeof(sEffect));
 	
-	EffectType etEffectType = KS_GetEffectTypeFromName(sEffect);
+	EffectType etEffectType = Cel_GetEffectTypeFromName(sEffect);
 	
 	if (etEffectType == EFFECT_UNKNOWN)
 	{
-		KS_ReplyToCommand(iClient, "%t", "InvalidEffect");
+		Cel_ReplyToCommand(iClient, "%t", "InvalidEffect");
 		return Plugin_Handled;
 	}
 	
-	KS_GetCrosshairHitOrigin(iClient, fOrigin);
+	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 	
-	int iEffect = KS_SpawnEffect(iClient, fOrigin, etEffectType, true, 255, 255, 255, 255);
+	int iEffect = Cel_SpawnEffect(iClient, fOrigin, etEffectType, true, 255, 255, 255, 255);
 	
 	Call_StartForward(g_hOnEffectSpawn);
 	
@@ -83,9 +83,9 @@ public Action Command_Effect(int iClient, int iArgs)
 	
 	Call_Finish();
 	
-	KS_GetEffectTypeName(etEffectType, sEffectType, sizeof(sEffectType));
+	Cel_GetEffectTypeName(etEffectType, sEffectType, sizeof(sEffectType));
 	
-	KS_ReplyToCommand(iClient, "%t", "SpawnEffect", sEffectType);
+	Cel_ReplyToCommand(iClient, "%t", "SpawnEffect", sEffectType);
 	
 	return Plugin_Handled;
 }
@@ -98,7 +98,7 @@ public int Native_CheckEffectType(Handle hPlugin, int iNumParams)
 	
 	GetNativeString(2, sCheck, sizeof(sCheck));
 	
-	KS_GetEffectTypeName(KS_GetEffectType(iEffect), sType, sizeof(sType));
+	Cel_GetEffectTypeName(Cel_GetEffectType(iEffect), sType, sizeof(sType));
 	
 	return (StrContains(sType, sCheck, false) != -1);
 }
@@ -192,6 +192,8 @@ public int Native_GetEffectTypeName(Handle hPlugin, int iNumParams)
 	}
 	
 	SetNativeString(2, sEffectName, iMaxLength);
+	
+	return true;
 }
 
 public int Native_IsEffectActive(Handle hPlugin, int iNumParams)
@@ -207,6 +209,8 @@ public int Native_SetEffectActive(Handle hPlugin, int iNumParams)
 	int iEffect = GetNativeCell(1);
 	
 	g_bEffectActive[iEffect] = bActive;
+	
+	return true;
 }
 
 public int Native_SetEffectAttachment(Handle hPlugin, int iNumParams)
@@ -214,6 +218,8 @@ public int Native_SetEffectAttachment(Handle hPlugin, int iNumParams)
 	int iAttachment = GetNativeCell(2), iEffect = GetNativeCell(1);
 	
 	g_iEffectEntity[iEffect] = EntIndexToEntRef(iAttachment);
+	
+	return true;
 }
 
 public int Native_SetEffectType(Handle hPlugin, int iNumParams)
@@ -222,6 +228,8 @@ public int Native_SetEffectType(Handle hPlugin, int iNumParams)
 	int iEffect = GetNativeCell(1);
 	
 	g_etEffectType[iEffect] = etType;
+	
+	return true;
 }
 
 public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
@@ -240,7 +248,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	iColor[2] = GetNativeCell(7);
 	iColor[3] = GetNativeCell(8);
 	
-	KS_GetEffectTypeName(etEffect, sEffect, sizeof(sEffect));
+	Cel_GetEffectTypeName(etEffect, sEffect, sizeof(sEffect));
 	
 	Format(sClassname, sizeof(sClassname), "effect_%s", sEffect);
 	
@@ -257,12 +265,12 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	
 	TeleportEntity(iBase, fFinalOrigin, fAngles, NULL_VECTOR);
 	
-	KS_AddToCelCount(iClient);
-	KS_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
-	KS_SetEntity(iBase, true);
-	KS_SetFrozen(iBase, true);
-	KS_SetOwner(iClient, iBase);
-	KS_SetSolid(iBase, true);
+	Cel_AddToCelCount(iClient);
+	Cel_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
+	Cel_SetEntity(iBase, true);
+	Cel_SetFrozen(iBase, true);
+	Cel_SetOwner(iClient, iBase);
+	Cel_SetSolid(iBase, true);
 	
 	switch (etEffect)
 	{
@@ -285,20 +293,20 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
-			KS_SetEffectAttachment(iBase, iEffect);
+			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			KS_SetColor(KS_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			KS_SetEntity(KS_GetEffectAttachment(iBase), true);
-			KS_SetOwner(iClient, KS_GetEffectAttachment(iBase));
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
-			KS_SetEffectActive(iBase, bActivate);
+			Cel_SetEffectActive(iBase, bActivate);
 			
-			KS_SetEffectType(iBase, etEffect);
+			Cel_SetEffectType(iBase, etEffect);
 			
 			SetVariantFloat(0.0);
-			AcceptEntityInput(KS_GetEffectAttachment(iBase), KS_IsEffectActive(iBase) ? "StartDischarge" : "StartCharge");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "StartDischarge" : "StartCharge");
 			
 			return iBase;
 		}
@@ -323,15 +331,15 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
-			KS_SetEffectAttachment(iBase, iEffect);
+			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			KS_SetColor(KS_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			KS_SetEntity(KS_GetEffectAttachment(iBase), true);
-			KS_SetOwner(iClient, KS_GetEffectAttachment(iBase));
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
-			KS_SetEffectType(iBase, etEffect);
+			Cel_SetEffectType(iBase, etEffect);
 			
 			return iBase;
 		}*/
@@ -359,20 +367,20 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
-			KS_SetEffectAttachment(iBase, iEffect);
+			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			KS_SetColor(KS_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			KS_SetEntity(KS_GetEffectAttachment(iBase), true);
-			KS_SetOwner(iClient, KS_GetEffectAttachment(iBase));
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
-			KS_SetEffectActive(iBase, bActivate);
+			Cel_SetEffectActive(iBase, bActivate);
 			
-			KS_SetEffectType(iBase, etEffect);
+			Cel_SetEffectType(iBase, etEffect);
 			
 			SetVariantFloat(0.0);
-			AcceptEntityInput(KS_GetEffectAttachment(iBase), KS_IsEffectActive(iBase) ? "StartFire" : "ExtinguishTemporary");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "StartFire" : "ExtinguishTemporary");
 			
 			return iBase;
 		}
@@ -397,15 +405,15 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
-			KS_SetEffectAttachment(iBase, iEffect);
+			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			KS_SetColor(KS_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			KS_SetEntity(KS_GetEffectAttachment(iBase), true);
-			KS_SetOwner(iClient, KS_GetEffectAttachment(iBase));
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
-			KS_SetEffectType(iBase, etEffect);
+			Cel_SetEffectType(iBase, etEffect);
 			
 			return iBase;
 		}
@@ -435,19 +443,19 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
-			KS_SetEffectAttachment(iBase, iEffect);
+			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			KS_SetColor(KS_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			KS_SetEntity(KS_GetEffectAttachment(iBase), true);
-			KS_SetOwner(iClient, KS_GetEffectAttachment(iBase));
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
-			KS_SetEffectActive(iBase, bActivate);
+			Cel_SetEffectActive(iBase, bActivate);
 			
-			KS_SetEffectType(iBase, etEffect);
+			Cel_SetEffectType(iBase, etEffect);
 			
-			AcceptEntityInput(KS_GetEffectAttachment(iBase), KS_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
 			
 			return iBase;
 		}
@@ -473,19 +481,19 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
-			KS_SetEffectAttachment(iBase, iEffect);
+			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			KS_SetColor(KS_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			KS_SetEntity(KS_GetEffectAttachment(iBase), true);
-			KS_SetOwner(iClient, KS_GetEffectAttachment(iBase));
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
-			KS_SetEffectActive(iBase, bActivate);
+			Cel_SetEffectActive(iBase, bActivate);
 			
-			KS_SetEffectType(iBase, etEffect);
+			Cel_SetEffectType(iBase, etEffect);
 			
-			AcceptEntityInput(KS_GetEffectAttachment(iBase), KS_IsEffectActive(iBase) ? "LightOn" : "LightOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOn" : "LightOff");
 			
 			return iBase;
 		}*/
@@ -514,19 +522,19 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
-			KS_SetEffectAttachment(iBase, iEffect);
+			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			KS_SetColor(KS_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			KS_SetEntity(KS_GetEffectAttachment(iBase), true);
-			KS_SetOwner(iClient, KS_GetEffectAttachment(iBase));
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
-			KS_SetEffectActive(iBase, bActivate);
+			Cel_SetEffectActive(iBase, bActivate);
 			
-			KS_SetEffectType(iBase, etEffect);
+			Cel_SetEffectType(iBase, etEffect);
 			
-			AcceptEntityInput(KS_GetEffectAttachment(iBase), KS_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
 			
 			return iBase;
 		}

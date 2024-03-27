@@ -7,7 +7,7 @@
 
 /* Plugin Info */
 #define PLUGIN_NAME 		"Updater"
-#define PLUGIN_VERSION 		"1.3.3"
+#define PLUGIN_VERSION 		"1.3.3-cel"
 
 /*	Version 1.3.0:
  *
@@ -60,7 +60,8 @@ enum UpdateStatus {
 #define EXTENSION_ERROR			"This plugin requires SteamWorks extensions to function."
 #define TEMP_FILE_EXT			"temp"		// All files are downloaded with this extension first.
 #define MAX_URL_LENGTH			256
-#define UPDATE_URL				"https://raw.githubusercontent.com/rockzehh/updater/main/Updater.txt"
+
+#define UPDATE_URL				"https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/updater_url.upd"
 
 bool g_bGetDownload, g_bGetSource;
 

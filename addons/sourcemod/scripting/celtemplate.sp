@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#include <kingssandbox>
+#include <celmod>
 #include <sourcemod>
 
 #pragma newdecls required
@@ -12,11 +12,11 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "King's Sandbox: ", 
-	author = "King Nothing", 
+	name = "CelMod - ", 
+	author = "rockzehh", 
 	description = "", 
-	version = SANDBOX_VERSION, 
-	url = "https://github.com/rockzehh/kingssandbox"
+	version = CEL_VERSION, 
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()

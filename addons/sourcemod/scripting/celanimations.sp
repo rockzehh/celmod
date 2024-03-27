@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#include <kingssandbox>
+#include <celmod>
 #include <sourcemod>
 
 #pragma newdecls required
@@ -17,16 +17,16 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "King's Sandbox: Animations", 
-	author = "King Nothing", 
+	name = "CelMod: Animations", 
+	author = "rockzehh", 
 	description = "Allows to create animations using entities.", 
-	version = SANDBOX_VERSION, 
-	url = "https://github.com/rockzehh/kingssandbox"
+	version = CEL_VERSION, 
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
 {
-	LoadTranslations("ks-animation.phrases");
+	LoadTranslations("celanimation.phrases");
 	
 	RegConsoleCmd("sm_anim", Command_Animation, "Creates a animation on a selected entity.");
 	RegConsoleCmd("sm_animation", Command_Animation, "Creates a animation on a selected entity.");
@@ -36,9 +36,9 @@ public void OnClientPutInServer(int iClient)
 {
 	char sAuthID[64], sPath[PLATFORM_MAX_PATH];
 	
-	KS_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
+	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/users/%s/animations", sAuthID);
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/users/%s/animations", sAuthID);
 	if (!DirExists(sPath))
 	{
 		CreateDirectory(sPath, 511);
@@ -70,15 +70,15 @@ public Action Command_Animation(int iClient, int iArgs)
 	
 	if (iArgs < 1)
 	{
-		KS_ReplyToCommand(iClient, "%t", "CMD_Animation");
+		Cel_ReplyToCommand(iClient, "%t", "CMD_Animation");
 		return Plugin_Handled;
 	}
 	
 	GetCmdArg(1, sName, sizeof(sName));
 	
-	KS_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
+	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/users/%s/animations/%s.txt", sAuthID, sName);
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/users/%s/animations/%s.txt", sAuthID, sName);
 	if(FileExists(sPath))
 	{
 		DeleteFile(sPath);

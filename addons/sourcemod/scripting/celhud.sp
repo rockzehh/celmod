@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#include <kingssandbox>
+#include <celmod>
 #include <sourcemod>
 
 #pragma newdecls required
@@ -15,26 +15,26 @@ int g_iClientColor[MAXPLAYERS + 1][4];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
-	CreateNative("KS_ChooseHudColor", Native_ChooseHudColor);
-	CreateNative("KS_GetHudColor", Native_GetHudColor);
-	CreateNative("KS_SendHudMessage", Native_SendHudMessage);
-	CreateNative("KS_SetHudColor", Native_SetHudColor);
+	CreateNative("Cel_ChooseHudColor", Native_ChooseHudColor);
+	CreateNative("Cel_GetHudColor", Native_GetHudColor);
+	CreateNative("Cel_SendHudMessage", Native_SendHudMessage);
+	CreateNative("Cel_SetHudColor", Native_SetHudColor);
 	
 	return APLRes_Success;
 }
 
 public Plugin myinfo = 
 {
-	name = "King's Sandbox: Player HUD", 
-	author = "King Nothing", 
+	name = "CelMod: Player HUD", 
+	author = "rockzehh", 
 	description = "Creates and controls the custom player hud.", 
-	version = SANDBOX_VERSION, 
-	url = "https://github.com/rockzehh/kingssandbox"
+	version = CEL_VERSION, 
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
 {
-	g_cvHudEnable = CreateConVar("ks_show_hud", "1", "Shows/hides the hud for all players.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_cvHudEnable = CreateConVar("cel_show_hud", "1", "Shows/hides the hud for all players.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	g_cvHudEnable.AddChangeHook(KSHud_OnConVarChanged);
 	
@@ -68,33 +68,35 @@ public int Native_ChooseHudColor(Handle hPlugin, int iNumParams)
 	{
 		case 0:
 		{
-			KS_SetHudColor(iClient, 255, 0, 0, 255);
+			Cel_SetHudColor(iClient, 255, 0, 0, 255);
 		}
 		case 1:
 		{
-			KS_SetHudColor(iClient, 255, 128, 0, 255);
+			Cel_SetHudColor(iClient, 255, 128, 0, 255);
 		}
 		case 2:
 		{
-			KS_SetHudColor(iClient, 255, 255, 0, 255);
+			Cel_SetHudColor(iClient, 255, 255, 0, 255);
 		}
 		case 3:
 		{
-			KS_SetHudColor(iClient, 0, 255, 0, 255);
+			Cel_SetHudColor(iClient, 0, 255, 0, 255);
 		}
 		case 4:
 		{
-			KS_SetHudColor(iClient, 0, 0, 255, 255);
+			Cel_SetHudColor(iClient, 0, 0, 255, 255);
 		}
 		case 5:
 		{
-			KS_SetHudColor(iClient, 255, 0, 255, 255);
+			Cel_SetHudColor(iClient, 255, 0, 255, 255);
 		}
 		case 6:
 		{
-			KS_SetHudColor(iClient, 128, 0, 255, 255);
+			Cel_SetHudColor(iClient, 128, 0, 255, 255);
 		}
 	}
+	
+	return true;
 }
 
 public int Native_GetHudColor(Handle hPlugin, int iNumParams)
@@ -102,6 +104,8 @@ public int Native_GetHudColor(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	
 	SetNativeArray(2, g_iClientColor[iClient], 4);
+	
+	return true;
 }
 
 public int Native_SendHudMessage(Handle hPlugin, int iNumParams)
@@ -142,6 +146,8 @@ public int Native_SendHudMessage(Handle hPlugin, int iNumParams)
 		
 		EndMessage();
 	}
+	
+	return true;
 }
 
 public int Native_SetHudColor(Handle hPlugin, int iNumParams)
@@ -152,6 +158,8 @@ public int Native_SetHudColor(Handle hPlugin, int iNumParams)
 	g_iClientColor[iClient][1] = iG;
 	g_iClientColor[iClient][2] = iB;
 	g_iClientColor[iClient][3] = iA;
+	
+	return true;
 }
 
 //Timers:
@@ -164,92 +172,94 @@ public Action Timer_HUD(Handle hTimer)
 	{
 		for (int i = 1; i < MaxClients; i++)
 		{
-			if (KS_IsPlayer(i))
+			if (Cel_IsPlayer(i))
 			{
-				int iEntity = KS_GetClientAimTarget(i);
+				int iEntity = Cel_GetClientAimTarget(i);
 				
 				if (iEntity != -1)
 				{
-					if(KS_IsClientCrosshairInLand(i, iLand)){
+					if(Cel_IsClientCrosshairInLand(i, iLand)){
 						Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
 						
-						KS_GetHudColor(iLand, iColor);
-					} else if (KS_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
+						Cel_GetHudColor(iLand, iColor);
+					} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
 					{
-						KS_GetPropName(iEntity, sPropname, sizeof(sPropname));
+						Cel_GetPropName(iEntity, sPropname, sizeof(sPropname));
 						
-						if (KS_CheckOwner(i, iEntity))
+						if (Cel_CheckOwner(i, iEntity))
 						{
 							Format(sMessage, sizeof(sMessage), "Prop: %s", sPropname);
 							
-							KS_GetHudColor(i, iColor);
+							Cel_GetHudColor(i, iColor);
 						} else {
-							Format(sMessage, sizeof(sMessage), "Owner: %N\nProp: %s", KS_GetOwner(iEntity), sPropname);
+							Format(sMessage, sizeof(sMessage), "Owner: %N\nProp: %s", Cel_GetOwner(iEntity), sPropname);
 							
-							KS_GetHudColor(KS_GetOwner(iEntity), iColor);
+							Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 						}
-					} else if (KS_CheckEntityCatagory(iEntity, ENTCATAGORY_CEL)) {
-						if (KS_GetEntityType(iEntity) == ENTTYPE_EFFECT)
+					} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_CEL)) {
+						if (Cel_GetEntityType(iEntity) == ENTTYPE_EFFECT)
 						{
-							KS_GetEffectTypeName(KS_GetEffectType(iEntity), sPropname, sizeof(sPropname));
+							Cel_GetEffectTypeName(Cel_GetEffectType(iEntity), sPropname, sizeof(sPropname));
 							
-							if (KS_CheckOwner(i, iEntity))
+							if (Cel_CheckOwner(i, iEntity))
 							{
 								Format(sMessage, sizeof(sMessage), "Effect: %s", sPropname);
 								
-								KS_GetHudColor(i, iColor);
+								Cel_GetHudColor(i, iColor);
 							} else {
-								Format(sMessage, sizeof(sMessage), "Owner: %N\nEffect: %s", KS_GetOwner(iEntity), sPropname);
+								Format(sMessage, sizeof(sMessage), "Owner: %N\nEffect: %s", Cel_GetOwner(iEntity), sPropname);
 								
-								KS_GetHudColor(KS_GetOwner(iEntity), iColor);
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 							}
 						} else {
-							KS_GetEntityTypeName(KS_GetEntityType(iEntity), sBuffer, sizeof(sBuffer));
+							Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sBuffer, sizeof(sBuffer));
 							
 							ExplodeString(sBuffer, " ", sBufferArray, 2, 128, true);
 							
 							strcopy(sPropname, sizeof(sPropname), sBufferArray[0]);
 							
-							if (KS_CheckOwner(i, iEntity))
+							if (Cel_CheckOwner(i, iEntity))
 							{
 								Format(sMessage, sizeof(sMessage), "Cel: %s", sPropname);
 								
-								KS_GetHudColor(i, iColor);
+								Cel_GetHudColor(i, iColor);
 							} else {
-								Format(sMessage, sizeof(sMessage), "Owner: %N\nCel: %s", KS_GetOwner(iEntity), sPropname);
+								Format(sMessage, sizeof(sMessage), "Owner: %N\nCel: %s", Cel_GetOwner(iEntity), sPropname);
 								
-								KS_GetHudColor(KS_GetOwner(iEntity), iColor);
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 							}
 						}
 						
-					} else if (KS_CheckEntityCatagory(iEntity, ENTCATAGORY_UNKNOWN)) {
-						if (KS_CheckOwner(i, iEntity))
+					} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_UNKNOWN)) {
+						if (Cel_CheckOwner(i, iEntity))
 						{
 							Format(sMessage, sizeof(sMessage), "Entity: Unknown");
 							
-							KS_GetHudColor(i, iColor);
+							Cel_GetHudColor(i, iColor);
 						} else {
-							Format(sMessage, sizeof(sMessage), "Owner: %N\nEntity: Unknown", KS_GetOwner(iEntity));
+							Format(sMessage, sizeof(sMessage), "Owner: %N\nEntity: Unknown", Cel_GetOwner(iEntity));
 							
-							KS_GetHudColor(KS_GetOwner(iEntity), iColor);
+							Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 						}
-					} else if (KS_IsPlayer(iEntity)) {
-						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", KS_GetPropCount(iEntity), KS_GetCelCount(iEntity));
+					} else if (Cel_IsPlayer(iEntity)) {
+						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(iEntity), Cel_GetCelCount(iEntity));
 						
-						KS_GetHudColor(iEntity, iColor);
+						Cel_GetHudColor(iEntity, iColor);
 					} else {
-						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", KS_GetPropCount(i), KS_GetCelCount(i));
+						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
 						
-						KS_GetHudColor(i, iColor);
+						Cel_GetHudColor(i, iColor);
 					}
 				} else {
-					Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", KS_GetPropCount(i), KS_GetCelCount(i));
+					Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
 					
-					KS_GetHudColor(i, iColor);
+					Cel_GetHudColor(i, iColor);
 				}
 				
-				KS_SendHudMessage(i, 1, 2.010, -0.110, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.6, 0.01, 0.2, 0.01, sMessage);
+				Cel_SendHudMessage(i, 1, 2.010, -0.110, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.6, 0.01, 0.2, 0.01, sMessage);
 			}
 		}
 	}
+	
+	return Plugin_Continue;
 }

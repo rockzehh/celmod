@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#include <kingssandbox>
+#include <celmod>
 #include <sdkhooks>
 #include <sdktools>
 #include <sourcemod>
@@ -21,41 +21,41 @@ int g_iLandPhase[MAXPLAYERS + 1][3];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
-	CreateNative("KS_CalculateLandCorners", Native_CalculateLandCorners);
-	CreateNative("KS_CalculateMaxLandSize", Native_CalculateMaxLandSize);
-	CreateNative("KS_GetLandMaterial", Native_GetLandMaterial);
-	CreateNative("KS_GetLandPhase", Native_GetLandPhase);
-	CreateNative("KS_GetLandPosition", Native_GetLandPosition);
-	CreateNative("KS_IsClientInsideLand", Native_IsClientInsideLand);
-	CreateNative("KS_IsCrosshairInsideLand", Native_IsCrosshairInsideLand);
-	CreateNative("KS_IsEntityInsideLand", Native_IsEntityInsideLand);
-	CreateNative("KS_IsOriginInsideArea", Native_IsOriginInsideArea);
-	CreateNative("KS_SetLandPhase", Native_SetLandPhase);
-	CreateNative("KS_SetLandPosition", Native_SetLandPosition);
+	CreateNative("Cel_CalculateLandCorners", Native_CalculateLandCorners);
+	CreateNative("Cel_CalculateMaxLandSize", Native_CalculateMaxLandSize);
+	CreateNative("Cel_GetLandMaterial", Native_GetLandMaterial);
+	CreateNative("Cel_GetLandPhase", Native_GetLandPhase);
+	CreateNative("Cel_GetLandPosition", Native_GetLandPosition);
+	CreateNative("Cel_IsClientInsideLand", Native_IsClientInsideLand);
+	CreateNative("Cel_IsCrosshairInsideLand", Native_IsCrosshairInsideLand);
+	CreateNative("Cel_IsEntityInsideLand", Native_IsEntityInsideLand);
+	CreateNative("Cel_IsOriginInsideArea", Native_IsOriginInsideArea);
+	CreateNative("Cel_SetLandPhase", Native_SetLandPhase);
+	CreateNative("Cel_SetLandPosition", Native_SetLandPosition);
 	
 	return APLRes_Success;
 }
 
 public Plugin myinfo = 
 {
-	name = "King's Sandbox: Land", 
-	author = "King Nothing", 
+	name = "CelMod: Land", 
+	author = "rockzehh", 
 	description = "Creates a personal building area.", 
-	version = SANDBOX_VERSION, 
-	url = "https://github.com/rockzehh/kingssandbox"
+	version = CEL_VERSION, 
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
 {
-	g_cvMaxLandSize = CreateConVar("ks_max_land_size", "100.0", "The max size lands can be.");
+	g_cvMaxLandSize = CreateConVar("cel_max_land_size", "100.0", "The max size lands can be.");
 	
-	g_cvMaxLandSize.AddChangeHook(KSLand_OnConVarChanged);
+	g_cvMaxLandSize.AddChangeHook(CelLand_OnConVarChanged);
 	
 	g_fMaxLandSize = g_cvMaxLandSize.FloatValue;
 	
 	RegConsoleCmd("sm_land", Command_Land, "Creates a building zone.");
 	
-	AutoExecConfig(true, "ks-land", "sourcemod");
+	AutoExecConfig(true, "cel-land", "sourcemod");
 }
 
 public void OnMapStart()
@@ -77,7 +77,7 @@ public void OnMapEnd()
 	g_iLand = -1;
 }
 
-public void KSLand_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
+public void CelLand_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
 {
 	if (cvConVar == g_cvMaxLandSize)
 	{
@@ -96,20 +96,20 @@ public Action Command_Land(int iClient, int iArgs)
 	{
 		case 0:
 		{
-			if (KS_IsCrosshairInsideLand(iClient) != -1)
+			if (Cel_IsCrosshairInsideLand(iClient) != -1)
 			{
-				if (KS_IsCrosshairInsideLand(iClient) != iClient)
+				if (Cel_IsCrosshairInsideLand(iClient) != iClient)
 				{
-					KS_ReplyToCommand(iClient, "You cannot start your land inside another land.");
+					Cel_ReplyToCommand(iClient, "You cannot start your land inside another land.");
 					return Plugin_Handled;
 				}
 			}
 			
-			KS_SetLandPhase(iClient, 0, 1);
-			KS_SetLandPhase(iClient, 1, 1);
-			KS_SetLandPhase(iClient, 2, 0);
+			Cel_SetLandPhase(iClient, 0, 1);
+			Cel_SetLandPhase(iClient, 1, 1);
+			Cel_SetLandPhase(iClient, 2, 0);
 			
-			KS_GetCrosshairHitOrigin(iClient, g_fLandCorners[iClient][0]);
+			Cel_GetCrosshairHitOrigin(iClient, g_fLandCorners[iClient][0]);
 			
 			fOrigin = g_fLandCorners[iClient][3];
 			
@@ -132,42 +132,42 @@ public Action Command_Land(int iClient, int iArgs)
 				}
 			}
 			
-			KS_ReplyToCommand(iClient, "Type {green}[tag]land{default} again to complete the land.");
+			Cel_ReplyToCommand(iClient, "Type {green}[tag]land{default} again to complete the land.");
 			
 			return Plugin_Handled;
 		}
 		
 		case 1:
 		{
-			if (KS_IsCrosshairInsideLand(iClient) != -1)
+			if (Cel_IsCrosshairInsideLand(iClient) != -1)
 			{
-				if (KS_IsCrosshairInsideLand(iClient) != iClient)
+				if (Cel_IsCrosshairInsideLand(iClient) != iClient)
 				{
-					KS_ReplyToCommand(iClient, "You cannot finish your land inside another land.");
+					Cel_ReplyToCommand(iClient, "You cannot finish your land inside another land.");
 					return Plugin_Handled;
 				}
 			}
 			
-			KS_SetLandPhase(iClient, 0, 2);
-			KS_SetLandPhase(iClient, 1, 0);
+			Cel_SetLandPhase(iClient, 0, 2);
+			Cel_SetLandPhase(iClient, 1, 0);
 			
-			KS_ReplyToCommand(iClient, "Land completed.");
+			Cel_ReplyToCommand(iClient, "Land completed.");
 		}
 		
 		case 2:
 		{
-			KS_SetLandPhase(iClient, 0, 0);
-			KS_SetLandPhase(iClient, 1, 0);
-			KS_SetLandPhase(iClient, 2, 0);
+			Cel_SetLandPhase(iClient, 0, 0);
+			Cel_SetLandPhase(iClient, 1, 0);
+			Cel_SetLandPhase(iClient, 2, 0);
 			
-			KS_SetLandPosition(iClient, 0, g_fZero);
-			KS_SetLandPosition(iClient, 1, g_fZero);
-			KS_SetLandPosition(iClient, 2, g_fZero);
-			KS_SetLandPosition(iClient, 3, g_fZero);
-			KS_SetLandPosition(iClient, 4, g_fZero);
-			KS_SetLandPosition(iClient, 5, g_fZero);
+			Cel_SetLandPosition(iClient, 0, g_fZero);
+			Cel_SetLandPosition(iClient, 1, g_fZero);
+			Cel_SetLandPosition(iClient, 2, g_fZero);
+			Cel_SetLandPosition(iClient, 3, g_fZero);
+			Cel_SetLandPosition(iClient, 4, g_fZero);
+			Cel_SetLandPosition(iClient, 5, g_fZero);
 			
-			KS_ReplyToCommand(iClient, "Land cleared.");
+			Cel_ReplyToCommand(iClient, "Land cleared.");
 		}
 	}
 	
@@ -205,6 +205,8 @@ public int Native_CalculateLandCorners(Handle hPlugin, int iNumParams)
 	g_fLandCorners[iClient][3][0] = fTo[0];
 	g_fLandCorners[iClient][3][1] = fTo[1];
 	g_fLandCorners[iClient][3][2] = fFrom[2] + 3;
+	
+	return true;
 }
 
 public int Native_CalculateMaxLandSize(Handle hPlugin, int iNumParams)
@@ -226,6 +228,8 @@ public int Native_CalculateMaxLandSize(Handle hPlugin, int iNumParams)
 			g_fLandCorners[iClient][3][x] = g_fLandCorners[iClient][0][x] - g_fMaxLandSize;
 		}
 	}
+	
+	return true;
 }
 
 public int Native_GetLandMaterial(Handle hPlugin, int iNumParams)
@@ -245,6 +249,8 @@ public int Native_GetLandPosition(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1), iCorner = GetNativeCell(2);
 	
 	SetNativeArray(3, g_fLandCorners[iClient][iCorner], 3);
+	
+	return true;
 }
 
 public int Native_IsClientInsideLand(Handle hPlugin, int iNumParams)
@@ -262,7 +268,7 @@ public int Native_IsClientInsideLand(Handle hPlugin, int iNumParams)
 		{
 			GetClientAbsOrigin(iClient, fOrigin);
 			
-			if (KS_IsOriginInsideArea(fOrigin, g_fLandCorners[i][0], g_fLandCorners[i][1]))return i;
+			if (Cel_IsOriginInsideArea(fOrigin, g_fLandCorners[i][0], g_fLandCorners[i][1]))return i;
 		}
 	}
 	
@@ -282,9 +288,9 @@ public int Native_IsCrosshairInsideLand(Handle hPlugin, int iNumParams)
 		
 		if (iClient != 0)
 		{
-			KS_GetCrosshairHitOrigin(iClient, fOrigin);
+			Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 			
-			if (KS_IsOriginInsideArea(fOrigin, g_fLandCorners[i][0], g_fLandCorners[i][1]))return i;
+			if (Cel_IsOriginInsideArea(fOrigin, g_fLandCorners[i][0], g_fLandCorners[i][1]))return i;
 		}
 	}
 	
@@ -303,11 +309,11 @@ public int Native_IsEntityInsideLand(Handle hPlugin, int iNumParams)
 		
 		if (g_iLandPhase[i][2] == 0)continue;
 		
-		if (KS_IsEntity(iEntity))
+		if (Cel_IsEntity(iEntity))
 		{
-			KS_GetEntityOrigin(iEntity, fOrigin);
+			Cel_GetEntityOrigin(iEntity, fOrigin);
 			
-			if (KS_IsOriginInsideArea(fOrigin, g_fLandCorners[i][0], g_fLandCorners[i][1]))return i;
+			if (Cel_IsOriginInsideArea(fOrigin, g_fLandCorners[i][0], g_fLandCorners[i][1]))return i;
 		}
 	}
 	
@@ -365,6 +371,8 @@ public int Native_SetLandPhase(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1), iPhase = GetNativeCell(2), iPhaseNumber = GetNativeCell(3);
 	
 	g_iLandPhase[iClient][iPhase] = iPhaseNumber;
+	
+	return true;
 }
 
 public int Native_SetLandPosition(Handle hPlugin, int iNumParams)
@@ -375,6 +383,8 @@ public int Native_SetLandPosition(Handle hPlugin, int iNumParams)
 	GetNativeArray(3, fPosition, 3);
 	
 	g_fLandCorners[iClient][iCorner] = fPosition;
+	
+	return true;
 }
 
 //Timers:
@@ -384,9 +394,9 @@ public Action Timer_LandDrawing(Handle hTimer)
 	
 	for (int i = 1; i < MaxClients; i++)
 	{
-		if (IsClientConnected(i) && KS_IsPlayer(i) /*&& g_iLandPhase[i][2] == 1*/)
+		if (IsClientConnected(i) && Cel_IsPlayer(i) /*&& g_iLandPhase[i][2] == 1*/)
 		{
-			KS_GetHudColor(i, iColor);
+			Cel_GetHudColor(i, iColor);
 			
 			TE_SetupBeamPoints(g_fLandCorners[i][0], g_fLandCorners[i][1], g_iLand, 0, 0, 0, 0.1, 3.0, 3.0, 10, 0.0, iColor, 0); TE_SendToAll(0.0);
 			TE_SetupBeamPoints(g_fLandCorners[i][0], g_fLandCorners[i][2], g_iLand, 0, 0, 0, 0.1, 3.0, 3.0, 10, 0.0, iColor, 0); TE_SendToAll(0.0);
@@ -394,20 +404,23 @@ public Action Timer_LandDrawing(Handle hTimer)
 			TE_SetupBeamPoints(g_fLandCorners[i][3], g_fLandCorners[i][1], g_iLand, 0, 0, 0, 0.1, 3.0, 3.0, 10, 0.0, iColor, 0); TE_SendToAll(0.0);
 		}
 	}
+	
+	return Plugin_Continue;
 }
+
 public Action Timer_InLand(Handle hTimer)
 {
 	for (int i = 1; i < MaxClients; i++)
 	{
-		if (IsClientConnected(i) && KS_IsPlayer(i))
+		if (IsClientConnected(i) && Cel_IsPlayer(i))
 		{
-			int iLand = KS_IsClientInsideLand(i);
+			int iLand = Cel_IsClientInsideLand(i);
 			
 			if (iLand != -1)
 			{
 				if (g_iLandPhase[i][2] == 0)
 				{
-					KS_PrintToChat(i, "You have entered {green}%N{default}'s land.", iLand);
+					Cel_PrintToChat(i, "You have entered {green}%N{default}'s land.", iLand);
 					g_iLandPhase[i][2] = 1;
 				}
 			} else {
@@ -415,6 +428,8 @@ public Action Timer_InLand(Handle hTimer)
 			}
 		}
 	}
+	
+	return Plugin_Continue;
 }
 
 public Action Timer_Positions(Handle hTimer)
@@ -423,12 +438,14 @@ public Action Timer_Positions(Handle hTimer)
 	
 	for (int i = 1; i < MaxClients; i++)
 	{
-		if (IsClientConnected(i) && KS_IsPlayer(i) && g_iLandPhase[i][1] == 1)
+		if (IsClientConnected(i) && Cel_IsPlayer(i) && g_iLandPhase[i][1] == 1)
 		{
-			KS_GetCrosshairHitOrigin(i, fOrigin);
+			Cel_GetCrosshairHitOrigin(i, fOrigin);
 			
-			KS_CalculateLandCorners(i, g_fLandCorners[i][4], fOrigin);
-			KS_CalculateMaxLandSize(i);
+			Cel_CalculateLandCorners(i, g_fLandCorners[i][4], fOrigin);
+			Cel_CalculateMaxLandSize(i);
 		}
 	}
+	
+	return Plugin_Continue;
 }

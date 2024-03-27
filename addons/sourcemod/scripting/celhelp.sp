@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#include <kingssandbox>
+#include <celmod>
 #include <sourcemod>
 
 #pragma newdecls required
@@ -17,30 +17,30 @@ ConVar g_cvPropListURL;
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
-	CreateNative("KS_CheckInputURL", Native_CheckInputURL);
-	CreateNative("KS_ExportColorList", Native_ExportColorList);
-	CreateNative("KS_ExportCommandList", Native_ExportCommandList);
-	CreateNative("KS_ExportPropList", Native_ExportPropList);
-	CreateNative("KS_OpenMOTDOnClient", Native_OpenMOTDOnClient);
+	CreateNative("Cel_CheckInputURL", Native_CheckInputURL);
+	CreateNative("Cel_ExportColorList", Native_ExportColorList);
+	CreateNative("Cel_ExportCommandList", Native_ExportCommandList);
+	CreateNative("Cel_ExportPropList", Native_ExportPropList);
+	CreateNative("Cel_OpenMOTDOnClient", Native_OpenMOTDOnClient);
 	
 	return APLRes_Success;
 }
 
 public Plugin myinfo = 
 {
-	name = "King's Sandbox: Help", 
-	author = "King Nothing", 
+	name = "CelMod: Help", 
+	author = "rockzehh", 
 	description = "Helpful commands for server owners and players.", 
-	version = SANDBOX_VERSION, 
-	url = "https://github.com/rockzehh/kingssandbox"
+	version = CEL_VERSION, 
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
 {
-	g_cvColorListURL = CreateConVar("ks_color_list_url", "https://rockzehh.github.io/kingssandbox/1.2.0.0/colorlist_export.html", "URL for the color list command.");
-	g_cvCommandListURL = CreateConVar("ks_command_list_url", "https://rockzehh.github.io/kingssandbox/1.2.0.0/commandlist_export.html", "URL for the command list command.");
-	g_cvEffectListURL = CreateConVar("ks_effect_list_url", "https://rockzehh.github.io/kingssandbox/1.2.0.0/effects.html", "URL for the effect list command.");
-	g_cvPropListURL = CreateConVar("ks_prop_list_url", "https://rockzehh.github.io/kingssandbox/1.2.0.0/proplist_export.html", "URL for the prop list command.");
+	g_cvColorListURL = CreateConVar("cel_color_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/colorlist_export.html", "URL for the color list command.");
+	g_cvCommandListURL = CreateConVar("cel_command_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/commandlist_export.html", "URL for the command list command.");
+	g_cvEffectListURL = CreateConVar("cel_effect_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/effects.html", "URL for the effect list command.");
+	g_cvPropListURL = CreateConVar("cel_prop_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/proplist_export.html", "URL for the prop list command.");
 	
 	g_cvColorListURL.AddChangeHook(KSHelp_OnConVarChanged);
 	g_cvCommandListURL.AddChangeHook(KSHelp_OnConVarChanged);
@@ -52,19 +52,19 @@ public void OnPluginStart()
 	g_cvEffectListURL.GetString(g_sEffectListURL, sizeof(g_sEffectListURL));
 	g_cvPropListURL.GetString(g_sPropListURL, sizeof(g_sPropListURL));
 	
-	RegConsoleCmd("sm_colorlist", Command_ColorList, "King's Sandbox: Displays the color list.");
-	RegConsoleCmd("sm_colors", Command_ColorList, "King's Sandbox: Displays the color list.");
-	RegConsoleCmd("sm_cmds", Command_CommandList, "King's Sandbox: Displays the command list.");
-	RegConsoleCmd("sm_commandlist", Command_CommandList, "King's Sandbox: Displays the command list.");
-	RegConsoleCmd("sm_commands", Command_CommandList, "King's Sandbox: Displays the command list.");
-	RegConsoleCmd("sm_effectlist", Command_EffectList, "King's Sandbox: Displays the effect list.");
-	RegConsoleCmd("sm_effects", Command_EffectList, "King's Sandbox: Displays the effect list.");
-	RegConsoleCmd("sm_proplist", Command_PropList, "King's Sandbox: Displays the prop list.");
-	RegConsoleCmd("sm_props", Command_PropList, "King's Sandbox: Displays the prop list.");
+	RegConsoleCmd("sm_colorlist", Command_ColorList, "CelMod: Displays the color list.");
+	RegConsoleCmd("sm_colors", Command_ColorList, "CelMod: Displays the color list.");
+	RegConsoleCmd("sm_cmds", Command_CommandList, "CelMod: Displays the command list.");
+	RegConsoleCmd("sm_commandlist", Command_CommandList, "CelMod: Displays the command list.");
+	RegConsoleCmd("sm_commands", Command_CommandList, "CelMod: Displays the command list.");
+	RegConsoleCmd("sm_effectlist", Command_EffectList, "CelMod: Displays the effect list.");
+	RegConsoleCmd("sm_effects", Command_EffectList, "CelMod: Displays the effect list.");
+	RegConsoleCmd("sm_proplist", Command_PropList, "CelMod: Displays the prop list.");
+	RegConsoleCmd("sm_props", Command_PropList, "CelMod: Displays the prop list.");
 	
-	RegServerCmd("ks_exportcolorlist", Command_ExportColorList, "King's Sandbox-Server: Exports the color list into a text or html file in 'data/kingssandbox/exports'.");
-	RegServerCmd("ks_exportcommandlist", Command_ExportCommandList, "King's Sandbox-Server: Exports the command list into a text or html file in 'data/kingssandbox/exports'.");
-	RegServerCmd("ks_exportproplist", Command_ExportPropList, "King's Sandbox-Server: Exports the prop list into a text or html file in 'data/kingssandbox/exports'.");
+	RegServerCmd("cel_exportcolorlist", Command_ExportColorList, "CelMod-Server: Exports the color list into a text or html file in 'data/celmod/exports'.");
+	RegServerCmd("cel_exportcommandlist", Command_ExportCommandList, "CelMod-Server: Exports the command list into a text or html file in 'data/celmod/exports'.");
+	RegServerCmd("cel_exportproplist", Command_ExportPropList, "CelMod-Server: Exports the prop list into a text or html file in 'data/celmod/exports'.");
 }
 
 public void KSHelp_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
@@ -72,18 +72,18 @@ public void KSHelp_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, cons
 	if (cvConVar == g_cvColorListURL)
 	{
 		g_cvColorListURL.GetString(g_sColorListURL, sizeof(g_sColorListURL));
-		PrintToServer("King's Sandbox: Color list url updated to %s.", sNewValue);
+		PrintToServer("CelMod: Color list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvCommandListURL)
 	{
 		g_cvCommandListURL.GetString(g_sCommandListURL, sizeof(g_sCommandListURL));
-		PrintToServer("King's Sandbox: Command list url updated to %s.", sNewValue);
+		PrintToServer("CelMod: Command list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvEffectListURL)
 	{
 		g_cvEffectListURL.GetString(g_sEffectListURL, sizeof(g_sEffectListURL));
-		PrintToServer("King's Sandbox: Effect list url updated to %s.", sNewValue);
+		PrintToServer("CelMod: Effect list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvPropListURL) {
 		g_cvPropListURL.GetString(g_sPropListURL, sizeof(g_sPropListURL));
-		PrintToServer("King's Sandbox: Prop list url updated to %s.", sNewValue);
+		PrintToServer("CelMod: Prop list url updated to %s.", sNewValue);
 	}
 }
 
@@ -92,11 +92,11 @@ public Action Command_ColorList(int iClient, int iArgs)
 {
 	char sURL[PLATFORM_MAX_PATH];
 	
-	KS_CheckInputURL(g_sColorListURL, sURL, sizeof(sURL));
+	Cel_CheckInputURL(g_sColorListURL, sURL, sizeof(sURL));
 	
-	KS_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	KS_ReplyToCommand(iClient, "Displaying color list.");
+	Cel_ReplyToCommand(iClient, "Displaying color list.");
 	
 	return Plugin_Handled;
 }
@@ -105,11 +105,11 @@ public Action Command_CommandList(int iClient, int iArgs)
 {
 	char sURL[PLATFORM_MAX_PATH];
 	
-	KS_CheckInputURL(g_sCommandListURL, sURL, sizeof(sURL));
+	Cel_CheckInputURL(g_sCommandListURL, sURL, sizeof(sURL));
 	
-	KS_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	KS_ReplyToCommand(iClient, "Displaying command list.");
+	Cel_ReplyToCommand(iClient, "Displaying command list.");
 	
 	return Plugin_Handled;
 }
@@ -118,11 +118,11 @@ public Action Command_EffectList(int iClient, int iArgs)
 {
 	char sURL[PLATFORM_MAX_PATH];
 	
-	KS_CheckInputURL(g_sEffectListURL, sURL, sizeof(sURL));
+	Cel_CheckInputURL(g_sEffectListURL, sURL, sizeof(sURL));
 	
-	KS_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	KS_ReplyToCommand(iClient, "Displaying effect list.");
+	Cel_ReplyToCommand(iClient, "Displaying effect list.");
 	
 	return Plugin_Handled;
 }
@@ -133,7 +133,7 @@ public Action Command_ExportColorList(int iArgs)
 	
 	GetCmdArg(1, sHTML, sizeof(sHTML));
 	
-	KS_ExportColorList(StrContains(sHTML, "html", false) != -1);
+	Cel_ExportColorList(StrContains(sHTML, "html", false) != -1);
 	
 	return Plugin_Handled;
 }
@@ -144,7 +144,7 @@ public Action Command_ExportCommandList(int iArgs)
 	
 	GetCmdArg(1, sHTML, sizeof(sHTML));
 	
-	KS_ExportCommandList(StrContains(sHTML, "html", false) != -1);
+	Cel_ExportCommandList(StrContains(sHTML, "html", false) != -1);
 	
 	return Plugin_Handled;
 }
@@ -155,7 +155,7 @@ public Action Command_ExportPropList(int iArgs)
 	
 	GetCmdArg(1, sHTML, sizeof(sHTML));
 	
-	KS_ExportPropList(StrContains(sHTML, "html", false) != -1);
+	Cel_ExportPropList(StrContains(sHTML, "html", false) != -1);
 	
 	return Plugin_Handled;
 }
@@ -164,11 +164,11 @@ public Action Command_PropList(int iClient, int iArgs)
 {
 	char sURL[PLATFORM_MAX_PATH];
 	
-	KS_CheckInputURL(g_sPropListURL, sURL, sizeof(sURL));
+	Cel_CheckInputURL(g_sPropListURL, sURL, sizeof(sURL));
 	
-	KS_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	KS_ReplyToCommand(iClient, "Displaying prop list.");
+	Cel_ReplyToCommand(iClient, "Displaying prop list.");
 	
 	return Plugin_Handled;
 }
@@ -189,6 +189,8 @@ public int Native_CheckInputURL(Handle hPlugin, int iNumParams)
 	}
 	
 	SetNativeString(2, sOutput, iMaxLength);
+	
+	return true;
 }
 
 public int Native_ExportColorList(Handle hPlugin, int iNumParams)
@@ -196,7 +198,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	bool bHTML = view_as<bool>(GetNativeCell(1));
 	char sColor[PLATFORM_MAX_PATH], sPath[PLATFORM_MAX_PATH];
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/colors.txt");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/colors.txt");
 	
 	KeyValues kvColors = new KeyValues("Colors");
 	
@@ -206,7 +208,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	{
 		delete kvColors;
 		
-		PrintToServer("King's Sandbox: Cannot print color list. (Cannot jump to key)");
+		PrintToServer("CelMod: Cannot print color list. (Cannot jump to key)");
 		
 		return false;
 	}
@@ -215,16 +217,16 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	{
 		delete kvColors;
 		
-		PrintToServer("King's Sandbox: Cannot print color list. (Cannot goto first sub key)");
+		PrintToServer("CelMod: Cannot print color list. (Cannot goto first sub key)");
 		
 		return false;
 	}
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 	if (!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports/colorlist_export.txt");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/colorlist_export.txt");
 	
 	if (FileExists(sPath))
 		DeleteFile(sPath);
@@ -242,11 +244,11 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	
 	delete kvColors;
 	
-	PrintToServer("King's Sandbox: Exported color list to 'data/kingssandbox/export/colorlist_export.txt'.");
+	PrintToServer("CelMod: Exported color list to 'data/celmod/export/colorlist_export.txt'.");
 	
 	if (bHTML)
 	{
-		BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/colors.txt");
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/colors.txt");
 		
 		KeyValues kvColorsHTML = new KeyValues("Colors");
 		
@@ -256,7 +258,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		{
 			delete kvColorsHTML;
 			
-			PrintToServer("King's Sandbox: Cannot print color list. (Cannot jump to key)");
+			PrintToServer("CelMod: Cannot print color list. (Cannot jump to key)");
 			
 			return false;
 		}
@@ -265,25 +267,25 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		{
 			delete kvColorsHTML;
 			
-			PrintToServer("King's Sandbox: Cannot print color list. (Cannot goto first sub key)");
+			PrintToServer("CelMod: Cannot print color list. (Cannot goto first sub key)");
 			
 			return false;
 		}
 		
-		BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports");
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 		if (!DirExists(sPath))
 			CreateDirectory(sPath, 511);
 		
-		BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports/colorlist_export.html");
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/colorlist_export.html");
 		
 		if (FileExists(sPath))
 			DeleteFile(sPath);
 		
 		File fColorListHTML = OpenFile(sPath, "a+");
 		
-		fColorListHTML.WriteLine("<title>King's Sandbox: Color List</title>");
+		fColorListHTML.WriteLine("<title>CelMod: Color List</title>");
 		
-		fColorListHTML.WriteLine("<b>King's Sandbox</b>: Color List:");
+		fColorListHTML.WriteLine("<b>CelMod</b>: Color List:");
 		
 		fColorListHTML.WriteLine("<br>");
 		
@@ -300,7 +302,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		
 		delete kvColorsHTML;
 		
-		PrintToServer("King's Sandbox: Exported color list to 'data/kingssandbox/export/colorlist_export.html'.");
+		PrintToServer("CelMod: Exported color list to 'data/celmod/export/colorlist_export.html'.");
 	}
 	
 	return true;
@@ -314,16 +316,16 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 	Handle hCommandIter = GetCommandIterator();
 	int iFlags;
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 	if (!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports/commandlist_export.txt");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/commandlist_export.txt");
 	
 	if (FileExists(sPath))
 		DeleteFile(sPath);
 	
-	BuildPath(Path_SM, sPathHTML, sizeof(sPathHTML), "data/kingssandbox/exports/commandlist_export.html");
+	BuildPath(Path_SM, sPathHTML, sizeof(sPathHTML), "data/celmod/exports/commandlist_export.html");
 	
 	if (FileExists(sPathHTML))
 		DeleteFile(sPathHTML);
@@ -334,18 +336,18 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 	
 	if (bHTML)
 	{
-		fCommandListHTML.WriteLine("<title>King's Sandbox: Command List</title>");
+		fCommandListHTML.WriteLine("<title>CelMod: Command List</title>");
 		
-		fCommandListHTML.WriteLine("<b>King's Sandbox</b>: Command List:");
+		fCommandListHTML.WriteLine("<b>CelMod</b>: Command List:");
 		
 		fCommandListHTML.WriteLine("<br>");
 	}
 	
 	while (ReadCommandIterator(hCommandIter, sName, sizeof(sName), iFlags, sDescription, sizeof(sDescription)))
 	{
-		if (StrContains(sDescription, "King's Sandbox:", true) != -1)
+		if (StrContains(sDescription, "CelMod:", true) != -1)
 		{
-			ReplaceString(sDescription, sizeof(sDescription), "King's Sandbox: ", "", true);
+			ReplaceString(sDescription, sizeof(sDescription), "CelMod: ", "", true);
 			
 			Format(sCommand, sizeof(sCommand), "%s - %s - %s", sName, (iFlags == 0) ? "Client" : "Admin", sDescription);
 			
@@ -357,9 +359,9 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 				
 				fCommandListHTML.WriteLine(sCommand);
 			}
-		} else if (StrContains(sDescription, "King's Sandbox-Server:", true) != -1)
+		} else if (StrContains(sDescription, "CelMod-Server:", true) != -1)
 		{
-			ReplaceString(sDescription, sizeof(sDescription), "King's Sandbox-Server: ", "", true);
+			ReplaceString(sDescription, sizeof(sDescription), "CelMod-Server: ", "", true);
 			
 			Format(sCommand, sizeof(sCommand), "%s - Server - %s", sName, sDescription);
 			
@@ -376,13 +378,15 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 	
 	CloseHandle(hCommandIter);
 	
-	PrintToServer("King's Sandbox: Exported command list to 'data/kingssandbox/export/commandlist_export.txt'.");
+	PrintToServer("CelMod: Exported command list to 'data/celmod/export/commandlist_export.txt'.");
 	if (bHTML)
-		PrintToServer("King's Sandbox: Exported command list to 'data/kingssandbox/export/commandlist_export.html'.");
+		PrintToServer("CelMod: Exported command list to 'data/celmod/export/commandlist_export.html'.");
 	
 	fCommandList.Close();
 	if (bHTML)
 		fCommandListHTML.Close();
+		
+	return true;
 }
 
 public int Native_ExportPropList(Handle hPlugin, int iNumParams)
@@ -390,7 +394,7 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 	bool bHTML = view_as<bool>(GetNativeCell(1));
 	char sPropname[PLATFORM_MAX_PATH], sPath[PLATFORM_MAX_PATH];
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/spawns.txt");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/spawns.txt");
 	
 	KeyValues kvProps = new KeyValues("Props");
 	
@@ -402,16 +406,16 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 	{
 		delete kvProps;
 		
-		PrintToServer("King's Sandbox: Cannot print prop list.");
+		PrintToServer("CelMod: Cannot print prop list.");
 		
 		return false;
 	}
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 	if (!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 	
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports/proplist_export.txt");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/proplist_export.txt");
 	
 	if (FileExists(sPath))
 		DeleteFile(sPath);
@@ -427,11 +431,11 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 	
 	fPropList.Close();
 	
-	PrintToServer("King's Sandbox: Exported prop list to 'data/kingssandbox/export/proplist_export.txt'.");
+	PrintToServer("CelMod: Exported prop list to 'data/celmod/export/proplist_export.txt'.");
 	
 	if (bHTML)
 	{
-		BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/spawns.txt");
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/spawns.txt");
 		
 		KeyValues kvPropsHTML = new KeyValues("Props");
 		
@@ -443,25 +447,25 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 		{
 			delete kvPropsHTML;
 			
-			PrintToServer("King's Sandbox: Cannot print prop list.");
+			PrintToServer("CelMod: Cannot print prop list.");
 			
 			return false;
 		}
 		
-		BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports");
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 		if (!DirExists(sPath))
 			CreateDirectory(sPath, 511);
 		
-		BuildPath(Path_SM, sPath, sizeof(sPath), "data/kingssandbox/exports/proplist_export.html");
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/proplist_export.html");
 		
 		if (FileExists(sPath))
 			DeleteFile(sPath);
 		
 		File fPropListHTML = OpenFile(sPath, "a+");
 		
-		fPropListHTML.WriteLine("<title>King's Sandbox: Prop List</title>");
+		fPropListHTML.WriteLine("<title>CelMod: Prop List</title>");
 		
-		fPropListHTML.WriteLine("<b>King's Sandbox</b>: Prop List:");
+		fPropListHTML.WriteLine("<b>CelMod</b>: Prop List:");
 		
 		fPropListHTML.WriteLine("<br>");
 		
@@ -476,7 +480,7 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 		
 		fPropListHTML.Close();
 		
-		PrintToServer("King's Sandbox: Exported prop list to 'data/kingssandbox/export/proplist_export.html'.");
+		PrintToServer("CelMod: Exported prop list to 'data/celmod/export/proplist_export.html'.");
 	}
 	
 	delete kvProps;
@@ -503,4 +507,6 @@ public int Native_OpenMOTDOnClient(Handle hPlugin, int iNumParams)
 	ShowVGUIPanel(iPlayer, "info", kvMOTD, bVisible);
 	
 	delete kvMOTD;
+	
+	return true;
 }

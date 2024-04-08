@@ -4,11 +4,11 @@
 	{
 		"Version"
 		{
-			"Latest"		"1.0.0.0"
+			"Latest"		"1.0.0.1"
 			"Previously"	"1.0.0.0"
 		}
 		
-		"Notes"	"Added a beta of the lands feature."
+		"Notes"	"Added sm_smove, cleaned up move ks references."
 	}
 	
 	"Files"

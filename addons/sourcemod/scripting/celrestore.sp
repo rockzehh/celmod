@@ -11,7 +11,7 @@ StringMap smEntities;
 
 public Plugin myinfo = 
 {
-	name = "CelMod: Restore", 
+	name = "|CelMod| Restore", 
 	author = "rockzehh", 
 	description = "Restores the entities spawned incase of crash or reload.", 
 	version = CEL_VERSION, 
@@ -20,8 +20,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	RegAdminCmd("sm_reloadsandbox", Command_ReloadSandbox, ADMFLAG_ROOT, "CelMod: Reloads the sandbox plugins except for celrestore.smx.");
-	RegAdminCmd("sm_restoreentities", Command_RestoreEntities, ADMFLAG_ROOT, "CelMod: Restores the plugin entities after a reload.");
+	RegAdminCmd("cm_reloadcelmod", Command_ReloadSandbox, ADMFLAG_ROOT, "|CelMod| Reloads the CelMod plugins except for celrestore.smx.");
+	RegAdminCmd("cm_restoreentities", Command_RestoreEntities, ADMFLAG_ROOT, "|CelMod| Restores the plugin entities after a reload.");
 	
 	smEntities = new StringMap();
 }

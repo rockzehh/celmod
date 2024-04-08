@@ -60,7 +60,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo =
 {
-	name = "CelMod: Land",
+	name = "|CelMod| Land",
 	author = "rockzehh",
 	description = "Creates a personal building area.",
 	version = CEL_VERSION,
@@ -80,13 +80,13 @@ public void OnPluginStart()
 		}
 	}
 	
-	g_cvMaxLandSize = CreateConVar("cel_max_land_size", "1495.5", "Maximum land size allowed.");
+	g_cvMaxLandSize = CreateConVar("cm_max_land_size", "1495.5", "Maximum land size allowed.");
 	
-	g_cvMaxLandSize.AddChangeHook(KSLand_OnConVarChanged);
+	g_cvMaxLandSize.AddChangeHook(CMLand_OnConVarChanged);
 	
 	g_fMaxLandSize = g_cvMaxLandSize.FloatValue;
 	
-	RegConsoleCmd("sm_land", Command_Land, "CelMod: Creates a building zone.");
+	RegConsoleCmd("sm_land", Command_Land, "|CelMod| Creates a building zone.");
 }
 
 public void OnClientPutInServer(int iClient)
@@ -156,12 +156,12 @@ public void OnMapEnd()
 	g_iPhys = -1;
 }
 
-public void KSLand_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
+public void CMLand_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
 {
 	if (cvConVar == g_cvMaxLandSize)
 	{
 		g_fMaxLandSize = g_cvMaxLandSize.FloatValue;
-		PrintToServer("CelMod: Max land size updated to %s.", sNewValue);
+		PrintToServer("|CelMod| Max land size updated to %s.", sNewValue);
 	}
 }
 

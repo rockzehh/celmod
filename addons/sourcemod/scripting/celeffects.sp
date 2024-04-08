@@ -33,7 +33,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "CelMod: Effects", 
+	name = "|CelMod| Effects", 
 	author = "rockzehh", 
 	description = "Creates a effect effect.", 
 	version = CEL_VERSION, 
@@ -46,7 +46,7 @@ public void OnPluginStart()
 
 	g_hOnEffectSpawn = CreateGlobalForward("Cel_OnEffectSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 	
-	RegConsoleCmd("sm_effect", Command_Effect, "CelMod: Spawns a working effect cel.");
+	RegConsoleCmd("sm_effect", Command_Effect, "|CelMod| Spawns a working effect cel.");
 }
 
 //Plugin Commands:

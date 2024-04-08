@@ -190,12 +190,12 @@ public void OnPluginStart()
 	BuildPath(Path_SM, g_sColorDB, sizeof(g_sColorDB), "data/celmod/colors.txt");
 	if (!FileExists(g_sColorDB))
 	{
-		ThrowError("CelMod: %t", "FileNotFound", g_sColorDB);
+		ThrowError("|CelMod| %t", "FileNotFound", g_sColorDB);
 	}
 	BuildPath(Path_SM, g_sSpawnDB, sizeof(g_sSpawnDB), "data/celmod/spawns.txt");
 	if (!FileExists(g_sSpawnDB))
 	{
-		ThrowError("CelMod: %t", "FileNotFound", g_sSpawnDB);
+		ThrowError("|CelMod| %t", "FileNotFound", g_sSpawnDB);
 	}
 	
 	g_hOnCelSpawn = CreateGlobalForward("Cel_OnCelSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
@@ -207,39 +207,41 @@ public void OnPluginStart()
 	HookEvent("player_disconnect", Event_Disconnect, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_Spawn, EventHookMode_Post);
 	
-	RegAdminCmd("sm_setowner", Command_SetOwner, ADMFLAG_SLAY, "CelMod: Sets the owner of the prop you are looking at.");
-	RegConsoleCmd("sm_alpha", Command_Alpha, "CelMod: Changes the transparency on the prop you are looking at.");
-	RegConsoleCmd("sm_amt", Command_Alpha, "CelMod: Changes the transparency on the prop you are looking at.");
-	RegConsoleCmd("sm_axis", Command_Axis, "CelMod: Creates a marker to the player showing every axis.");
-	RegConsoleCmd("sm_color", Command_Color, "CelMod: Colors the prop you are looking at.");
-	RegConsoleCmd("sm_del", Command_Delete, "CelMod: Removes the prop you are looking at.");
-	RegConsoleCmd("sm_delete", Command_Delete, "CelMod: Removes the prop you are looking at.");
-	RegConsoleCmd("sm_door", Command_Door, "CelMod: Spawns a working door cel.");
-	RegConsoleCmd("sm_freeze", Command_FreezeIt, "CelMod: Freezes the prop you are looking at.");
-	RegConsoleCmd("sm_freezeit", Command_FreezeIt, "CelMod: Freezes the prop you are looking at.");
-	RegConsoleCmd("sm_internet", Command_Internet, "CelMod: Creates a working internet cel.");
-	RegConsoleCmd("sm_mark", Command_Axis, "CelMod: Creates a marker to the player showing every axis.");
-	RegConsoleCmd("sm_marker", Command_Axis, "CelMod: Creates a marker to the player showing every axis.");
-	RegConsoleCmd("sm_nokill", Command_NoKill, "CelMod: Enables/disables godmode on the player.");
-	RegConsoleCmd("sm_p", Command_Spawn, "CelMod: Spawns a prop by name.");
-	RegConsoleCmd("sm_paint", Command_Color, "CelMod: Colors the prop you are looking at.");
-	RegConsoleCmd("sm_remove", Command_Delete, "CelMod: Removes the prop you are looking at.");
-	RegConsoleCmd("sm_rotate", Command_Rotate, "CelMod: Rotates the prop you are looking at.");
-	RegConsoleCmd("sm_s", Command_Spawn, "CelMod: Spawns a prop by name.");
-	RegConsoleCmd("sm_seturl", Command_SetURL, "CelMod: Sets the url of the internet cel you are looking at.");
-	RegConsoleCmd("sm_solid", Command_Solid, "CelMod: Enables/disables solidicity on the prop you are looking at.");
-	RegConsoleCmd("sm_spawn", Command_Spawn, "CelMod: Spawns a prop by name.");
-	RegConsoleCmd("sm_stand", Command_Stand, "CelMod: Resets the angles on the prop you are looking at.");
-	RegConsoleCmd("sm_straight", Command_Stand, "CelMod: Resets the angles on the prop you are looking at.");
-	RegConsoleCmd("sm_straighten", Command_Stand, "CelMod: Resets the angles on the prop you are looking at.");
-	RegConsoleCmd("sm_unfreeze", Command_UnfreezeIt, "CelMod: Unfreezes the prop you are looking at.");
-	RegConsoleCmd("sm_unfreezeit", Command_UnfreezeIt, "CelMod: Unfreezes the prop you are looking at.");
+	RegAdminCmd("sm_setowner", Command_SetOwner, ADMFLAG_SLAY, "|CelMod| Sets the owner of the prop you are looking at.");
+	RegConsoleCmd("sm_alpha", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
+	RegConsoleCmd("sm_amt", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
+	RegConsoleCmd("sm_axis", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
+	RegConsoleCmd("sm_color", Command_Color, "|CelMod| Colors the prop you are looking at.");
+	RegConsoleCmd("sm_del", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("sm_delete", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("sm_door", Command_Door, "|CelMod| Spawns a working door cel.");
+	RegConsoleCmd("sm_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
+	RegConsoleCmd("sm_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
+	RegConsoleCmd("sm_internet", Command_Internet, "|CelMod| Creates a working internet cel.");
+	RegConsoleCmd("sm_mark", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
+	RegConsoleCmd("sm_marker", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
+	RegConsoleCmd("sm_nokill", Command_NoKill, "|CelMod| Enables/disables godmode on the player.");
+	RegConsoleCmd("sm_p", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("sm_paint", Command_Color, "|CelMod| Colors the prop you are looking at.");
+	RegConsoleCmd("sm_pmove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
+	RegConsoleCmd("sm_remove", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("sm_rotate", Command_Rotate, "|CelMod| Rotates the prop you are looking at.");
+	RegConsoleCmd("sm_s", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("sm_seturl", Command_SetURL, "|CelMod| Sets the url of the internet cel you are looking at.");
+	RegConsoleCmd("sm_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
+	RegConsoleCmd("sm_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
+	RegConsoleCmd("sm_spawn", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("sm_stand", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
+	RegConsoleCmd("sm_straight", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
+	RegConsoleCmd("sm_straighten", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
+	RegConsoleCmd("sm_unfreeze", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
+	RegConsoleCmd("sm_unfreezeit", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
 	
 	CreateConVar("celmod", "1", "Notifies the server that the plugin is running.");
-	g_cvCelLimit = CreateConVar("cel_max_player_cels", "20", "Maxiumum number of cel entities a client is allowed.");
-	g_cvDefaultInternetURL = CreateConVar("cel_default_internet_url", "https://github.com/rockzehh/celmod", "Default internet cel URL.");
-	g_cvPropLimit = CreateConVar("cel_max_player_props", "130", "Maxiumum number of props a player is allowed to spawn.");
-	CreateConVar("cel_version", CEL_VERSION, "The version of the plugin the server is running.");
+	g_cvCelLimit = CreateConVar("cm_max_player_cels", "20", "Maxiumum number of cel entities a client is allowed.");
+	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://github.com/rockzehh/celmod", "Default internet cel URL.");
+	g_cvPropLimit = CreateConVar("cm_max_player_props", "130", "Maxiumum number of props a player is allowed to spawn.");
+	CreateConVar("cm_version", CEL_VERSION, "The version of the plugin the server is running.");
 	
 	g_cvCelLimit.AddChangeHook(Cel_OnConVarChanged);
 	g_cvDefaultInternetURL.AddChangeHook(Cel_OnConVarChanged);
@@ -360,14 +362,14 @@ public void Cel_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const c
 	if (cvConVar == g_cvCelLimit)
 	{
 		Cel_SetCelLimit(StringToInt(sNewValue));
-		PrintToServer("CelMod: Cel limit updated to %i.", StringToInt(sNewValue));
+		PrintToServer("|CelMod| Cel limit updated to %i.", StringToInt(sNewValue));
 	} else if (cvConVar == g_cvDefaultInternetURL)
 	{
 		g_cvDefaultInternetURL.GetString(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL));
-		PrintToServer("CelMod: Default internet cel url updated to %s.", sNewValue);
+		PrintToServer("|CelMod| Default internet cel url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvPropLimit) {
 		Cel_SetPropLimit(StringToInt(sNewValue));
-		PrintToServer("CelMod: Prop limit updated to %i.", StringToInt(sNewValue));
+		PrintToServer("|CelMod| Prop limit updated to %i.", StringToInt(sNewValue));
 	}
 }
 
@@ -844,6 +846,46 @@ public Action Command_SetURL(int iClient, int iArgs)
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
 	}
+}
+
+public Action Command_SMove(int iClient, int iArgs)
+{
+	char sX[32], sY[32], sZ[32];
+	float fOrigin[3], fPropOrigin[3];
+	
+	if (iArgs < 3)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_SMove");
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sX, sizeof(sX));
+	GetCmdArg(2, sY, sizeof(sY));
+	GetCmdArg(3, sZ, sizeof(sZ));
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		Cel_GetEntityOrigin(iProp, fPropOrigin);
+		
+		fOrigin[0] = fPropOrigin[0] += StringToFloat(sX);
+		fOrigin[1] = fPropOrigin[1] += StringToFloat(sY);
+		fOrigin[2] = fPropOrigin[2] += StringToFloat(sZ);
+		
+		TeleportEntity(iProp, fOrigin, NULL_VECTOR, NULL_VECTOR);
+	} else {
+		Cel_NotYours(iClient, iProp);
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Handled;
 }
 
 public Action Command_Spawn(int iClient, int iArgs)

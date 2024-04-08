@@ -25,7 +25,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "CelMod: Player HUD", 
+	name = "|CelMod| Player HUD", 
 	author = "rockzehh", 
 	description = "Creates and controls the custom player hud.", 
 	version = CEL_VERSION, 
@@ -34,9 +34,9 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	g_cvHudEnable = CreateConVar("cel_show_hud", "1", "Shows/hides the hud for all players.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_cvHudEnable = CreateConVar("cm_show_hud", "1", "Shows/hides the hud for all players.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
-	g_cvHudEnable.AddChangeHook(KSHud_OnConVarChanged);
+	g_cvHudEnable.AddChangeHook(CMHud_OnConVarChanged);
 	
 	g_bHudEnable = view_as<bool>(g_cvHudEnable.IntValue);
 }
@@ -51,7 +51,7 @@ public void OnMapEnd()
 	CloseHandle(g_hHudTimer);
 }
 
-public void KSHud_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
+public void CMHud_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
 {
 	if (cvConVar == g_cvHudEnable)
 	{

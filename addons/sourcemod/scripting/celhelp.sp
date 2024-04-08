@@ -28,7 +28,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "CelMod: Help", 
+	name = "|CelMod| Help", 
 	author = "rockzehh", 
 	description = "Helpful commands for server owners and players.", 
 	version = CEL_VERSION, 
@@ -42,48 +42,48 @@ public void OnPluginStart()
 	g_cvEffectListURL = CreateConVar("cel_effect_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/effects.html", "URL for the effect list command.");
 	g_cvPropListURL = CreateConVar("cel_prop_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/proplist_export.html", "URL for the prop list command.");
 	
-	g_cvColorListURL.AddChangeHook(KSHelp_OnConVarChanged);
-	g_cvCommandListURL.AddChangeHook(KSHelp_OnConVarChanged);
-	g_cvEffectListURL.AddChangeHook(KSHelp_OnConVarChanged);
-	g_cvPropListURL.AddChangeHook(KSHelp_OnConVarChanged);
+	g_cvColorListURL.AddChangeHook(CMHelp_OnConVarChanged);
+	g_cvCommandListURL.AddChangeHook(CMHelp_OnConVarChanged);
+	g_cvEffectListURL.AddChangeHook(CMHelp_OnConVarChanged);
+	g_cvPropListURL.AddChangeHook(CMHelp_OnConVarChanged);
 	
 	g_cvColorListURL.GetString(g_sColorListURL, sizeof(g_sColorListURL));
 	g_cvCommandListURL.GetString(g_sCommandListURL, sizeof(g_sCommandListURL));
 	g_cvEffectListURL.GetString(g_sEffectListURL, sizeof(g_sEffectListURL));
 	g_cvPropListURL.GetString(g_sPropListURL, sizeof(g_sPropListURL));
 	
-	RegConsoleCmd("sm_colorlist", Command_ColorList, "CelMod: Displays the color list.");
-	RegConsoleCmd("sm_colors", Command_ColorList, "CelMod: Displays the color list.");
-	RegConsoleCmd("sm_cmds", Command_CommandList, "CelMod: Displays the command list.");
-	RegConsoleCmd("sm_commandlist", Command_CommandList, "CelMod: Displays the command list.");
-	RegConsoleCmd("sm_commands", Command_CommandList, "CelMod: Displays the command list.");
-	RegConsoleCmd("sm_effectlist", Command_EffectList, "CelMod: Displays the effect list.");
-	RegConsoleCmd("sm_effects", Command_EffectList, "CelMod: Displays the effect list.");
-	RegConsoleCmd("sm_proplist", Command_PropList, "CelMod: Displays the prop list.");
-	RegConsoleCmd("sm_props", Command_PropList, "CelMod: Displays the prop list.");
+	RegConsoleCmd("sm_colorlist", Command_ColorList, "|CelMod| Displays the color list.");
+	RegConsoleCmd("sm_colors", Command_ColorList, "|CelMod| Displays the color list.");
+	RegConsoleCmd("sm_cmds", Command_CommandList, "|CelMod| Displays the command list.");
+	RegConsoleCmd("sm_commandlist", Command_CommandList, "|CelMod| Displays the command list.");
+	RegConsoleCmd("sm_commands", Command_CommandList, "|CelMod| Displays the command list.");
+	RegConsoleCmd("sm_effectlist", Command_EffectList, "|CelMod| Displays the effect list.");
+	RegConsoleCmd("sm_effects", Command_EffectList, "|CelMod| Displays the effect list.");
+	RegConsoleCmd("sm_proplist", Command_PropList, "|CelMod| Displays the prop list.");
+	RegConsoleCmd("sm_props", Command_PropList, "|CelMod| Displays the prop list.");
 	
-	RegServerCmd("cel_exportcolorlist", Command_ExportColorList, "CelMod-Server: Exports the color list into a text or html file in 'data/celmod/exports'.");
-	RegServerCmd("cel_exportcommandlist", Command_ExportCommandList, "CelMod-Server: Exports the command list into a text or html file in 'data/celmod/exports'.");
-	RegServerCmd("cel_exportproplist", Command_ExportPropList, "CelMod-Server: Exports the prop list into a text or html file in 'data/celmod/exports'.");
+	RegServerCmd("cm_exportcolorlist", Command_ExportColorList, "CelMod-Server: Exports the color list into a text or html file in 'data/celmod/exports'.");
+	RegServerCmd("cm_exportcommandlist", Command_ExportCommandList, "CelMod-Server: Exports the command list into a text or html file in 'data/celmod/exports'.");
+	RegServerCmd("cm_exportproplist", Command_ExportPropList, "CelMod-Server: Exports the prop list into a text or html file in 'data/celmod/exports'.");
 }
 
-public void KSHelp_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
+public void CMHelp_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
 {
 	if (cvConVar == g_cvColorListURL)
 	{
 		g_cvColorListURL.GetString(g_sColorListURL, sizeof(g_sColorListURL));
-		PrintToServer("CelMod: Color list url updated to %s.", sNewValue);
+		PrintToServer("|CelMod| Color list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvCommandListURL)
 	{
 		g_cvCommandListURL.GetString(g_sCommandListURL, sizeof(g_sCommandListURL));
-		PrintToServer("CelMod: Command list url updated to %s.", sNewValue);
+		PrintToServer("|CelMod| Command list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvEffectListURL)
 	{
 		g_cvEffectListURL.GetString(g_sEffectListURL, sizeof(g_sEffectListURL));
-		PrintToServer("CelMod: Effect list url updated to %s.", sNewValue);
+		PrintToServer("|CelMod| Effect list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvPropListURL) {
 		g_cvPropListURL.GetString(g_sPropListURL, sizeof(g_sPropListURL));
-		PrintToServer("CelMod: Prop list url updated to %s.", sNewValue);
+		PrintToServer("|CelMod| Prop list url updated to %s.", sNewValue);
 	}
 }
 
@@ -208,7 +208,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	{
 		delete kvColors;
 		
-		PrintToServer("CelMod: Cannot print color list. (Cannot jump to key)");
+		PrintToServer("|CelMod| Cannot print color list. (Cannot jump to key)");
 		
 		return false;
 	}
@@ -217,7 +217,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	{
 		delete kvColors;
 		
-		PrintToServer("CelMod: Cannot print color list. (Cannot goto first sub key)");
+		PrintToServer("|CelMod| Cannot print color list. (Cannot goto first sub key)");
 		
 		return false;
 	}
@@ -244,7 +244,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	
 	delete kvColors;
 	
-	PrintToServer("CelMod: Exported color list to 'data/celmod/export/colorlist_export.txt'.");
+	PrintToServer("|CelMod| Exported color list to 'data/celmod/export/colorlist_export.txt'.");
 	
 	if (bHTML)
 	{
@@ -258,7 +258,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		{
 			delete kvColorsHTML;
 			
-			PrintToServer("CelMod: Cannot print color list. (Cannot jump to key)");
+			PrintToServer("|CelMod| Cannot print color list. (Cannot jump to key)");
 			
 			return false;
 		}
@@ -267,7 +267,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		{
 			delete kvColorsHTML;
 			
-			PrintToServer("CelMod: Cannot print color list. (Cannot goto first sub key)");
+			PrintToServer("|CelMod| Cannot print color list. (Cannot goto first sub key)");
 			
 			return false;
 		}
@@ -283,9 +283,9 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		
 		File fColorListHTML = OpenFile(sPath, "a+");
 		
-		fColorListHTML.WriteLine("<title>CelMod: Color List</title>");
+		fColorListHTML.WriteLine("<title>|CelMod| Color List</title>");
 		
-		fColorListHTML.WriteLine("<b>CelMod</b>: Color List:");
+		fColorListHTML.WriteLine("<b>|CelMod|</b> Color List:");
 		
 		fColorListHTML.WriteLine("<br>");
 		
@@ -302,7 +302,7 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		
 		delete kvColorsHTML;
 		
-		PrintToServer("CelMod: Exported color list to 'data/celmod/export/colorlist_export.html'.");
+		PrintToServer("|CelMod| Exported color list to 'data/celmod/export/colorlist_export.html'.");
 	}
 	
 	return true;
@@ -336,18 +336,18 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 	
 	if (bHTML)
 	{
-		fCommandListHTML.WriteLine("<title>CelMod: Command List</title>");
+		fCommandListHTML.WriteLine("<title>|CelMod| Command List</title>");
 		
-		fCommandListHTML.WriteLine("<b>CelMod</b>: Command List:");
+		fCommandListHTML.WriteLine("<b>|CelMod|</b> Command List:");
 		
 		fCommandListHTML.WriteLine("<br>");
 	}
 	
 	while (ReadCommandIterator(hCommandIter, sName, sizeof(sName), iFlags, sDescription, sizeof(sDescription)))
 	{
-		if (StrContains(sDescription, "CelMod:", true) != -1)
+		if (StrContains(sDescription, "|CelMod|", true) != -1)
 		{
-			ReplaceString(sDescription, sizeof(sDescription), "CelMod: ", "", true);
+			ReplaceString(sDescription, sizeof(sDescription), "|CelMod| ", "", true);
 			
 			Format(sCommand, sizeof(sCommand), "%s - %s - %s", sName, (iFlags == 0) ? "Client" : "Admin", sDescription);
 			
@@ -378,9 +378,9 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 	
 	CloseHandle(hCommandIter);
 	
-	PrintToServer("CelMod: Exported command list to 'data/celmod/export/commandlist_export.txt'.");
+	PrintToServer("|CelMod| Exported command list to 'data/celmod/export/commandlist_export.txt'.");
 	if (bHTML)
-		PrintToServer("CelMod: Exported command list to 'data/celmod/export/commandlist_export.html'.");
+		PrintToServer("|CelMod| Exported command list to 'data/celmod/export/commandlist_export.html'.");
 	
 	fCommandList.Close();
 	if (bHTML)
@@ -406,7 +406,7 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 	{
 		delete kvProps;
 		
-		PrintToServer("CelMod: Cannot print prop list.");
+		PrintToServer("|CelMod| Cannot print prop list.");
 		
 		return false;
 	}
@@ -431,7 +431,7 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 	
 	fPropList.Close();
 	
-	PrintToServer("CelMod: Exported prop list to 'data/celmod/export/proplist_export.txt'.");
+	PrintToServer("|CelMod| Exported prop list to 'data/celmod/export/proplist_export.txt'.");
 	
 	if (bHTML)
 	{
@@ -447,7 +447,7 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 		{
 			delete kvPropsHTML;
 			
-			PrintToServer("CelMod: Cannot print prop list.");
+			PrintToServer("|CelMod| Cannot print prop list.");
 			
 			return false;
 		}
@@ -463,9 +463,9 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 		
 		File fPropListHTML = OpenFile(sPath, "a+");
 		
-		fPropListHTML.WriteLine("<title>CelMod: Prop List</title>");
+		fPropListHTML.WriteLine("<title>|CelMod| Prop List</title>");
 		
-		fPropListHTML.WriteLine("<b>CelMod</b>: Prop List:");
+		fPropListHTML.WriteLine("<b>|CelMod|</b> Prop List:");
 		
 		fPropListHTML.WriteLine("<br>");
 		
@@ -480,7 +480,7 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 		
 		fPropListHTML.Close();
 		
-		PrintToServer("CelMod: Exported prop list to 'data/celmod/export/proplist_export.html'.");
+		PrintToServer("|CelMod| Exported prop list to 'data/celmod/export/proplist_export.html'.");
 	}
 	
 	delete kvProps;

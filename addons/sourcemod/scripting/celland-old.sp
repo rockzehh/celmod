@@ -38,7 +38,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "CelMod: Land", 
+	name = "|CelMod| Land", 
 	author = "rockzehh", 
 	description = "Creates a personal building area.", 
 	version = CEL_VERSION, 
@@ -47,7 +47,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	g_cvMaxLandSize = CreateConVar("cel_max_land_size", "100.0", "The max size lands can be.");
+	g_cvMaxLandSize = CreateConVar("cm_max_land_size", "100.0", "The max size lands can be.");
 	
 	g_cvMaxLandSize.AddChangeHook(CelLand_OnConVarChanged);
 	

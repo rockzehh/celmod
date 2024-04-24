@@ -2,7 +2,7 @@
 
 **|CelMod|** is a fully customized building experience, and extra features to enhance the standard gameplay.
 
-Latest release is *none*, current working version is *1.0.0.1*.
+Latest release is *none*, current working version is *1.0.0.2*.
 
 Built against SourceMod *1.11.0-git6826* and Metamod: Source *1.12.0-git1157*.
 
@@ -28,6 +28,8 @@ sm_effectlist|Displays the effect list.|sm_effects|Client|[Effects List](https:/
 sm_freeze|Freezes the prop you are looking at.|sm_freezeit|Client|
 sm_internet|Creates a working internet cel.|None|Client|
 sm_land|Creates a building zone.|None|Client|
+sm_landdeathmatch|Changes the deathmatch setting within the land.|None|Client|
+sm_landgravity|Changes the gravity within the land.|None|Client|
 sm_nokill|Enables/disables godmode on the player.|None|Client|
 sm_proplist|Displays the prop list.|sm_props|Client|[Prop List](https://rockzehh.github.io/celmod/proplist.html)
 sm_rotate|Rotates the prop you are looking at.|None|Client|

@@ -1,0 +1,207 @@
+|CelMod| Official Update List:
+
+	2009:
+	 - 12/26/09: |CelMod| becomes an independent server.
+	 
+	2010
+	 - 1/19/10: Added v_remove support to land areas.
+	 - 1/21/10: Removed Mani Admin Plugin from the public server.
+		-  Created the ADS system. (Administration)
+	 - 1/25/10: Added the long awaited v_save/!save and v_load/!load commands.
+		- Made minor fixes to v_freeze/v_unfreeze and handling of doors.
+	 - 1/28/10: Added the beta version of the How To? system.
+		- Fixed several loading/saving bugs such as "Build exceeded cel limit".
+	 - 2/1/10: Added Team Build and Land Bans: !landban, !landunban, !addteam, !delteam
+		- Added Actors to cel list: v_actor/!actor
+		- Added v_replace/!replace
+	 - 2/2/10: Replaced +v_forward and +v_back with normal WASD vehicle control.
+	 - 2/16/10: Added new pointer system to avoid targetting through walls.
+		- Removed Build Mode due to intense lag issues.
+		- Fixed frequent crashes caused by the pointer system above.
+	 - 2/26/10: Added the beta version of Deathmatch Mode within lands: v_deathmatch/!dm
+		- Added ability to block impulse 101/!weps within lands: v_impulse/!impulse
+	 - 2/27/10: Added ability to spawn weapons: v_weapon/!wep
+		 - Made weapon spawners lockable/unlockable.
+	 - 3/1/10: Added ability to spawn ammo crates: v_ammocrate/!ammocrate
+		 - Added a command to respawn: !stuck
+	 - 3/4/10: Added ability to change walking speeds with ALT key.
+	 - 3/7/10: Added command to change gravity within land: v_gravity/!gravity
+	 - 3/11/10: Added v_freeze, +move, and v_solid support to v_undo.
+		 - Added !drop #land to prevent props from being cut off by land elevation.
+	 - 3/18/10: Fixed land areas from cutting through all elevations.
+	 - 3/21/10: Added command to release something from a weld: v_release/!release
+		 - Updated v_drop to work with most props.
+	 - 3/26/10: Added beta version of Animated Props: v_anim/!anim, v_view/!view
+	 - 4/2/10: Made it possible to remove objects that are touching your land area, even if they are technically not inside.
+		 - Added sounds to buttons and emblems when you press them.
+	 - 4/6/10: Added beta version of Button Links. Note: They still do not work
+		 - Updated v_drop to work with all props.
+	 - 4/15/10: Added command to make custom colors: v_palette/!palette
+	 - 4/24/10: Created individual save files to erase lag from loading and saving.
+	 - 4/26/10: Finished Button Links which let you control multiple objects with one button: v_link/!link
+	 - 4/29/10: Added #all and #land conditions to v_solid.
+	 - 4/30/10: Created command for controlling objects on touch: v_trigger/!trigger
+		 - Made locked doors, lights, teleports, and dolls saveable.
+	 - 5/1/10: Added ability to load builds which exceed an object limit (if the player's current count of that object is 0).
+		 - Fixed many problems with the way button links acted when loaded.
+	 - 5/4/10: Added randomization for 2nd map in cycle.
+	 - 5/5/10: Objects will be removed from a player's land if you are banned from it.
+	 - 5/8/10: Added ability to stop players from copying your props: v_stopcopy/!stopcopy
+		 - Optimized land ban object removal to reduce lag.
+	 - 5/13/10: Added unfrozen object limit to reduce chance of spam.
+	 - 5/14/10: Created command for spawn points within land: v_spawnpoint/!spawnpoint
+	 - 5/16/10: Added text props for Advertisements. Still working on a text command.
+	 - 5/20/10: Updated text command to BETA stage: v_text/!text
+	 - 5/22/10: Dolls now count as props instead of cels.
+	 - 5/25/10: Added the BETA version of Disputes: v_dispute/!dispute
+	 - 5/29/10: Added internet cels for online access: v_internet/!internet
+	 - 5/31/10: Props now spawn frozen and godded by default. New options are: unfrozen, nogod, drop
+	 - 6/14/10: |CelMod| v3.0: Economic Revolution
+		 - Added all bank commands:
+			 - !bank/v_bank
+			 - !buy/v_buy
+			 - !sell/v_sell
+			 - !balance/v_balance
+			 - !collect/v_collect
+			 - !fee/v_fee
+	 - 6/17/10: Builds can now be sold by typing !sell (price) (build name)
+	 - 6/21/10: Collision models for !satellitedish1 and !combinecamera have been fixed.
+		 - As a result of above, !spawnpoint now costs 250K CL.
+	 - 6/22/10: Spawn point bits now provide spawn kill protection.
+	 - 6/23/10: Added command to calculate stack data between props: v_stackinfo/!stackinfo
+	 - 6/24/10: An antlionhill prop has appeared above the Guess Booth. You can bid on it by typing !buy and a price.
+		 - The highest bidder will recieve the prop at 11 PM EST on 6/26/10.
+	 - 6/26/10: The antlionhill prop has been sold to player LockRin for 300K CL.
+	 - 6/27/10: A powertower prop has appeared above the Guess Booth. You can bid on it by typing !buy and a price.
+		 - The highest bidder will recieve the prop at 7 PM EST on 6/29/10.
+	 - 6/29/10: Created command for effects: v_effect/!effect
+	 - 6/30/10: Created command for moving objects more accurately: v_smove/!smove
+	 - 7/2/10: Metal1 and Metal2 have been updated yet again with 6 new skins and a more efficient model.
+		 - Land banning somebody will now remove all their props in your land, if any.
+	 - 7/3/10: A House prop has appeared above the Guess Booth. You can bid on it by typing !buy and a price.
+		 - The highest bidder will recieve the prop at 7 PM EST on 7/4/10.
+	 - 7/5/10: Created command for hiding other players' objects from your view: v_hide/!hide
+		 - Command for disabling hide: v_show/!show
+	 - 7/8/10: Lag problems have been fixed for a second release of !hide and !show.
+	 - 7/13/10: After dealing with a broken Valve update for 5 days, |CelMod| is back.
+	 - 8/2/10: Setting up a land area around a map door lets you !lock and !unlock them.
+	 - 8/4/10: Welds are finally saveable due to popular demand.
+	 - 8/13/10: Created command for viewable cameras: v_camera/!camera
+	 - 8/16/10: The Power Booth is now accessable.
+	 - 8/18/10: The Splitter Maze has been added to the server. Completing it will earn you a gold emblem.
+		 - An abuse filter has been added to the Bug Report form.
+	 - 8/22/10: Hoopie props are being spawned randomly across all maps. Pressing E on one will make it yours.
+	 - 8/25/10: Happy Birthday Delaware! Hoopie props will now let you play as Hoopie.
+	 - 8/28/10: Outside weapons command has been changed to: v_weps/!weps
+		 - Impulse 101 has been disabled.
+	 - 8/30/10: All of the wall props have been updated with different skins along with wall3.
+	 - 8/31/10: Banning somebody from your land now prevents them from buying your objects.
+	 - 9/1/10: All Actors and the !scene command have been removed due to several complications.
+	 - 9/18/10: All emblems can now be upgraded twice. Note: Most of the secondary upgraded emblems do not work yet.
+	 - 9/26/10: The gold emblem now has a function thanks to the poll suggestions.
+	 - 10/5/10: Created command to drop money: v_cleer/!cl
+	 - 10/11/10: Added ability to spawn ammo for weapons: v_ammo/!ammo
+		 - The !give command works again.
+	 - 10/13/10: The !text command has been updated with targetting.
+	 - 10/17/10: Added remote control vehicle pods (Requires !button): v_pod/!pod
+		 - Created command to add items to your bank: v_bank add/!bank add.
+	 - 10/19/10: Created command to use circular land areas: v_cland/!cland
+	 - 10/22/10: Added effect spotlight to !effect command.
+	 - 10/30/10: A new map Cubeland has been added to the server.
+		 - You can obtain a scary pumpkin somewhere in this map.
+	 - 11/8/10: Land Bans will now move a banned player outside of the land instead of killing them.
+	 - 11/13/10: The command !collect has been removed due to server crashes.
+		 - Created command !moveto to move one object to another.
+	 - 11/14/10: Added ambient sounds to the !music command.
+	 - 11/28/10: Players now have individual !light object limits (5).
+	 - 11/29/10: The !text command now allows !, ?, (, and ).
+	 - 12/1/10: Players can now +move and !del emblems.
+	 - 12/10/10: The map Cubicle has been hit by old man winter.
+		 - You can obtain a present somewhere in this map.
+	 - 12/17/10: Players can now view their !bank list.
+		 - You can load a bank item using !bank and the item number.
+	 - 12/25/10: Merry Christmas! Players with presents will get a candy cane effect! Each color has a different effect.
+		 - The map Park has had a cold update.
+	 - 12/26/10: One year ago the official |CelMod| Server was created!
+		 - To celebrate this event the Emblem Engine has been reset.
+	
+	2011
+	 - 1/8/11: Using !color combine, rebel, or chatgreen on a teleport, players can control who can use that teleport.
+		- The !reportbug server crash reward has been raised to 600K CL (The crash may have to do with doors).
+	 - 1/9/11: Players can now bid on objects in the Guess Booth using !buy and a price.
+	 - 1/12/11: The !door command has been disabled until the server crashes stop.
+	 - 1/18/11: Players can now type !save (without the build name) to save existing builds quicker.
+		- The !door command is back.
+	 - 1/22/11: Players can now make small text by using !text with a ^.
+		 - The spawn codes for small text are !text3 and !text4.
+	- 1/24/11: The Disputes Other feature is now working.
+	- 1/30/11: Players can specify the speed of !sound and !music cels (Ex: !sound ahhhh 50 / !music song25 100 1 200).
+	- 1/31/11: Players can now trade objects by typing !trade.
+	- 2/11/11: After being discontinued for a year, the props !antlionhill and !rockcliff9 (1- 14) have been revived.
+	- 5/13/11: The map Cubicle has been updated for the spring season.
+	- 5/17/11: The new Question of The Week system can earn players 500K CL or more! Type !poll to activate.
+		 - The command !deathmatch now works properly with guns again.
+	 - 6/21/11: It's summer! The map Park has been thawed out after 3 months of procrastination.
+	 - 6/26/11: For all players who cannot see their HUD, the commands !tacticlvl and !cl amount have been created.
+		 - A new color error has been added to the !color command.
+	 - 7/2/11: After popular demand, new props !palmtree1 to !palmtree5 and !tree6 have been added.
+	 - 7/3/11: The map Fourplay has been updated to fix elevator and spawn problems.
+		 - The model for !palmtree4 has been fixed.
+	 - 7/6/11: Players can now earn NPC Spawners by killing 1000 of any certain NPC.
+	 - 7/17/11: A new command +grab has been added. Bind it to a key for easy use.
+	 - 7/22/11: A new prop !sign has been added. Change the !skin for different signs.
+		 - The prop !sign costs 10000 CL.
+	 - 7/26/11: Players can now disable double jumping in their land by typing v_doublejump/!dj.
+	 - 7/28/10: Added message cels for leaving messages to other players: v_message (message)/!message (message)
+		 - Fixed issues with using /text and /seturl.
+		 - The location of the HUD display can now be changed using !switch.
+	 - 7/31/11: Type !cyr to view russian/cyrillic text.
+		 - The !message command allows colored text using {g}, {o}, {d}.
+	 - 8/1/11: The map has been frozen to Cubeland until someone can crash the server and prove it. Use !reportbug.
+	 - 8/4/11: The crash problem has been solved by player LockRin. Type !cake to celebrate.
+	 - 8/8/11: Players can now set passcodes to buttons or triggers. Type !button (type) (passcode) to set a passcode.
+		 - Players can set their use passcode by typing !pass and the button/trigger passcode.
+		 - The Build Menu has been updated with newer commands and colors codes. Type !menu to enable.
+	 - 8/10/11: A new map Grassy Plains has been added.
+	 - 8/15/11: Happy Clock Day 2011! You can obtain a Strawberry Clock prop by typing !clock.
+	 - 8/20/11: New props !window3 and !window4 have been added. These are one-sided versions of !window1 and !window2.
+		 - A new prop !whitecontainer2 has been added. You must get 50 units or less away from Perfect White to unlock.
+	 - 8/23/11: A new prop !flatscreen has been added. This prop costs 50000 CL to use.
+	 - 8/25/11: Happy 2nd Birthday Delaware! Commands !cland and !seturl have been made cheaper.
+	 - 8/28/11: Added effect fire: v_effect fire/!effect fire.
+		 - Props fishingboat1 and fishingboat2 have been revived.
+	 - 9/3/11: Players can set skins on their land area using v_landskin/!landskin. This command costs 700K CL.
+	 - 9/4/11: A new prop !flatscreen2 has been added. This prop costs 100K CL to use.
+	 - 9/5/11: A new command v_coop/!coop has been added.
+	 - 9/10/11: New props wall4 and wall5 have been added.
+	 - 9/17/11: New props cube1, cube2, and cube3 have been added.
+	 - 9/26/11: The map Park has been updated for the autumn season.
+	 - 10/22/11: The map Cubicle has been updated for the autumn season. There is a secret item somewhere in this map.
+	 - 10/24/11: A new map Construct Flatgrass has been added. This map has replaced Construct.
+	 - 10/31/11: Happy Halloween! Players can win pumpkins and mega pumpkins with contests that will be held throughout the day!
+	 - 11/2/11: The map Bloody Construct has been updated to prevent GFX Overflow issues.
+	 - 11/11/11: The alyxgun and annabelle celwep have been added. Buy one from player WeaponsMan for 20K CL.
+	 - 11/22/11: Players can now use !fadecolor (color1) (color2) to fade between two colors on an object.
+	 - 11/24/11: New props sphere1, sphere2, and sphere3 have been added.
+	 - 11/30/11: New props roof1 to roof5 have been added.
+	 - 12/1/11: The map Cubicle has been frozen over! You can now win a blizzard emblem from the challenge there.
+	 - 12/7/11: The map Park has been hit by old man winter. There is a new challenge here.
+	 - 12/16/11: Players can now !block and !unblock themselves from player lands.
+		 - A ton of props and commands are now free, check the shop to see which.
+	 - 12/19/11: The map Cubeland has been updated with more build space.
+	 - 12/20/11: Players can now use build templates.
+	 - 12/22/11: The command !give is back and is here to stay.
+	 - 12/26/11: The Official |CelMod| Server has turned 2 years old today! There will be a surprise event later today.
+	 
+	2012
+	 - 1/5/12: Players can now !kick others from their land (land-bans player for 10 seconds).
+	 - 1/17/12: Players can now hold multiple celweps at the same time.
+	 - 1/19/12: Players can spawn piano sound cels by typing: !sound (sound type) piano.
+		 - Players now get their god mode back when !dm or !coop is turned off in a land.
+	 - 2/3/12: The first version of CelBinds has been released. Type exec celbinds1.cm in console to use.
+		 - To get your old bind list back, type exec oldbinds in console.
+	- 2/13/12: The wall props have been updated with 493 skin combinations.
+	- 2/15/12: The sign prop has been given 4 more skins.
+		 - 2 new effects have been added: vort and bomb
+	 - 3/15/12: The maps Park and Cubicle have been updated for the spring season.
+		 - The map Bloody Construct has been officially updated.

@@ -2,7 +2,7 @@
 {
 	"CMD_Alpha"
 	{
-		"en"			"Usage: {green}[tag]alpha{default} <transparency value>"
+		"en"			"Usage: {green}[tag]alpha{default} <transparency value> <all>"
 	}
 
 	"CMD_Color"
@@ -13,6 +13,11 @@
 	"CMD_Door"
 	{
 		"en"			"Usage: {green}[tag]door{default} <skin number>"
+	}
+	
+	"CMD_Remove"
+	{
+		"en"			"Usage: {green}[tag]delete{default} <all|land>"
 	}
 
 	"CMD_Rotate"
@@ -140,11 +145,29 @@
 		"#format"		"{1:s}"
 		"en"			"Prop {green}{1}{default} not found."
 	}
+	
+	"SetAllColor"
+	{
+		"#format"		"{1:s}"
+		"en"			"Set color on all to {green}{1}{default}."
+	}
+	
+	"SetAllTransparency"
+	{
+		"#format"		"{1:i}"
+		"en"			"Set transparency on all to {green}{1}{default}."
+	}
 
 	"SetColor"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Set color on {1} to {green}{2}{default}."
+	}
+	
+	"SetHudColor"
+	{
+		"#format"		"{1:s}"
+		"en"			"Set hud color to {green}{1}{default}."
 	}
 
 	"SetOwnerClient"
@@ -182,6 +205,12 @@
 	}
 
 	"Remove"
+	{
+		"#format"		"{1:s}"
+		"en"			"Removed {1}."
+	}
+	
+	"RemoveAll"
 	{
 		"#format"		"{1:s}"
 		"en"			"Removed {1}."

@@ -39,7 +39,8 @@ enum EffectType
 #define MAXENTS 2048 /**< Max number of entities Source can handle. */
 #define MAX_MESSAGE_LENGTH		256 /**< Max length a message can be. */
 #define MAX_BUFFER_LENGTH		(MAX_MESSAGE_LENGTH * 4) /** Max length the buffer can be. */
-#define CEL_VERSION "1.0.0.0" /**< Global version. */
+#define CEL_AUTHOR "rockzehh" /**< Global version. */
+#define CEL_VERSION "1.0.0.2" /**< Global version. */
 #define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update_url.upd" /**< The url Updater uses to update. */
 
 float g_fUp[3] = { -90.0, 0.0, 0.0 };
@@ -467,19 +468,29 @@ native void Cel_SetHudColor(int iClient, int iR, int iG, int iB, int iA);
 //========== Cel_land.smx ==========
 native int Cel_CreateLandEntity(int iUserID, float fMin[3], float fMax[3]);
 
-native int Cel_GetLandOwner(float fBottomCorner[3], float fTopCorner[3]);
-
-native bool Cel_IsClientInLand(int iClient, int iLand);
-
-native bool Cel_IsClientCrosshairInLand(int iClient, int iLand);
-
-native bool Cel_IsEntityInLand(int iEntity, int iLand);
-
-native bool Cel_IsPositionInBox(float fPos[3], float fBottomCorner[3], float fTopCorner[3], int iClient);
+native void Cel_ClearLand(int iClient);
 
 native void Cel_DrawLand(float fFrom[3], float fTo[3], float fLife, int iColor[4], bool bFlat=true);
 
+native int Cel_GetClientCrosshairLandOwner(int iClient);
+
+native float Cel_GetLandGravity(int iLand);
+
+native int Cel_GetLandOwner(float fBottomCorner[3], float fTopCorner[3]);
+
+native int Cel_GetLandOwnerUserId(int iLand);
+
 native void Cel_GetMiddleOfABox(float fMin[3], float fMax[3], float fBuffer[3]);
+
+native bool Cel_IsClientInLand(int iClient, int iLand);
+
+native bool Cel_IsClientCrosshairInLand(int iClient);
+
+native bool Cel_IsEntityInLand(int iEntity, int iLand);
+
+native bool Cel_IsPositionInBox(float fPos[3], float fBottomCorner[3], float fTopCorner[3]);
+
+native void Cel_SetLandGravity(int iLand);
 
 //========== Cel_serverconvars.smx ==========
 native void Cel_ReloadServerConVars();

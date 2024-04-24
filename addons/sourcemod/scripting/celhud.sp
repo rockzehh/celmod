@@ -26,7 +26,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 public Plugin myinfo = 
 {
 	name = "|CelMod| Player HUD", 
-	author = "rockzehh", 
+	author = CEL_AUTHOR, 
 	description = "Creates and controls the custom player hud.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"
@@ -178,11 +178,7 @@ public Action Timer_HUD(Handle hTimer)
 				
 				if (iEntity != -1)
 				{
-					if(Cel_IsClientCrosshairInLand(i, iLand)){
-						Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
-						
-						Cel_GetHudColor(iLand, iColor);
-					} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
+					if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
 					{
 						Cel_GetPropName(iEntity, sPropname, sizeof(sPropname));
 						
@@ -250,7 +246,13 @@ public Action Timer_HUD(Handle hTimer)
 						
 						Cel_GetHudColor(i, iColor);
 					}
-				} else {
+				} else if(Cel_IsClientCrosshairInLand(i)){
+					iLand = Cel_GetClientCrosshairLandOwner(i);
+					
+					Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
+					
+					Cel_GetHudColor(iLand, iColor);
+				}else {
 					Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
 					
 					Cel_GetHudColor(i, iColor);

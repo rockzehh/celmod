@@ -1161,3 +1161,9 @@ resource/*
 steam.inf
 addons/sourcemod/scripting/compile.dat
 addons/sourcemod/data/updater.txt
+stats.txt
+addons/sourcemod/bin/x64/sourcepawn.vm.dll
+addons/sourcemod/data/sqlite/clientprefs-sqlite.sq3
+celmod.bpproj
+addons/sourcemod/scripting/compile.dat
+addons/sourcemod/scripting/compile.dat

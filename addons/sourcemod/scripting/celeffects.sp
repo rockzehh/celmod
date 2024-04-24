@@ -34,7 +34,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 public Plugin myinfo = 
 {
 	name = "|CelMod| Effects", 
-	author = "rockzehh", 
+	author = CEL_AUTHOR, 
 	description = "Creates a effect effect.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"

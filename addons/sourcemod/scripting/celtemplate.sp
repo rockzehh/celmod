@@ -12,8 +12,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "CelMod - ", 
-	author = "rockzehh", 
+	name = "|CelMod| ", 
+	author = CEL_AUTHOR, 
 	description = "", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"

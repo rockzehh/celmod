@@ -1,4 +1,4 @@
-//CelMod by rockzehh.
+//|CelMod| by rockzehh.
 
 #pragma semicolon 1
 
@@ -135,8 +135,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "CelMod", 
-	author = "rockzehh", 
+	name = "|CelMod|", 
+	author = CEL_AUTHOR, 
 	description = "A fully customized building experience with roleplay, and extra features to enhance the standard gameplay.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"
@@ -168,7 +168,7 @@ public void OnPluginStart()
 			}
 		}
 	}
-
+	
 	if (LibraryExists("updater"))
 	{
 		Updater_AddPlugin(UPDATE_URL);
@@ -243,9 +243,9 @@ public void OnPluginStart()
 	g_cvPropLimit = CreateConVar("cm_max_player_props", "130", "Maxiumum number of props a player is allowed to spawn.");
 	CreateConVar("cm_version", CEL_VERSION, "The version of the plugin the server is running.");
 	
-	g_cvCelLimit.AddChangeHook(Cel_OnConVarChanged);
-	g_cvDefaultInternetURL.AddChangeHook(Cel_OnConVarChanged);
-	g_cvPropLimit.AddChangeHook(Cel_OnConVarChanged);
+	g_cvCelLimit.AddChangeHook(CM_OnConVarChanged);
+	g_cvDefaultInternetURL.AddChangeHook(CM_OnConVarChanged);
+	g_cvPropLimit.AddChangeHook(CM_OnConVarChanged);
 	
 	Cel_SetCelLimit(g_cvCelLimit.IntValue);
 	g_cvDefaultInternetURL.GetString(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL));
@@ -298,19 +298,11 @@ public void OnClientDisconnect(int iClient)
 	char sClient[128];
 	
 	GetClientName(iClient, sClient, sizeof(sClient));
-
+	
 	Cel_SetCelCount(iClient, 0);
 	Cel_SetNoKill(iClient, false);
 	Cel_SetPlayer(iClient, false);
 	Cel_SetPropCount(iClient, 0);
-	
-	for (int i = 0; i < GetMaxEntities(); i++)
-	{
-		if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
-		{
-			AcceptEntityInput(i, "kill");
-		}
-	}
 	
 	CPrintToChatAll("{red}[-]{default} %t", "Disconnecting", sClient);
 	for (int i = 1; i < MaxClients; i++)
@@ -327,8 +319,8 @@ public Action OnGetGameDescription(char sGameDesc[64])
 {
 	char sGameInfo[64];
 	
-	Format(sGameInfo, sizeof(sGameInfo), "CelMod");
-		
+	Format(sGameInfo, sizeof(sGameInfo), "|CelMod|");
+	
 	strcopy(sGameDesc, sizeof(sGameDesc), sGameInfo);
 	return Plugin_Changed;
 }
@@ -346,7 +338,7 @@ public void OnMapStart()
 	
 	DispatchSpawn(g_iEntityDissolve);
 	
-	DispatchKeyValue(g_iEntityDissolve, "classname", "sandbox_entity_dissolver");
+	DispatchKeyValue(g_iEntityDissolve, "classname", "celmod_entity_dissolver");
 }
 
 public void OnMapEnd()
@@ -357,7 +349,7 @@ public void OnMapEnd()
 	g_iPhys = -1;
 }
 
-public void Cel_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
+public void CM_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
 {
 	if (cvConVar == g_cvCelLimit)
 	{
@@ -376,7 +368,7 @@ public void Cel_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const c
 //Commands:
 public Action Command_Alpha(int iClient, int iArgs)
 {
-	char sAlpha[16], sEntityType[32];
+	char sAlpha[16], sEntityType[32], sOption[32];
 	
 	if (iArgs < 1)
 	{
@@ -386,30 +378,53 @@ public Action Command_Alpha(int iClient, int iArgs)
 	
 	GetCmdArg(1, sAlpha, sizeof(sAlpha));
 	
-	if (Cel_GetClientAimTarget(iClient) == -1)
-	{
-		Cel_NotLooking(iClient);
-		return Plugin_Handled;
-	}
+	int iAlpha = StringToInt(sAlpha) < 50 ? 255 : StringToInt(sAlpha);
 	
-	int iProp = Cel_GetClientAimTarget(iClient);
-	
-	if (Cel_CheckOwner(iClient, iProp))
+	if (iArgs > 1)
 	{
-		int iAlpha = StringToInt(sAlpha) < 50 ? 255 : StringToInt(sAlpha);
+		GetCmdArg(2, sOption, sizeof(sOption));
 		
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+		if(StrContains(sOption, "all", false) !=-1)
+		{
+			for (int i = 0; i < GetMaxEntities(); i++)
+			{
+				if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
+				{
+					Cel_SetColor(i, -1, -1, -1, iAlpha);
+					if (Cel_CheckEntityType(i, "effect"))
+					Cel_SetColor(Cel_GetEffectAttachment(i), -1, -1, -1, iAlpha);
+				}
+			}
+			
+			Cel_ReplyToCommand(iClient, "%t", "SetAllTransparency", iAlpha);
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CMD_Alpha");
+			return Plugin_Handled;
+		}
+	}else{
+		if (Cel_GetClientAimTarget(iClient) == -1)
+		{
+			Cel_NotLooking(iClient);
+			return Plugin_Handled;
+		}
 		
-		Cel_SetColor(iProp, -1, -1, -1, iAlpha);
-		if (Cel_CheckEntityType(iProp, "effect"))
+		int iProp = Cel_GetClientAimTarget(iClient);
+		
+		if (Cel_CheckOwner(iClient, iProp))
+		{
+			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+			
+			Cel_SetColor(iProp, -1, -1, -1, iAlpha);
+			if (Cel_CheckEntityType(iProp, "effect"))
 			Cel_SetColor(Cel_GetEffectAttachment(iProp), -1, -1, -1, iAlpha);
-		
-		Cel_ChangeBeam(iClient, iProp);
-		
-		Cel_ReplyToCommand(iClient, "%t", "SetTransparency", sEntityType, iAlpha);
-	} else {
-		Cel_NotYours(iClient, iProp);
-		return Plugin_Handled;
+			
+			Cel_ChangeBeam(iClient, iProp);
+			
+			Cel_ReplyToCommand(iClient, "%t", "SetTransparency", sEntityType, iAlpha);
+		} else {
+			Cel_NotYours(iClient, iProp);
+			return Plugin_Handled;
+		}	
 	}
 	
 	return Plugin_Handled;
@@ -439,7 +454,7 @@ public Action Command_Axis(int iClient, int iArgs)
 
 public Action Command_Color(int iClient, int iArgs)
 {
-	char sColor[64], sColorBuffer[3][6], sColorString[16], sEntityType[32];
+	char sColor[64], sColorBuffer[3][6], sColorString[16], sEntityType[32], sOption[32];
 	
 	if (iArgs < 1)
 	{
@@ -449,35 +464,77 @@ public Action Command_Color(int iClient, int iArgs)
 	
 	GetCmdArg(1, sColor, sizeof(sColor));
 	
-	if (Cel_GetClientAimTarget(iClient) == -1)
+	if (iArgs > 1)
 	{
-		Cel_NotLooking(iClient);
-		return Plugin_Handled;
-	}
-	
-	int iProp = Cel_GetClientAimTarget(iClient);
-	
-	if (Cel_CheckOwner(iClient, iProp))
-	{
+		GetCmdArg(2, sOption, sizeof(sOption));
+		
 		if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 		{
-			ExplodeString(sColorString, "^", sColorBuffer, 3, sizeof(sColorBuffer[]));
-			
-			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-			
-			Cel_SetColor(iProp, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-			if (Cel_CheckEntityType(iProp, "effect"))
-				Cel_SetColor(Cel_GetEffectAttachment(iProp), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-			
-			Cel_ChangeBeam(iClient, iProp);
-			
-			Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, sColor);
+			if(StrContains(sOption, "all", false) !=-1)
+			{
+				for (int i = 0; i < GetMaxEntities(); i++)
+				{
+					if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
+					{
+						ExplodeString(sColorString, "^", sColorBuffer, 3, sizeof(sColorBuffer[]));
+						
+						Cel_GetEntityTypeName(Cel_GetEntityType(i), sEntityType, sizeof(sEntityType));
+						
+						Cel_SetColor(i, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
+						
+						if (Cel_CheckEntityType(i, "effect"))
+						Cel_SetColor(Cel_GetEffectAttachment(i), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
+					}
+				}
+				Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor);
+			}else if(StrContains(sOption, "hud", false) !=-1)
+			{
+				ExplodeString(sColorString, "^", sColorBuffer, 3, sizeof(sColorBuffer[]));
+				
+				Cel_SetHudColor(iClient, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
+				
+				Cel_ReplyToCommand(iClient, "%t", "SetHudColor", sColor);
+			}else{
+				Cel_ReplyToCommand(iClient, "%t", "CMD_Color");
+				return Plugin_Handled;
+			}
 		} else {
 			Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor);
 			return Plugin_Handled;
 		}
-	} else {
-		Cel_NotYours(iClient, iProp);
+	}else{
+		if (Cel_GetClientAimTarget(iClient) == -1)
+		{
+			Cel_NotLooking(iClient);
+			return Plugin_Handled;
+		}
+		
+		int iProp = Cel_GetClientAimTarget(iClient);
+		
+		if (Cel_CheckOwner(iClient, iProp))
+		{
+			if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
+			{
+				ExplodeString(sColorString, "^", sColorBuffer, 3, sizeof(sColorBuffer[]));
+				
+				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+				
+				Cel_SetColor(iProp, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
+				if (Cel_CheckEntityType(iProp, "effect"))
+				Cel_SetColor(Cel_GetEffectAttachment(iProp), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
+				
+				Cel_ChangeBeam(iClient, iProp);
+				
+				Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, sColor);
+			} else {
+				Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor);
+				return Plugin_Handled;
+			}
+		} else {
+			Cel_NotYours(iClient, iProp);
+			return Plugin_Handled;
+		}
+		
 		return Plugin_Handled;
 	}
 	
@@ -486,41 +543,93 @@ public Action Command_Color(int iClient, int iArgs)
 
 public Action Command_Delete(int iClient, int iArgs)
 {
-	char sEntityType[32];
+	char sEntityType[32], sOption[32], sRemoveCount[64];
+	int iRemoveCount = 0;
 	
-	if (Cel_GetClientAimTarget(iClient) == -1)
+	GetCmdArg(1, sOption, sizeof(sOption));
+	
+	if (iArgs == 1)
 	{
-		Cel_NotLooking(iClient);
-		return Plugin_Handled;
-	}
-	
-	int iProp = Cel_GetClientAimTarget(iClient);
-	
-	if (Cel_CheckOwner(iClient, iProp))
-	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+		if(StrContains(sOption, "all", false) !=-1)
+		{
+			for (int i = 0; i < GetMaxEntities(); i++)
+			{
+				if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
+				{
+					Cel_GetEntityTypeName(Cel_GetEntityType(i), sEntityType, sizeof(sEntityType));
+					
+					(Cel_CheckEntityCatagory(i, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(iClient) : Cel_SubFromCelCount(iClient);
+					
+					Call_StartForward(g_hOnEntityRemove);
+					
+					Call_PushCell(i);
+					Call_PushCell(iClient);
+					Call_PushCell(view_as<int>(!Cel_CheckEntityCatagory(i, ENTCATAGORY_PROP)));
+					
+					Call_Finish();
+					
+					if (Cel_CheckEntityType(i, "effect"))
+					AcceptEntityInput(Cel_GetEffectAttachment(i), "TurnOff");
+					
+					AcceptEntityInput(i, "kill");
+					
+					iRemoveCount++;
+				}
+			}
+			
+			Format(sRemoveCount, sizeof(sRemoveCount), "{green}%i{default} %s", iRemoveCount, iRemoveCount == 1 ? "entity" : "entities");
+			
+			Cel_ReplyToCommand(iClient, "%t", "RemoveAll", sRemoveCount);
+			
+			iRemoveCount = 0;
+			
+			return Plugin_Handled;
+		}else if(StrContains(sOption, "land", false) !=-1)
+		{
+			Cel_ClearLand(iClient);
+			
+			Cel_ReplyToCommand(iClient, "Land cleared.");
+			
+			return Plugin_Handled;
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CMD_Remove");
+			return Plugin_Handled;
+		}
+	}else{
+		if (Cel_GetClientAimTarget(iClient) == -1)
+		{
+			Cel_NotLooking(iClient);
+			return Plugin_Handled;
+		}
 		
-		(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(iClient) : Cel_SubFromCelCount(iClient);
+		int iProp = Cel_GetClientAimTarget(iClient);
 		
-		Call_StartForward(g_hOnEntityRemove);
-		
-		Call_PushCell(iProp);
-		Call_PushCell(iClient);
-		Call_PushCell(view_as<int>(!Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP)));
-		
-		Call_Finish();
-		
-		if (Cel_CheckEntityType(iProp, "effect"))
+		if (Cel_CheckOwner(iClient, iProp))
+		{
+			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+			
+			(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(iClient) : Cel_SubFromCelCount(iClient);
+			
+			Call_StartForward(g_hOnEntityRemove);
+			
+			Call_PushCell(iProp);
+			Call_PushCell(iClient);
+			Call_PushCell(view_as<int>(!Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP)));
+			
+			Call_Finish();
+			
+			if (Cel_CheckEntityType(iProp, "effect"))
 			AcceptEntityInput(Cel_GetEffectAttachment(iProp), "TurnOff");
-		
-		Cel_RemovalBeam(iClient, iProp);
-		
-		Cel_DissolveEntity(iProp);
-		
-		Cel_ReplyToCommand(iClient, "%t", "Remove", sEntityType);
-	} else {
-		Cel_NotYours(iClient, iProp);
-		return Plugin_Handled;
+			
+			Cel_RemovalBeam(iClient, iProp);
+			
+			Cel_DissolveEntity(iProp);
+			
+			Cel_ReplyToCommand(iClient, "%t", "Remove", sEntityType);
+		} else {
+			Cel_NotYours(iClient, iProp);
+			return Plugin_Handled;
+		}
 	}
 	
 	return Plugin_Handled;
@@ -627,77 +736,6 @@ public Action Command_Internet(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-/*public Action Command_Land(int iClient, int iArgs)
-{
-	bool bDidHitTop = false;
-	float fOrigin[3];
-	
-	if (g_bStartedLand[iClient])
-	{
-		if(Cel_IsCrosshairInsideLand(iClient) != -1)
-		{
-			if(Cel_IsCrosshairInsideLand(iClient) == iClient)
-			{}else{
-				Cel_ReplyCommand(iClient, "You cannot finish your land inside another land.");
-				return Plugin_Handled;
-			}
-		}else{
-			Cel_GetEndPoint(iClient, fOrigin);
-			
-			g_bStartedLand[iClient] = false;
-			g_bGettingPositions[iClient] = false;
-			
-			for (int i = 0; i < 16384; i++)
-			{
-				if (bDidHitTop)
-				{
-					g_fLandOrigin[iClient][1] = fOrigin;
-				} else {
-					fOrigin[2] += 1;
-					
-					if (TR_PointOutsideWorld(fOrigin))
-					{
-						fOrigin[2] -= 2;
-						
-						bDidHitTop = true;
-						
-						g_fLandOrigin[iClient][1] = fOrigin;
-					}
-				}
-			}
-			
-			g_fLandOrigin[iClient][1] = fOrigin;
-			
-			Cel_ReplyCommand(iClient, "Land completed.");
-			
-			return Plugin_Handled;
-		}
-	} else {
-		if(Cel_IsCrosshairInsideLand(iClient) != -1)
-		{
-			if(Cel_IsCrosshairInsideLand(iClient) == iClient)
-			{}else{
-				Cel_ReplyCommand(iClient, "You cannot start your land inside another land.");
-				return Plugin_Handled;
-			}
-		}else{
-			g_bStartedLand[iClient] = true;
-			g_bLandDrawing[iClient] = true;
-			g_bGettingPositions[iClient] = true;
-			
-			Cel_GetEndPoint(iClient, fOrigin);
-			
-			g_fLandOrigin[iClient][0] = fOrigin;
-			
-			Cel_ReplyCommand(iClient, "Type {green}[tag]land{default} again to complete the land.");
-			
-			return Plugin_Handled;	
-		}
-	}
-	
-	return Plugin_Handled;
-}*/
-
 public Action Command_NoKill(int iClient, int iArgs)
 {
 	Cel_SetNoKill(iClient, !Cel_GetNoKill(iClient));
@@ -771,7 +809,7 @@ public Action Command_SetOwner(int iClient, int iArgs)
 	int iProp = Cel_GetClientAimTarget(iClient);
 	
 	GetCmdArg(1, sTarget, sizeof(sTarget));
-
+	
 	GetClientName(iClient, sNames[0], sizeof(sNames[]));
 	
 	if (StrEqual(sTarget, ""))
@@ -794,7 +832,7 @@ public Action Command_SetOwner(int iClient, int iArgs)
 		Cel_ReplyToCommand(iClient, "%t", "CantFindTarget");
 		return Plugin_Handled;
 	}
-
+	
 	GetClientName(iTarget, sNames[1], sizeof(sNames[]));
 	
 	Cel_SetOwner(iTarget, iProp);
@@ -1067,11 +1105,14 @@ public Action Event_Death(Event eEvent, const char[] sName, bool bDontBroadcast)
 {
 	int iClient = GetClientOfUserId(eEvent.GetInt("userid"));
 	
-	int iRagdoll = GetEntPropEnt(iClient, Prop_Send, "m_hRagdoll");
-	
-	IgniteEntity(iRagdoll, 3.0);
-	
-	CreateTimer(2.0, Timer_DisRemove, EntIndexToEntRef(iRagdoll));
+	if(Cel_IsPlayer(iClient))
+	{
+		int iRagdoll = GetEntPropEnt(iClient, Prop_Send, "m_hRagdoll");
+		
+		IgniteEntity(iRagdoll, 3.0);
+		
+		CreateTimer(2.0, Timer_DisRemove, EntIndexToEntRef(iRagdoll));
+	}
 	
 	return Plugin_Handled;
 }
@@ -1095,6 +1136,18 @@ public Action Event_Disconnect(Event eEvent, const char[] sName, bool bDontBroad
 		eNewEvent.Fire(true);
 		
 		return Plugin_Handled;
+	}
+	
+	int iClient = GetClientOfUserId(eEvent.GetInt("userid"));
+	
+	PrintToServer("Removing Props");
+	
+	for (int i = 0; i < GetMaxEntities(); i++)
+	{
+		if (Cel_CheckOwner(iClient, i))
+		{
+			AcceptEntityInput(i, "kill");
+		}
 	}
 	
 	return Plugin_Handled;
@@ -1159,7 +1212,7 @@ public int Native_ChangeBeam(Handle hPlugin, int iNumParams)
 
 public int Native_ChangePositionRelativeToOrigin(Handle hPlugin, int iNumParams)
 {
-
+	
 	return true;
 }
 
@@ -1549,7 +1602,12 @@ public int Native_IsEntity(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
 	
-	return g_bEntity[iEntity];
+	if(iEntity > -1)
+	{
+		return g_bEntity[iEntity];
+	}
+	
+	return false;
 }
 
 public int Native_IsFrozen(Handle hPlugin, int iNumParams)
@@ -1720,7 +1778,7 @@ public int Native_SetColor(Handle hPlugin, int iNumParams)
 	SetEntityRenderMode(iEntity, RENDER_TRANSALPHA);
 	
 	g_iColor[iEntity][0] = iR == -1 ? g_iColor[iEntity][0] : iR, g_iColor[iEntity][1] = iG == -1 ? g_iColor[iEntity][1] : iG, g_iColor[iEntity][2] = iB == -1 ? g_iColor[iEntity][2] : iB, g_iColor[iEntity][3] = iA == -1 ? g_iColor[iEntity][3] : iA;
-
+	
 	return true;
 }
 
@@ -1855,7 +1913,7 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	int iDoor = CreateEntityByName("prop_door_rotating");
 	
 	if (iDoor == -1)
-		return -1;
+	return -1;
 	
 	PrecacheModel("models/props_c17/door01_left.mdl");
 	
@@ -1912,7 +1970,7 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	int iInternet = CreateEntityByName("prop_physics_override");
 	
 	if (iInternet == -1)
-		return -1;
+	return -1;
 	
 	PrecacheModel("models/props_lab/monitor02.mdl");
 	
@@ -1964,7 +2022,7 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	int iProp = CreateEntityByName(sEntityType);
 	
 	if (iProp == -1)
-		return -1;
+	return -1;
 	
 	PrecacheModel(sModel);
 	
@@ -1987,7 +2045,7 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	Cel_SetPropName(iProp, sAlias);
 	
 	if (!StrEqual(sEntityType, "cycler"))
-		Cel_SetSolid(iProp, true);
+	Cel_SetSolid(iProp, true);
 	
 	return iProp;
 }

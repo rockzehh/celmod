@@ -29,7 +29,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 public Plugin myinfo = 
 {
 	name = "|CelMod| Help", 
-	author = "rockzehh", 
+	author = CEL_AUTHOR, 
 	description = "Helpful commands for server owners and players.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"
@@ -37,10 +37,10 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	g_cvColorListURL = CreateConVar("cel_color_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/colorlist_export.html", "URL for the color list command.");
-	g_cvCommandListURL = CreateConVar("cel_command_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/commandlist_export.html", "URL for the command list command.");
-	g_cvEffectListURL = CreateConVar("cel_effect_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/effects.html", "URL for the effect list command.");
-	g_cvPropListURL = CreateConVar("cel_prop_list_url", "https://rockzehh.github.io/celmod/1.2.0.0/proplist_export.html", "URL for the prop list command.");
+	g_cvColorListURL = CreateConVar("cm_color_list_url", "https://rockzehh.github.io/celmod/color.html", "URL for the color list command.");
+	g_cvCommandListURL = CreateConVar("cm_command_list_url", "https://rockzehh.github.io/celmod/commandlist.html", "URL for the command list command.");
+	g_cvEffectListURL = CreateConVar("cm_effect_list_url", "https://rockzehh.github.io/celmod/effects.html", "URL for the effect list command.");
+	g_cvPropListURL = CreateConVar("cm_prop_list_url", "https://rockzehh.github.io/celmod/proplist.html", "URL for the prop list command.");
 	
 	g_cvColorListURL.AddChangeHook(CMHelp_OnConVarChanged);
 	g_cvCommandListURL.AddChangeHook(CMHelp_OnConVarChanged);
@@ -94,7 +94,7 @@ public Action Command_ColorList(int iClient, int iArgs)
 	
 	Cel_CheckInputURL(g_sColorListURL, sURL, sizeof(sURL));
 	
-	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
 	Cel_ReplyToCommand(iClient, "Displaying color list.");
 	
@@ -107,7 +107,7 @@ public Action Command_CommandList(int iClient, int iArgs)
 	
 	Cel_CheckInputURL(g_sCommandListURL, sURL, sizeof(sURL));
 	
-	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
 	Cel_ReplyToCommand(iClient, "Displaying command list.");
 	
@@ -120,7 +120,7 @@ public Action Command_EffectList(int iClient, int iArgs)
 	
 	Cel_CheckInputURL(g_sEffectListURL, sURL, sizeof(sURL));
 	
-	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
 	Cel_ReplyToCommand(iClient, "Displaying effect list.");
 	
@@ -166,7 +166,7 @@ public Action Command_PropList(int iClient, int iArgs)
 	
 	Cel_CheckInputURL(g_sPropListURL, sURL, sizeof(sURL));
 	
-	Cel_OpenMOTDOnClient(iClient, true, "King's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
 	Cel_ReplyToCommand(iClient, "Displaying prop list.");
 	

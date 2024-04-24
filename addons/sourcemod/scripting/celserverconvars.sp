@@ -26,7 +26,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 public Plugin myinfo = 
 {
 	name = "|CelMod| Custom Server ConVars", 
-	author = "rockzehh", 
+	author = CEL_AUTHOR, 
 	description = "Custom settings for server convars.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"
@@ -34,17 +34,17 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	AutoExecConfig(true, "cel-server-convars", "sourcemod");
+	AutoExecConfig(true, "cm-server-convars", "sourcemod");
 	
 	g_cvDownloadURL = CreateConVar("cm_server_downloadurl", "", "The download url for content for the server.");
 	g_cvGravity = CreateConVar("cm_server_gravity", "450", "The gravity for the server.");
-	g_cvHostname = CreateConVar("cm_server_hostname", "CelMod", "The custom hostname for the server.");
+	g_cvHostname = CreateConVar("cm_server_hostname", "Delaware & Hoopie <3", "The custom hostname for the server.");
 	g_cvTimelimit = CreateConVar("cm_server_timelimit", "60", "The timelimit for the server.");
 	
-	g_cvDownloadURL.AddChangeHook(CelConfig_OnConVarChanged);
-	g_cvGravity.AddChangeHook(CelConfig_OnConVarChanged);
-	g_cvHostname.AddChangeHook(CelConfig_OnConVarChanged);
-	g_cvTimelimit.AddChangeHook(CelConfig_OnConVarChanged);
+	g_cvDownloadURL.AddChangeHook(CMConfig_OnConVarChanged);
+	g_cvGravity.AddChangeHook(CMConfig_OnConVarChanged);
+	g_cvHostname.AddChangeHook(CMConfig_OnConVarChanged);
+	g_cvTimelimit.AddChangeHook(CMConfig_OnConVarChanged);
 	
 	g_cvDownloadURL.GetString(g_sDownloadURL, sizeof(g_sDownloadURL));
 	g_iGravity = g_cvGravity.IntValue;
@@ -61,7 +61,7 @@ public void OnMapStart()
 	Cel_ReloadServerConVars();
 }
 
-public void CelConfig_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
+public void CMConfig_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
 {
 	if (cvConVar == g_cvDownloadURL)
 	{

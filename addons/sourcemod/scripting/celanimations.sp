@@ -18,7 +18,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 public Plugin myinfo = 
 {
 	name = "|CelMod| Animations", 
-	author = "rockzehh", 
+	author = CEL_AUTHOR, 
 	description = "Allows to create animations using entities.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"

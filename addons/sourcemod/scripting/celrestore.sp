@@ -12,7 +12,7 @@ StringMap smEntities;
 public Plugin myinfo = 
 {
 	name = "|CelMod| Restore", 
-	author = "rockzehh", 
+	author = CEL_AUTHOR, 
 	description = "Restores the entities spawned incase of crash or reload.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"

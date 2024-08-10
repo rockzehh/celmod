@@ -13,19 +13,19 @@
 
 #pragma newdecls required
 
-bool g_bEntity[MAXENTS + 1];
-bool g_bFrozen[MAXENTS + 1];
+bool g_bEntity[MAXENTITIES + 1];
+bool g_bFrozen[MAXENTITIES + 1];
 bool g_bLate;
 bool g_bNoKill[MAXPLAYERS + 1];
 bool g_bPlayer[MAXPLAYERS + 1];
-bool g_bSolid[MAXENTS + 1];
+bool g_bSolid[MAXENTITIES + 1];
 
 char g_sAuthID[MAXPLAYERS + 1][32];
 char g_sColorDB[PLATFORM_MAX_PATH];
 char g_sDefaultInternetURL[PLATFORM_MAX_PATH];
-char g_sInternetURL[MAXENTS + 1][PLATFORM_MAX_PATH];
+char g_sInternetURL[MAXENTITIES + 1][PLATFORM_MAX_PATH];
 char g_sMap[PLATFORM_MAX_PATH];
-char g_sPropName[MAXENTS + 1][64];
+char g_sPropName[MAXENTITIES + 1][64];
 char g_sSpawnDB[PLATFORM_MAX_PATH];
 
 ConVar g_cvCelLimit;
@@ -40,24 +40,17 @@ Handle g_hOnPropSpawn;
 int g_iBeam;
 int g_iCelCount[MAXPLAYERS + 1];
 int g_iCelLimit;
-int g_iColor[MAXENTS + 1][4];
+int g_iColor[MAXENTITIES + 1][4];
 int g_iEntityDissolve;
 int g_iHalo;
 int g_iLightCount;
 int g_iLightLimit;
-int g_iOwner[MAXENTS + 1];
+int g_iOwner[MAXENTITIES + 1];
 int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
 int g_iPropLimit;
 
-//Colors:
-int g_iBlue[4] =  { 0, 0, 255, 175 };
-int g_iGray[4] =  { 255, 255, 255, 300 };
-int g_iGreen[4] =  { 0, 255, 0, 175 };
-int g_iOrange[4] =  { 255, 128, 0, 175 };
-int g_iRed[4] =  { 255, 0, 0, 175 };
-int g_iWhite[4] =  { 255, 255, 255, 175 };
-int g_iYellow[4] =  { 255, 255, 0, 175 };
+RenderFx g_rfRenderFX[MAXENTITIES + 1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
@@ -127,6 +120,11 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SubFromCelCount", Native_SubFromCelCount);
 	//CreateNative("Cel_SubFromLightCount", Native_SubFromLightCount);
 	CreateNative("Cel_SubFromPropCount", Native_SubFromPropCount);
+	CreateNative("Cel_CheckRenderFX", Native_CheckRenderFX);
+	CreateNative("Cel_GetRenderFX", Native_GetRenderFX);
+	CreateNative("Cel_GetRenderFXFromName", Native_GetRenderFXFromName);
+	CreateNative("Cel_GetRenderFXName", Native_GetRenderFXName);
+	CreateNative("Cel_SetRenderFX", Native_SetRenderFX);
 	
 	g_bLate = bLate;
 	
@@ -225,6 +223,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_paint", Command_Color, "|CelMod| Colors the prop you are looking at.");
 	RegConsoleCmd("sm_pmove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("sm_remove", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("sm_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on what prop you are looking at.");
 	RegConsoleCmd("sm_rotate", Command_Rotate, "|CelMod| Rotates the prop you are looking at.");
 	RegConsoleCmd("sm_s", Command_Spawn, "|CelMod| Spawns a prop by name.");
 	RegConsoleCmd("sm_seturl", Command_SetURL, "|CelMod| Sets the url of the internet cel you are looking at.");
@@ -313,16 +312,6 @@ public void OnClientDisconnect(int iClient)
 			EmitSoundToClient(i, "play npc/metropolice/vo/off1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}
 	}
-}
-
-public Action OnGetGameDescription(char sGameDesc[64])
-{
-	char sGameInfo[64];
-	
-	Format(sGameInfo, sizeof(sGameInfo), "|CelMod|");
-	
-	strcopy(sGameDesc, sizeof(sGameDesc), sGameInfo);
-	return Plugin_Changed;
 }
 
 public void OnMapStart()
@@ -443,9 +432,9 @@ public Action Command_Axis(int iClient, int iArgs)
 	fClientOrigin[2][1] += 50;
 	fClientOrigin[3][2] += 50;
 	
-	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, g_iRed, 10); TE_SendToClient(iClient);
-	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[2], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, g_iGreen, 10); TE_SendToClient(iClient);
-	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[3], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, g_iBlue, 10); TE_SendToClient(iClient);
+	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, Cel_GetRedColor(), 10); TE_SendToClient(iClient);
+	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[2], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, Cel_GetGreenColor(), 10); TE_SendToClient(iClient);
+	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[3], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, Cel_GetBlueColor(), 10); TE_SendToClient(iClient);
 	
 	Cel_ReplyToCommand(iClient, "%t", "CreateAxis");
 	
@@ -745,6 +734,41 @@ public Action Command_NoKill(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_RenderFX(int iClient, int iArgs)
+{
+	char sRenderFX[PLATFORM_MAX_PATH];
+	
+	if (iArgs < 1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_RenderFX");
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sRenderFX, sizeof(sRenderFX));
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		RenderFx rfRenderFX = Cel_GetRenderFXFromName(sRenderFX);
+		
+		Cel_SetRenderFX(iProp, rfRenderFX);
+		
+		Cel_ChangeBeam(iClient, iProp);
+	} else {
+		Cel_NotYours(iClient, iProp);
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Handled;
+}
+
 public Action Command_Rotate(int iClient, int iArgs)
 {
 	char sX[32], sY[32], sZ[32];
@@ -784,7 +808,7 @@ public Action Command_Rotate(int iClient, int iArgs)
 			TeleportEntity(iProp, NULL_VECTOR, fAngles, NULL_VECTOR);
 		}
 		
-		TE_SetupBeamRingPoint(fOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 3.0, 0.0, g_iOrange, 10, 0); TE_SendToAll();
+		TE_SetupBeamRingPoint(fOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 3.0, 0.0, Cel_GetOrangeColor(), 10, 0); TE_SendToAll();
 		
 		PrecacheSound("buttons/lever7.wav");
 		
@@ -1018,7 +1042,7 @@ public Action Command_Stand(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		TeleportEntity(iProp, NULL_VECTOR, g_fZero, NULL_VECTOR);
+		TeleportEntity(iProp, NULL_VECTOR, Cel_GetZeroVector(), NULL_VECTOR);
 	} else {
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
@@ -1065,7 +1089,41 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 
 public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 {
-	if (IsChatTrigger())
+	char sPropAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
+	float fAngles[3], fOrigin[3];
+	
+	GetCmdArg(1, sPropAlias, sizeof(sPropAlias));
+	
+	ReplaceString(sPropAlias, sizeof(sPropAlias), "!", "");
+	ReplaceString(sPropAlias, sizeof(sPropAlias), "/", "");
+	
+	if (Cel_CheckSpawnDB(sPropAlias, sSpawnString, sizeof(sSpawnString)))
+	{
+		if (!Cel_CheckPropCount(iClient))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "MaxPropLimit", Cel_GetPropCount(iClient));
+			return Plugin_Handled;
+		}
+		
+		ExplodeString(sSpawnString, "^", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
+		
+		GetClientAbsAngles(iClient, fAngles);
+		Cel_GetCrosshairHitOrigin(iClient, fOrigin);
+		
+		int iProp = Cel_SpawnProp(iClient, sPropAlias, sSpawnBuffer[0], sSpawnBuffer[1], fAngles, fOrigin, 255, 255, 255, 255);
+		
+		Call_StartForward(g_hOnPropSpawn);
+		
+		Call_PushCell(iProp);
+		Call_PushCell(iClient);
+		Call_PushCell(Cel_GetEntityType(iProp));
+		
+		Call_Finish();
+		
+		Cel_ReplyToCommand(iClient, "%t", "SpawnProp", sPropAlias);
+		
+		return Plugin_Handled;
+	} else if (IsChatTrigger())
 	{
 		return Plugin_Handled;
 	}
@@ -1198,7 +1256,7 @@ public int Native_ChangeBeam(Handle hPlugin, int iNumParams)
 	
 	Cel_GetCrosshairHitOrigin(iClient, fHitOrigin);
 	
-	TE_SetupBeamPoints(fClientOrigin, fHitOrigin, Cel_GetPhysicsMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, g_iWhite, 10); TE_SendToAll();
+	TE_SetupBeamPoints(fClientOrigin, fHitOrigin, Cel_GetPhysicsMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, Cel_GetWhiteColor(), 10); TE_SendToAll();
 	TE_SetupSparks(fHitOrigin, NULL_VECTOR, 2, 5); TE_SendToAll();
 	
 	Format(sSound, sizeof(sSound), "weapons/airboat/airboat_gun_lastshot%i.wav", GetRandomInt(1, 2));
@@ -1279,6 +1337,18 @@ public int Native_CheckEntityType(Handle hPlugin, int iNumParams)
 	GetNativeString(2, sPropCheck, sizeof(sPropCheck));
 	
 	return (Cel_GetEntityType(iEntity) == Cel_GetEntityTypeFromName(sPropCheck)) ? true : false;
+}
+
+public int Native_CheckRenderFX(Handle hPlugin, int iNumParams)
+{
+	char sCheck[PLATFORM_MAX_PATH], sType[PLATFORM_MAX_PATH];
+	int iEntity = GetNativeCell(1);
+	
+	GetNativeString(2, sCheck, sizeof(sCheck));
+	
+	Cel_GetRenderFXName(Cel_GetRenderFX(iEntity), sType, sizeof(sType));
+	
+	return (StrContains(sType, sCheck, false) != -1);
 }
 
 public int Native_CheckSpawnDB(Handle hPlugin, int iNumParams)
@@ -1588,6 +1658,88 @@ public int Native_GetPropLimit(Handle hPlugin, int iNumParams)
 	return g_iPropLimit;
 }
 
+public int Native_GetRenderFX(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	return view_as<int>(g_rfRenderFX[iEntity]);
+}
+
+public int Native_GetRenderFXFromName(Handle hPlugin, int iNumParams)
+{
+	char sRenderFXName[PLATFORM_MAX_PATH];
+	
+	GetNativeString(1, sRenderFXName, sizeof(sRenderFXName));
+	
+	if (StrContains("default", sRenderFXName, false) != -1)
+	{
+		return view_as<int>(RENDERFX_NONE);
+	} else if (StrContains("pulse", sRenderFXName, false) != -1)
+	{
+		return view_as<int>(RENDERFX_PULSE_FAST);
+	} else if (StrContains("fade", sRenderFXName, false) != -1)
+	{
+		return view_as<int>(RENDERFX_FADE_FAST);
+	} else if (StrContains("strobe", sRenderFXName, false) != -1)
+	{
+		return view_as<int>(RENDERFX_STROBE_FAST);
+	} else if (StrContains("flicker", sRenderFXName, false) != -1)
+	{
+		return view_as<int>(RENDERFX_FLICKER_FAST);
+	} else if (StrContains("distort", sRenderFXName, false) != -1)
+	{
+		return view_as<int>(RENDERFX_DISTORT);
+	} else if (StrContains("hologram", sRenderFXName, false) != -1)
+	{
+		return view_as<int>(RENDERFX_HOLOGRAM);
+	} else {
+		return view_as<int>(RENDERFX_NONE);
+	}
+}
+
+public int Native_GetRenderFXName(Handle hPlugin, int iNumParams)
+{
+	char sRenderFXName[PLATFORM_MAX_PATH];
+	RenderFx rfRenderFX = view_as<RenderFx>(GetNativeCell(1));
+	int iMaxLength = GetNativeCell(3);
+	
+	switch (rfRenderFX)
+	{
+		case RENDERFX_NONE:
+		{
+			Format(sRenderFXName, sizeof(sRenderFXName), "default");
+		}
+		case RENDERFX_PULSE_FAST:
+		{
+			Format(sRenderFXName, sizeof(sRenderFXName), "pulse");
+		}
+		case RENDERFX_FADE_FAST:
+		{
+			Format(sRenderFXName, sizeof(sRenderFXName), "fade");
+		}
+		case RENDERFX_STROBE_FAST:
+		{
+			Format(sRenderFXName, sizeof(sRenderFXName), "strobe");
+		}
+		case RENDERFX_FLICKER_FAST:
+		{
+			Format(sRenderFXName, sizeof(sRenderFXName), "flicker");
+		}
+		case RENDERFX_DISTORT:
+		{
+			Format(sRenderFXName, sizeof(sRenderFXName), "distort");
+		}
+		case RENDERFX_HOLOGRAM:
+		{
+			Format(sRenderFXName, sizeof(sRenderFXName), "hologram");
+		}
+	}
+	
+	SetNativeString(2, sRenderFXName, iMaxLength);
+	
+	return true;
+}
+
 public int Native_GetPropName(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -1704,9 +1856,9 @@ public int Native_RemovalBeam(Handle hPlugin, int iNumParams)
 	
 	Cel_GetEntityOrigin(iEntity, fEntityOrigin);
 	
-	TE_SetupBeamPoints(fClientOrigin, fEntityOrigin, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, g_iGray, 10); TE_SendToAll();
+	TE_SetupBeamPoints(fClientOrigin, fEntityOrigin, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, Cel_GetGrayColor(), 10); TE_SendToAll();
 	
-	TE_SetupBeamRingPoint(fEntityOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 5.0, 0.0, g_iGray, 10, 0); TE_SendToAll();
+	TE_SetupBeamRingPoint(fEntityOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 5.0, 0.0, Cel_GetGrayColor(), 10, 0); TE_SendToAll();
 	
 	Format(sSound, sizeof(sSound), "ambient/levels/citadel/weapon_disintegrate%i.wav", GetRandomInt(1, 4));
 	
@@ -1880,6 +2032,18 @@ public int Native_SetPropName(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_SetRenderFX(Handle hPlugin, int iNumParams)
+{
+	RenderFx rfType = view_as<RenderFx>(GetNativeCell(2));
+	int iEntity = GetNativeCell(1);
+	
+	g_rfRenderFX[iEntity] = rfType;
+	
+	SetEntityRenderFx(iEntity, rfType);
+	
+	return true;
+}
+
 public int Native_SetSolid(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -1930,11 +2094,11 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	DispatchKeyValue(iDoor, "OnFullyOpen", "!caller,Close,,3,-1");
 	DispatchKeyValue(iDoor, "hardware", "1");
 	
-	DispatchSpawn(iDoor);
-	
 	fOrigin[2] += 54;
 	
 	TeleportEntity(iDoor, fOrigin, NULL_VECTOR, NULL_VECTOR);
+	
+	DispatchSpawn(iDoor);
 	
 	Cel_AddToCelCount(iClient);
 	
@@ -1947,6 +2111,8 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	Cel_SetOwner(iClient, iDoor);
 	
 	Cel_SetSolid(iDoor, true);
+	
+	Cel_SetRenderFX(iDoor, RENDERFX_NONE);
 	
 	return iDoor;
 }
@@ -1978,9 +2144,9 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	DispatchKeyValue(iInternet, "classname", "cel_internet");
 	DispatchKeyValue(iInternet, "skin", "1");
 	
-	DispatchSpawn(iInternet);
-	
 	TeleportEntity(iInternet, fOrigin, fAngles, NULL_VECTOR);
+	
+	DispatchSpawn(iInternet);
 	
 	Cel_AddToCelCount(iClient);
 	
@@ -1995,6 +2161,8 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	Cel_SetOwner(iClient, iInternet);
 	
 	Cel_SetSolid(iInternet, true);
+	
+	Cel_SetRenderFX(iInternet, RENDERFX_NONE);
 	
 	SDKHook(iInternet, SDKHook_UsePost, Hook_InternetUse);
 	
@@ -2028,9 +2196,9 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	
 	DispatchKeyValue(iProp, "model", sModel);
 	
-	DispatchSpawn(iProp);
-	
 	TeleportEntity(iProp, fOrigin, fAngles, NULL_VECTOR);
+	
+	DispatchSpawn(iProp);
 	
 	Cel_AddToPropCount(iClient);
 	
@@ -2043,6 +2211,8 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	Cel_SetOwner(iClient, iProp);
 	
 	Cel_SetPropName(iProp, sAlias);
+	
+	Cel_SetRenderFX(iProp, RENDERFX_NONE);
 	
 	if (!StrEqual(sEntityType, "cycler"))
 	Cel_SetSolid(iProp, true);

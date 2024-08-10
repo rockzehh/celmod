@@ -43,7 +43,7 @@ enum struct Land {
 	int iPosition;
 }
 
-Land g_liLand[MAXENTS+1];
+Land g_liLand[MAXENTITIES+1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
@@ -108,12 +108,12 @@ public void OnClientPutInServer(int iClient)
 	g_liLand[iClient].bInLand = false;
 	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fBottom = g_fZero;
-	g_liLand[iClient].fBottomTop = g_fZero;
+	g_liLand[iClient].fBottom = Cel_GetZeroVector();
+	g_liLand[iClient].fBottomTop = Cel_GetZeroVector();
 	g_liLand[iClient].fGravity = 1.0;
-	g_liLand[iClient].fMiddle = g_fZero;
-	g_liLand[iClient].fOriginal = g_fZero;
-	g_liLand[iClient].fTop = g_fZero;
+	g_liLand[iClient].fMiddle = Cel_GetZeroVector();
+	g_liLand[iClient].fOriginal = Cel_GetZeroVector();
+	g_liLand[iClient].fTop = Cel_GetZeroVector();
 	
 	g_liLand[iClient].iEntity = -1;
 	g_liLand[iClient].iOwner = -1;
@@ -132,12 +132,12 @@ public void OnClientDisconnect(int iClient)
 	g_liLand[iClient].bInLand = false;
 	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fBottom = g_fZero;
-	g_liLand[iClient].fBottomTop = g_fZero;
+	g_liLand[iClient].fBottom = Cel_GetZeroVector();
+	g_liLand[iClient].fBottomTop = Cel_GetZeroVector();
 	g_liLand[iClient].fGravity = 1.0;
-	g_liLand[iClient].fMiddle = g_fZero;
-	g_liLand[iClient].fOriginal = g_fZero;
-	g_liLand[iClient].fTop = g_fZero;
+	g_liLand[iClient].fMiddle = Cel_GetZeroVector();
+	g_liLand[iClient].fOriginal = Cel_GetZeroVector();
+	g_liLand[iClient].fTop = Cel_GetZeroVector();
 	
 	g_liLand[iClient].iEntity = -1;
 	g_liLand[iClient].iOwner = -1;
@@ -211,6 +211,8 @@ public Action Command_Land(int iClient, int iArgs)
 			g_liLand[iClient].iPosition = 2;
 			
 			Cel_ReplyToCommand(iClient, "Finished drawing land. Type {green}!land{default} again to clear your land.");
+			
+			TE_SetupSparks(g_liLand[iClient].fMiddle, NULL_VECTOR, 150, 25);
 		}
 		
 		case 2:
@@ -325,21 +327,21 @@ public int Native_ClearLand(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	
 	g_liLand[iClient].bDrawing = false;
-			g_liLand[iClient].bGettingTop = false;
-			g_liLand[iClient].bInLand = false;
-			g_liLand[iClient].bMade = false;
-			
-			g_liLand[iClient].fBottom = g_fZero;
-			g_liLand[iClient].fBottomTop = g_fZero;
-			g_liLand[iClient].fMiddle = g_fZero;
-			g_liLand[iClient].fOriginal = g_fZero;
-			g_liLand[iClient].fTop = g_fZero;
-			
-			AcceptEntityInput(g_liLand[iClient].iEntity, "kill");
-			
-			g_liLand[iClient].iPosition = 0;
-			
-			return true;
+	g_liLand[iClient].bGettingTop = false;
+	g_liLand[iClient].bInLand = false;
+	g_liLand[iClient].bMade = false;
+	
+	g_liLand[iClient].fBottom = Cel_GetZeroVector();
+	g_liLand[iClient].fBottomTop = Cel_GetZeroVector();
+	g_liLand[iClient].fMiddle = Cel_GetZeroVector();
+	g_liLand[iClient].fOriginal = Cel_GetZeroVector();
+	g_liLand[iClient].fTop = Cel_GetZeroVector();
+	
+	AcceptEntityInput(g_liLand[iClient].iEntity, "kill");
+	
+	g_liLand[iClient].iPosition = 0;
+	
+	return true;
 }
 
 public int Native_DrawLand(Handle hPlugin, int iNumParams)
@@ -759,7 +761,7 @@ public Action Timer_GettingTop(Handle hTimer, any iPlayer)
 	{
 		Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottomTop);
 		
-		Handle hTraceRay = TR_TraceRayEx(g_liLand[iClient].fBottomTop, g_fUp, MASK_ALL, RayType_Infinite);
+		Handle hTraceRay = TR_TraceRayEx(g_liLand[iClient].fBottomTop, Cel_GetUpVector(), MASK_ALL, RayType_Infinite);
 		
 		if (TR_DidHit(hTraceRay))
 		{

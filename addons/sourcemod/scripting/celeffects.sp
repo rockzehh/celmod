@@ -7,13 +7,13 @@
 
 #pragma newdecls required
 
-bool g_bEffectActive[MAXENTS + 1];
+bool g_bEffectActive[MAXENTITIES + 1];
 
-EffectType g_etEffectType[MAXENTS + 1];
+EffectType g_etEffectType[MAXENTITIES + 1];
 
 Handle g_hOnEffectSpawn;
 
-int g_iEffectEntity[MAXENTS + 1];
+int g_iEffectEntity[MAXENTITIES + 1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
@@ -271,6 +271,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	Cel_SetFrozen(iBase, true);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
+	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
 	switch (etEffect)
 	{

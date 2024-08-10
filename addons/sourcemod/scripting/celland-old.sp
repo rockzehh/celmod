@@ -160,12 +160,12 @@ public Action Command_Land(int iClient, int iArgs)
 			Cel_SetLandPhase(iClient, 1, 0);
 			Cel_SetLandPhase(iClient, 2, 0);
 			
-			Cel_SetLandPosition(iClient, 0, g_fZero);
-			Cel_SetLandPosition(iClient, 1, g_fZero);
-			Cel_SetLandPosition(iClient, 2, g_fZero);
-			Cel_SetLandPosition(iClient, 3, g_fZero);
-			Cel_SetLandPosition(iClient, 4, g_fZero);
-			Cel_SetLandPosition(iClient, 5, g_fZero);
+			Cel_SetLandPosition(iClient, 0, Cel_GetZeroVector());
+			Cel_SetLandPosition(iClient, 1, Cel_GetZeroVector());
+			Cel_SetLandPosition(iClient, 2, Cel_GetZeroVector());
+			Cel_SetLandPosition(iClient, 3, Cel_GetZeroVector());
+			Cel_SetLandPosition(iClient, 4, Cel_GetZeroVector());
+			Cel_SetLandPosition(iClient, 5, Cel_GetZeroVector());
 			
 			Cel_ReplyToCommand(iClient, "Land cleared.");
 		}

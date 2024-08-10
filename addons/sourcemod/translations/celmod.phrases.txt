@@ -19,6 +19,11 @@
 	{
 		"en"			"Usage: {green}[tag]delete{default} <all|land>"
 	}
+	
+	"CMD_RenderFX"
+	{
+		"en"			"Usage: {green}[tag]renderfx{default} <rendermode>"
+	}
 
 	"CMD_Rotate"
 	{
@@ -105,6 +110,11 @@
 	{
 		"en"			"Spawned {green}internet{default} cel."
 	}
+	
+	"LandCleared"
+	{
+		"en"			"Land cleared."
+	}
 
 	"MaxCelLimit"
 	{
@@ -175,10 +185,17 @@
 		"#format"		"{1:s},{2:s}"
 		"en"			"Set ownership of {green}{1}{default} to {green}{2}{default}."
 	}
+	
 	"SetOwnerTarget"
 	{
 		"#format"		"{1:s},{2:s},{3:s}"
 		"en"			"{green}{1}{default} set ownership of {green}{2}{default} to {green}{3}{default}."
+	}
+	
+	"SetRenderFX"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Set renderfx on {1} to {green}{2}{default}."
 	}
 
 	"SetSolidicity"

@@ -36,15 +36,28 @@ enum EffectType
 	EFFECT_UNKNOWN = 7, /**< Unknown effect type. */
 };
 
-#define MAXENTS 2048 /**< Max number of entities Source can handle. */
+#define MAXENTITIES 2048 /**< Max number of entities Source can handle. */
 #define MAX_MESSAGE_LENGTH		256 /**< Max length a message can be. */
 #define MAX_BUFFER_LENGTH		(MAX_MESSAGE_LENGTH * 4) /** Max length the buffer can be. */
 #define CEL_AUTHOR "rockzehh" /**< Global version. */
-#define CEL_VERSION "1.0.0.2" /**< Global version. */
-#define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update_url.upd" /**< The url Updater uses to update. */
+#define CEL_VERSION "1.0.0.3" /**< Global version. */
+#define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd" /**< The url Updater uses to update. */
 
+#define PLAYER_CROWBAR_USE_RADIUS 2.0
+#define PLAYER_USE_RADIUS 80.0
+
+float g_fDown[3] = { 90.0, 0.0, 0.0 };
 float g_fUp[3] = { -90.0, 0.0, 0.0 };
 float g_fZero[3] = { 0.0, 0.0, 0.0 };
+
+//Colors:
+int g_iBlue[4] =  { 0, 0, 255, 175 };
+int g_iGray[4] =  { 255, 255, 255, 300 };
+int g_iGreen[4] =  { 0, 255, 0, 175 };
+int g_iOrange[4] =  { 255, 128, 0, 175 };
+int g_iRed[4] =  { 255, 0, 0, 175 };
+int g_iWhite[4] =  { 255, 255, 255, 175 };
+int g_iYellow[4] =  { 255, 255, 0, 175 };
 
 //========== kingssandbox.smx ==========
 /**
@@ -366,6 +379,42 @@ native void Cel_SubFromCelCount(int iClient);
 
 native void Cel_SubFromPropCount(int iClient);
 
+/**
+ * Checks if the effect type matches the search string.
+ *
+ * @param iEntity		Entity index.
+ * @param sType			Entity type to check.
+ * @return				True if the string matches the RenderFX type, false if it doesn't.
+ */
+native bool Cel_CheckRenderFX(const int iEntity, const char[] sType);
+
+/**
+ * Gets the RenderFX type.
+ *
+ * @param iEntity		Entity index.
+ * @return				Returns the RenderFX type.
+ */
+native RenderFx Cel_GetRenderFX(int iEntity);
+
+/**
+ * Gets the RenderFX type from name.
+ *
+ * @param sEntityName	String to check.
+ * @return				Returns the effect type, RENDERFX_NONE if the name is invalid.
+ */
+native RenderFx Cel_GetRenderFXFromName(const char[] sRenderFXName);
+
+/**
+ * Gets the RenderFX type name from RenderFX type.
+ *
+ * @param rfRenderFX	RenderFX type.
+ * @param sRenderFX		Buffer to store the RenderFX type.
+ * @param iMaxLength	Maximum length of the buffer.
+ */
+native char Cel_GetRenderFXName(RenderFx rfRenderFX, char[] sRenderFX, int iMaxLength);
+
+native void Cel_SetRenderFX(int iEntity, RenderFx rfRenderFX);
+
 //========== Cel_effects.smx ==========
 /**
  * Checks if the effect type matches the search string.
@@ -561,4 +610,55 @@ public Action Timer_DisRemove(Handle hTimer, any iRef)
 	Cel_DissolveEntity(iEntity);
 	
 	return Plugin_Continue;
+}
+
+//Stocks:
+stock int Cel_GetBlueColor()
+{
+	return g_iBlue;
+}
+
+stock int Cel_GetGrayColor()
+{
+	return g_iGray;
+}
+
+stock int Cel_GetGreenColor()
+{
+	return g_iGreen;
+}
+
+stock int Cel_GetOrangeColor()
+{
+	return g_iOrange;
+}
+
+stock int Cel_GetRedColor()
+{
+	return g_iRed;
+}
+
+stock int Cel_GetWhiteColor()
+{
+	return g_iWhite;
+}
+
+stock int Cel_GetYellowColor()
+{
+	return g_iYellow;
+}
+
+stock float Cel_GetDownVector()
+{
+	return g_fDown;
+}
+
+stock float Cel_GetUpVector()
+{
+	return g_fUp;
+}
+
+stock float Cel_GetZeroVector()
+{
+	return g_fZero;
 }

@@ -4,8 +4,8 @@
 	{
 		"Version"
 		{
-			"Latest"		"1.0.0.2"
-			"Previously"	"1.0.0.1"
+			"Latest"		"1.0.0.3"
+			"Previously"	"1.0.0.2"
 		}
 		
 		"Notes"	"Added sm_smove, cleaned up move ks references."

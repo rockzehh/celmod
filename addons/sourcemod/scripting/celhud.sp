@@ -5,10 +5,13 @@
 
 #pragma newdecls required
 
+ArrayList g_alCommands;
+
 bool g_bHudEnable;
 
 ConVar g_cvHudEnable;
 
+Handle g_hCommandTimer;
 Handle g_hHudTimer;
 
 int g_iClientColor[MAXPLAYERS + 1][4];
@@ -39,16 +42,27 @@ public void OnPluginStart()
 	g_cvHudEnable.AddChangeHook(CMHud_OnConVarChanged);
 	
 	g_bHudEnable = view_as<bool>(g_cvHudEnable.IntValue);
+	
+	AddCommandListener(Handle_Chat, "say");
+	AddCommandListener(Handle_Chat, "say_team");
 }
 
 public void OnMapStart()
 {
+	g_hCommandTimer = CreateTimer(0.1, Timer_CommandHUD, _, TIMER_REPEAT);
 	g_hHudTimer = CreateTimer(0.1, Timer_HUD, _, TIMER_REPEAT);
+	
+	g_alCommands = new ArrayList(6);
 }
 
 public void OnMapEnd()
 {
+	CloseHandle(g_hCommandTimer);
 	CloseHandle(g_hHudTimer);
+	
+	g_alCommands.Clear();
+	
+	g_alCommands.Close();
 }
 
 public void CMHud_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
@@ -57,6 +71,29 @@ public void CMHud_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const
 	{
 		g_bHudEnable = view_as<bool>(g_cvHudEnable.IntValue);
 	}
+}
+
+public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
+{
+	char sRealCommand[MAX_MESSAGE_LENGTH];
+	
+	if (IsChatTrigger())
+	{
+		GetCmdArgString(sRealCommand, sizeof(sRealCommand));
+		
+		StripQuotes(sRealCommand);
+		
+		g_alCommands.PushString(sRealCommand);
+		
+		if(g_alCommands.Length >= 6)
+		{
+			g_alCommands.Erase(0);	
+		}
+		
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Continue;
 }
 
 //Natives:
@@ -163,6 +200,30 @@ public int Native_SetHudColor(Handle hPlugin, int iNumParams)
 }
 
 //Timers:
+public Action Timer_CommandHUD(Handle hTimer)
+{
+	char sCommands[5][MAX_MESSAGE_LENGTH], sMessage[MAX_MESSAGE_LENGTH];
+	
+	if (g_bHudEnable)
+	{
+		for (int i = 1; i < MaxClients; i++)
+		{
+			if (Cel_IsPlayer(i))
+			{
+				if(g_alCommands.Length >= 1) g_alCommands.GetString(0, sCommands[0], sizeof(sCommands[]));
+				if(g_alCommands.Length >= 2) g_alCommands.GetString(1, sCommands[1], sizeof(sCommands[]));
+				if(g_alCommands.Length >= 3) g_alCommands.GetString(2, sCommands[2], sizeof(sCommands[]));
+				if(g_alCommands.Length >= 4) g_alCommands.GetString(3, sCommands[3], sizeof(sCommands[]));
+				if(g_alCommands.Length >= 5) g_alCommands.GetString(4, sCommands[4], sizeof(sCommands[]));
+				
+				Format(sMessage, sizeof(sMessage), "%s\n%s\n%s\n%s\n%s", sCommands[0], sCommands[1], sCommands[2], sCommands[3], sCommands[4]);
+				
+				Cel_SendHudMessage(i, 3, 3.010, 0.0, 255, 128, 0, 255, 0, 0.6, 0.01, 0.2, 0.01, sMessage);
+			}
+		}
+	}
+}
+
 public Action Timer_HUD(Handle hTimer)
 {
 	char sBuffer[128], sBufferArray[2][128], sMessage[MAX_MESSAGE_LENGTH], sPropname[128];

@@ -85,4 +85,6 @@ public Action Command_Animation(int iClient, int iArgs)
 	}
 	
 	g_bDoingAnimation
+	
+	return Plugin_Handled;
 }

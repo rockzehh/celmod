@@ -26,7 +26,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	LoadTranslations("celanimation.phrases");
+	LoadTranslations("celmod.phrases");
 	
 	RegConsoleCmd("sm_anim", Command_Animation, "Creates a animation on a selected entity.");
 	RegConsoleCmd("sm_animation", Command_Animation, "Creates a animation on a selected entity.");

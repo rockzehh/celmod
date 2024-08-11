@@ -16,16 +16,16 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "|CelMod| Crowbar", 
+	name = "|CelMod| Crowbar VGUI", 
 	author = CEL_AUTHOR, 
-	description = "A GUI interface for modifying entities.", 
+	description = "A VGUI interface for modifying entities.", 
 	version = CEL_VERSION, 
 	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
 {
-	RegConsoleCmd("sm_crowbar", Command_Crowbar, "|CelMod| Enables/disables the GUI interface for entities when using a crowbar/stunstick.");
+	RegConsoleCmd("sm_crowbar", Command_Crowbar, "|CelMod| Enables/disables the VGUI interface for entities when using a crowbar/stunstick.");
 }
 
 public void OnClientPutInServer(int iClient)
@@ -70,18 +70,18 @@ public Action OnPlayerRunCmd(int iClient, int &iButtons, int &iImpulse, float fV
 stock void Cel_ShowEntityMenu(int iClient, int iEntity)
 {
 	Menu hMenu = new Menu(Menu_CrowbarMain, MENU_ACTIONS_ALL);
-		
-		hMenu.SetTitle("|CelMod| Crowbar - Entity Interface");
-		
-		hMenu.AddItem("opt_alpha", "Set Alpha");
-		hMenu.AddItem("opt_angles", "Set Angles");
-		hMenu.AddItem("opt_color", "Set Color");
-		hMenu.AddItem("opt_motion", "Set Motion");
-		hMenu.AddItem("opt_origin", "Set Position");
-		hMenu.AddItem("opt_renderfx", "Set RenderFX");
-		hMenu.AddItem("opt_solid", "Set Solidity");		
-		
-		hMenu.ExitButton = true;
-		
-		hMenu.Display(iClient, MENU_TIME_FOREVER);
+	
+	hMenu.SetTitle("|CelMod| Crowbar - Entity Interface");
+	
+	hMenu.AddItem("opt_alpha", "Set Alpha");
+	hMenu.AddItem("opt_angles", "Set Angles");
+	hMenu.AddItem("opt_color", "Set Color");
+	hMenu.AddItem("opt_motion", "Set Motion");
+	hMenu.AddItem("opt_origin", "Set Position");
+	hMenu.AddItem("opt_renderfx", "Set RenderFX");
+	hMenu.AddItem("opt_solid", "Set Solidity");		
+	
+	hMenu.ExitButton = true;
+	
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }

@@ -40,10 +40,10 @@ enum EffectType
 #define MAX_MESSAGE_LENGTH		256 /**< Max length a message can be. */
 #define MAX_BUFFER_LENGTH		(MAX_MESSAGE_LENGTH * 4) /** Max length the buffer can be. */
 #define CEL_AUTHOR "rockzehh" /**< Global version. */
-#define CEL_VERSION "1.0.0.3" /**< Global version. */
+#define CEL_VERSION "1.0.1.0" /**< Global version. */
 #define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd" /**< The url Updater uses to update. */
 
-#define PLAYER_CROWBAR_USE_RADIUS 2.0
+#define PLAYER_CROWBAR_ATTACK_RADIUS 2.0 /**<Used with Crowbar VGUI. */
 #define PLAYER_USE_RADIUS 80.0
 
 float g_fDown[3] = { 90.0, 0.0, 0.0 };
@@ -59,7 +59,7 @@ int g_iRed[4] =  { 255, 0, 0, 175 };
 int g_iWhite[4] =  { 255, 255, 255, 175 };
 int g_iYellow[4] =  { 255, 255, 0, 175 };
 
-//========== kingssandbox.smx ==========
+//========== celmod.smx ==========
 /**
  * Adds one to the client's cel count.
  *
@@ -415,7 +415,7 @@ native char Cel_GetRenderFXName(RenderFx rfRenderFX, char[] sRenderFX, int iMaxL
 
 native void Cel_SetRenderFX(int iEntity, RenderFx rfRenderFX);
 
-//========== Cel_effects.smx ==========
+//========== celeffects.smx ==========
 /**
  * Checks if the effect type matches the search string.
  *
@@ -476,7 +476,7 @@ native void Cel_SetEffectType(int iEffect, EffectType etEffectType);
 
 native int Cel_SpawnEffect(const int iClient, const float fOrigin[3], const EffectType etEffect, bool bActivate, const int iR, const int iG, const int iB, const int iA);
 
-//========== Cel_help.smx ==========
+//========== celhelp.smx ==========
 native char Cel_CheckInputURL(const char[] sInput, char[] sOutput, int iMaxLength);
 
 /**
@@ -505,7 +505,7 @@ native bool Cel_ExportPropList(bool bHTML);
 
 native void Cel_OpenMOTDOnClient(int iClient, bool bShow, const char[] sTitle, const char[] sDestination, int iType = MOTDPANEL_TYPE_URL);
 
-//========== Cel_hud.smx ==========
+//========== celhud.smx ==========
 native void Cel_ChooseHudColor(int iClient);
 
 native int Cel_GetHudColor(int iClient, int iColor[4]);
@@ -514,7 +514,7 @@ native void Cel_SendHudMessage(int iClient, int iChannel, float fX, float fY, in
 
 native void Cel_SetHudColor(int iClient, int iR, int iG, int iB, int iA);
 
-//========== Cel_land.smx ==========
+//========== celland.smx ==========
 native int Cel_CreateLandEntity(int iUserID, float fMin[3], float fMax[3]);
 
 native void Cel_ClearLand(int iClient);
@@ -540,9 +540,6 @@ native bool Cel_IsEntityInLand(int iEntity, int iLand);
 native bool Cel_IsPositionInBox(float fPos[3], float fBottomCorner[3], float fTopCorner[3]);
 
 native void Cel_SetLandGravity(int iLand);
-
-//========== Cel_serverconvars.smx ==========
-native void Cel_ReloadServerConVars();
 
 //Hooks:
 public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)

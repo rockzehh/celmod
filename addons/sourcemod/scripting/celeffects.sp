@@ -42,8 +42,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	LoadTranslations("celeffects.phrases");
-
+	LoadTranslations("celmod.phrases");
+	
 	g_hOnEffectSpawn = CreateGlobalForward("Cel_OnEffectSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 	
 	RegConsoleCmd("sm_effect", Command_Effect, "|CelMod| Spawns a working effect cel.");

@@ -1198,8 +1198,6 @@ public Action Event_Disconnect(Event eEvent, const char[] sName, bool bDontBroad
 	
 	int iClient = GetClientOfUserId(eEvent.GetInt("userid"));
 	
-	PrintToServer("Removing Props");
-	
 	for (int i = 0; i < GetMaxEntities(); i++)
 	{
 		if (Cel_CheckOwner(iClient, i))

@@ -37,6 +37,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	LoadTranslations("celmod.phrases");
+	
 	g_cvColorListURL = CreateConVar("cm_color_list_url", "https://rockzehh.github.io/celmod/color.html", "URL for the color list command.");
 	g_cvCommandListURL = CreateConVar("cm_command_list_url", "https://rockzehh.github.io/celmod/commandlist.html", "URL for the command list command.");
 	g_cvEffectListURL = CreateConVar("cm_effect_list_url", "https://rockzehh.github.io/celmod/effects.html", "URL for the effect list command.");
@@ -96,7 +98,7 @@ public Action Command_ColorList(int iClient, int iArgs)
 	
 	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	Cel_ReplyToCommand(iClient, "Displaying color list.");
+	Cel_ReplyToCommand(iClient, "%t", "DisplayColorList");
 	
 	return Plugin_Handled;
 }
@@ -109,7 +111,7 @@ public Action Command_CommandList(int iClient, int iArgs)
 	
 	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	Cel_ReplyToCommand(iClient, "Displaying command list.");
+	Cel_ReplyToCommand(iClient, "%t", "DisplayCommandList");
 	
 	return Plugin_Handled;
 }
@@ -122,7 +124,7 @@ public Action Command_EffectList(int iClient, int iArgs)
 	
 	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	Cel_ReplyToCommand(iClient, "Displaying effect list.");
+	Cel_ReplyToCommand(iClient, "%t", "DisplayEffectList");
 	
 	return Plugin_Handled;
 }
@@ -168,7 +170,7 @@ public Action Command_PropList(int iClient, int iArgs)
 	
 	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 	
-	Cel_ReplyToCommand(iClient, "Displaying prop list.");
+	Cel_ReplyToCommand(iClient, "%t", "DisplayPropList");
 	
 	return Plugin_Handled;
 }
@@ -224,12 +226,12 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 	if (!DirExists(sPath))
-		CreateDirectory(sPath, 511);
+	CreateDirectory(sPath, 511);
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/colorlist_export.txt");
 	
 	if (FileExists(sPath))
-		DeleteFile(sPath);
+	DeleteFile(sPath);
 	
 	File fColorList = OpenFile(sPath, "a+");
 	
@@ -274,12 +276,12 @@ public int Native_ExportColorList(Handle hPlugin, int iNumParams)
 		
 		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 		if (!DirExists(sPath))
-			CreateDirectory(sPath, 511);
+		CreateDirectory(sPath, 511);
 		
 		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/colorlist_export.html");
 		
 		if (FileExists(sPath))
-			DeleteFile(sPath);
+		DeleteFile(sPath);
 		
 		File fColorListHTML = OpenFile(sPath, "a+");
 		
@@ -318,21 +320,21 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 	if (!DirExists(sPath))
-		CreateDirectory(sPath, 511);
+	CreateDirectory(sPath, 511);
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/commandlist_export.txt");
 	
 	if (FileExists(sPath))
-		DeleteFile(sPath);
+	DeleteFile(sPath);
 	
 	BuildPath(Path_SM, sPathHTML, sizeof(sPathHTML), "data/celmod/exports/commandlist_export.html");
 	
 	if (FileExists(sPathHTML))
-		DeleteFile(sPathHTML);
+	DeleteFile(sPathHTML);
 	
 	fCommandList = OpenFile(sPath, "a+");
 	if (bHTML)
-		fCommandListHTML = OpenFile(sPathHTML, "a+");
+	fCommandListHTML = OpenFile(sPathHTML, "a+");
 	
 	if (bHTML)
 	{
@@ -380,12 +382,12 @@ public int Native_ExportCommandList(Handle hPlugin, int iNumParams)
 	
 	PrintToServer("|CelMod| Exported command list to 'data/celmod/export/commandlist_export.txt'.");
 	if (bHTML)
-		PrintToServer("|CelMod| Exported command list to 'data/celmod/export/commandlist_export.html'.");
+	PrintToServer("|CelMod| Exported command list to 'data/celmod/export/commandlist_export.html'.");
 	
 	fCommandList.Close();
 	if (bHTML)
-		fCommandListHTML.Close();
-		
+	fCommandListHTML.Close();
+	
 	return true;
 }
 
@@ -413,12 +415,12 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 	if (!DirExists(sPath))
-		CreateDirectory(sPath, 511);
+	CreateDirectory(sPath, 511);
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/proplist_export.txt");
 	
 	if (FileExists(sPath))
-		DeleteFile(sPath);
+	DeleteFile(sPath);
 	
 	File fPropList = OpenFile(sPath, "a+");
 	
@@ -454,12 +456,12 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 		
 		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports");
 		if (!DirExists(sPath))
-			CreateDirectory(sPath, 511);
+		CreateDirectory(sPath, 511);
 		
 		BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/exports/proplist_export.html");
 		
 		if (FileExists(sPath))
-			DeleteFile(sPath);
+		DeleteFile(sPath);
 		
 		File fPropListHTML = OpenFile(sPath, "a+");
 		

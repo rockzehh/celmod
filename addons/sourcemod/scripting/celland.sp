@@ -77,6 +77,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	LoadTranslations("celmod.phrases");
+	
 	if (g_bLate)
 	{
 		for (int i = 1; i < MaxClients; i++)
@@ -194,7 +196,7 @@ public Action Command_Land(int iClient, int iArgs)
 			g_liLand[iClient].bDrawing = true;
 			g_liLand[iClient].bGettingTop = true;
 			
-			Cel_ReplyToCommand(iClient, "Started drawing land. Type {green}!land{default} again to complete your land.");
+			Cel_ReplyToCommand(iClient, "%t", "LandStarted");
 			
 			g_liLand[iClient].iPosition = 1;
 		}
@@ -210,7 +212,7 @@ public Action Command_Land(int iClient, int iArgs)
 			
 			g_liLand[iClient].iPosition = 2;
 			
-			Cel_ReplyToCommand(iClient, "Finished drawing land. Type {green}!land{default} again to clear your land.");
+			Cel_ReplyToCommand(iClient, "%t", "LandFinished");
 			
 			TE_SetupSparks(g_liLand[iClient].fMiddle, NULL_VECTOR, 150, 25);
 		}
@@ -219,7 +221,7 @@ public Action Command_Land(int iClient, int iArgs)
 		{
 			Cel_ClearLand(iClient);
 			
-			Cel_ReplyToCommand(iClient, "Land cleared.");
+			Cel_ReplyToCommand(iClient, "%t", "LandCleared");
 		}
 	}
 	
@@ -230,7 +232,7 @@ public Action Command_LandDeathmatch(int iClient, int iArgs)
 {
 	g_liLand[iClient].bDeathmatch = !g_liLand[iClient].bDeathmatch;
 	
-	Cel_ReplyToCommand(iClient, "Deathmatch mode %s.", g_liLand[iClient].bDeathmatch ? "on" : "off");
+	Cel_ReplyToCommand(iClient, "%t", g_liLand[iClient].bDeathmatch ? "DeathmatchOn" : "DeathmatchOff");
 	
 	return Plugin_Handled;
 }
@@ -241,7 +243,7 @@ public Action Command_LandGravity(int iClient, int iArgs)
 	
 	if (iArgs < 1)
 	{
-		Cel_ReplyToCommand(iClient, "Usage: {green}[tag]gravity{default} <gravity>");
+		Cel_ReplyToCommand(iClient, "%t", "CMD_LandGravity");
 		return Plugin_Handled;
 	}
 	

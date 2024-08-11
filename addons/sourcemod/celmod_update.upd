@@ -4,20 +4,30 @@
 	{
 		"Version"
 		{
-			"Latest"		"1.0.0.3"
-			"Previously"	"1.0.0.2"
+			"Latest"		"1.0.1.0"
+			"Previously"	"1.0.0.3"
 		}
 		
-		"Notes"	"Added sm_smove, cleaned up move ks references."
+		"Notes"	"Removed celserverconvars due to being useless currently."
+		"Notes"	"Started alpha/beta of celanimations and celcrowbar."
+		"Notes"	"Added a command history list to the client HUD."
+		"Notes"	"Added sm_renderfx to change the renderfx on entities."
+		"Notes"	"Added the ability to spawn a prop directly in chat. Ex. !blastdoor3, /blastdoor3"
 	}
 	
 	"Files"
 	{
 		"Patch"
 		{
-
+			"Plugin"	"Path_SM/plugins/funcommands.smx"
+			"Plugin"	"Path_SM/plugins/celeffects.smx"
+			"Plugin"	"Path_SM/plugins/celhelp.smx"
+			"Plugin"	"Path_SM/plugins/celhud.smx"
+			"Plugin"	"Path_SM/plugins/celland.smx"
+			"Plugin"	"Path_SM/plugins/celmod.smx"
+			"Plugin"	"Path_SM/translations/celmod.phrases.txt"
 		}
-
+		
 		"Plugin"	"Path_SM/data/celmod/colors.txt"
 		"Plugin"	"Path_SM/data/celmod/spawns.txt"
 		"Plugin"	"Path_SM/plugins/funcommands.smx"
@@ -25,22 +35,17 @@
 		"Plugin"	"Path_SM/plugins/celhelp.smx"
 		"Plugin"	"Path_SM/plugins/celhud.smx"
 		"Plugin"	"Path_SM/plugins/celland.smx"
-		"Plugin"	"Path_SM/plugins/celserverconvars.smx"
 		"Plugin"	"Path_SM/plugins/celmod.smx"
-		"Plugin"	"Path_SM/scripting/include/celmod.inc"
 		"Plugin"	"Path_SM/translations/celmod.phrases.txt"
-		"Plugin"	"Path_SM/translations/celeffects.phrases.txt"
-
+		
 		"Source"	"Path_SM/scripting/funcommands.sp"
 		"Source"	"Path_SM/scripting/celeffects.sp"
 		"Source"	"Path_SM/scripting/celhelp.sp"
 		"Source"	"Path_SM/scripting/celhud.sp"
 		"Source"	"Path_SM/scripting/celland.sp"
-		"Source"	"Path_SM/scripting/celserverconvers.sp"
 		"Source"	"Path_SM/scripting/celmod.sp"
 		"Source"	"Path_SM/scripting/funcommands/ice.sp"
+		"Source"	"Path_SM/scripting/include/celmod.inc"
 		"Source"	"Path_SM/scripting/include/morecolors.inc"
-		"Source"	"Path_SM/translations/celmod.phrases.txt"
-		"Source"	"Path_SM/translations/celeffects.phrases.txt"
 	}
 }

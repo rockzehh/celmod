@@ -1,9 +1,6 @@
 cm_exportcolorlist - Server - Exports the color list into a text or html file in 'data/celmod/exports'.
 cm_exportcommandlist - Server - Exports the command list into a text or html file in 'data/celmod/exports'.
 cm_exportproplist - Server - Exports the prop list into a text or html file in 'data/celmod/exports'.
-cm_reloadcelmod - Admin - Reloads the CelMod plugins except for celrestore.smx.
-cm_reloadserverconvars - Server - Reloads the custom convar settings for the server.
-cm_restoreentities - Admin - Restores the plugin entities after a reload.
 sm_alpha - Client - Changes the transparency on the prop you are looking at.
 sm_amt - Client - Changes the transparency on the prop you are looking at.
 sm_axis - Client - Creates a marker to the player showing every axis.
@@ -34,6 +31,7 @@ sm_pmove - Client - Moves the prop you are looking at on it's origin.
 sm_proplist - Client - Displays the prop list.
 sm_props - Client - Displays the prop list.
 sm_remove - Client - Removes the prop you are looking at.
+sm_renderfx - Client - Changes the RenderFX on what prop you are looking at.
 sm_rotate - Client - Rotates the prop you are looking at.
 sm_s - Client - Spawns a prop by name.
 sm_setowner - Admin - Sets the owner of the prop you are looking at.

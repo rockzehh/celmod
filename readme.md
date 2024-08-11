@@ -2,9 +2,9 @@
 
 **|CelMod|** is a fully customized building experience, and extra features to enhance the standard gameplay.
 
-Latest release is *none*, current working version is *1.0.0.2*.
+Latest release is *1.0.1.0*, current working version is *1.0.1.1*.
 
-Built against SourceMod *1.11.0-git6826* and Metamod: Source *1.12.0-git1157*.
+Built against SourceMod *1.11.0-git6968* and Metamod: Source *1.11.0-git1155*.
 
 This plugin uses [Updater](https://forums.alliedmods.net/showthread.php?t=169095) to update its files, and is required.
 This plugin uses [More Colors](https://forums.alliedmods.net/showthread.php?t=185016) for the text color. It is required if you want to recompile the plugin.
@@ -32,6 +32,7 @@ sm_landdeathmatch|Changes the deathmatch setting within the land.|None|Client|
 sm_landgravity|Changes the gravity within the land.|None|Client|
 sm_nokill|Enables/disables godmode on the player.|None|Client|
 sm_proplist|Displays the prop list.|sm_props|Client|[Prop List](https://rockzehh.github.io/celmod/proplist.html)
+sm_renderfx|Changes the RenderFX on what prop you are looking at.|None|Client|
 sm_rotate|Rotates the prop you are looking at.|None|Client|
 sm_setowner|Sets the owner of the prop you are looking at.|None|Admin|
 sm_seturl|Sets the url of the internet cel you are looking at|None|Client|
@@ -47,7 +48,6 @@ Command | Description | Type
 cm_exportcolorlist|Exports the color list into a text or html file in 'data/celmod/exports'.|Server
 cm_exportcommandlist|Exports the command list into a text or html file in 'data/celmod/exports'.|Server
 cm_exportproplist|Exports the prop list into a text or html file in 'data/celmod/exports'.|Server
-cm_reloadserverconvers|Reloads the custom convar settings for the server.|Server
 
 For the most current command list, [click here](https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/data/celmod/exports/commandlist_export.html).
 

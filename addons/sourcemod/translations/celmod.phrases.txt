@@ -112,6 +112,11 @@
 		"en"			"Spawned {green}internet{default} cel."
 	}
 	
+	"LightSpawn"
+	{
+		"en"			"Spawned {green}light{default} cel."
+	}
+	
 	"MaxCelLimit"
 	{
 		"#format"		"{1:i}"

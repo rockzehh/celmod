@@ -55,7 +55,6 @@ RenderFx g_rfRenderFX[MAXENTITIES + 1];
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_AddToCelCount", Native_AddToCelCount);
-	//CreateNative("Cel_AddToLightCount", Native_AddToCelCount);
 	CreateNative("Cel_AddToPropCount", Native_AddToPropCount);
 	CreateNative("Cel_ChangeBeam", Native_ChangeBeam);
 	CreateNative("Cel_ChangePositionRelativeToOrigin", Native_ChangePositionRelativeToOrigin);
@@ -63,7 +62,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_CheckColorDB", Native_CheckColorDB);
 	CreateNative("Cel_CheckEntityCatagory", Native_CheckEntityCatagory);
 	CreateNative("Cel_CheckEntityType", Native_CheckEntityType);
-	//CreateNative("Cel_CheckLightCount", Native_CheckLightCount);
 	CreateNative("Cel_CheckOwner", Native_CheckOwner);
 	CreateNative("Cel_CheckPropCount", Native_CheckPropCount);
 	CreateNative("Cel_CheckSpawnDB", Native_CheckSpawnDB);
@@ -115,10 +113,9 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SetSolid", Native_SetSolid);
 	CreateNative("Cel_SpawnDoor", Native_SpawnDoor);
 	CreateNative("Cel_SpawnInternet", Native_SpawnInternet);
-	//CreateNative("Cel_SpawnLight", Native_SpawnLight);
+	CreateNative("Cel_SpawnLight", Native_SpawnLight);
 	CreateNative("Cel_SpawnProp", Native_SpawnProp);
 	CreateNative("Cel_SubFromCelCount", Native_SubFromCelCount);
-	//CreateNative("Cel_SubFromLightCount", Native_SubFromLightCount);
 	CreateNative("Cel_SubFromPropCount", Native_SubFromPropCount);
 	CreateNative("Cel_CheckRenderFX", Native_CheckRenderFX);
 	CreateNative("Cel_GetRenderFX", Native_GetRenderFX);
@@ -205,6 +202,8 @@ public void OnPluginStart()
 	HookEvent("player_disconnect", Event_Disconnect, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_Spawn, EventHookMode_Post);
 	
+	RegConsoleCmd("dev_getpos", Dev_GetPos, "");
+	
 	RegAdminCmd("sm_setowner", Command_SetOwner, ADMFLAG_SLAY, "|CelMod| Sets the owner of the prop you are looking at.");
 	RegConsoleCmd("sm_alpha", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
 	RegConsoleCmd("sm_amt", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
@@ -216,6 +215,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("sm_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("sm_internet", Command_Internet, "|CelMod| Creates a working internet cel.");
+	RegConsoleCmd("sm_light", Command_Light, "|CelMpd| Creates a working, moveable light cel.");
 	RegConsoleCmd("sm_mark", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
 	RegConsoleCmd("sm_marker", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
 	RegConsoleCmd("sm_nokill", Command_NoKill, "|CelMod| Enables/disables godmode on the player.");
@@ -355,6 +355,18 @@ public void CM_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const ch
 }
 
 //Commands:
+public Action Dev_GetPos(int iClient, int iArgs)
+{
+	float fAng[3], fPos[3];
+	
+	GetClientAbsAngles(iClient, fAng);
+	GetClientAbsOrigin(iClient, fPos);
+	
+	PrintToChat(iClient, "ANG: %f.f %f.f %f.f POS: %f.f %f.f %f.f", fAng[0], fAng[1], fAng[2], fPos[0], fPos[1], fPos[2]);
+	
+	return Plugin_Handled;
+}
+
 public Action Command_Alpha(int iClient, int iArgs)
 {
 	char sAlpha[16], sEntityType[32], sOption[32];
@@ -721,6 +733,34 @@ public Action Command_Internet(int iClient, int iArgs)
 	Call_Finish();
 	
 	Cel_ReplyToCommand(iClient, "%t", "InternetSpawn");
+	
+	return Plugin_Handled;
+}
+
+public Action Command_Light(int iClient, int iArgs)
+{
+	float fAngles[3], fOrigin[3];
+	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
+		return Plugin_Handled;
+	}
+	
+	GetClientAbsAngles(iClient, fAngles);
+	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
+	
+	int iLight = Cel_SpawnLight(iClient, fAngles, fOrigin, 255, 255, 255);
+	
+	Call_StartForward(g_hOnCelSpawn);
+	
+	Call_PushCell(iLight);
+	Call_PushCell(iClient);
+	Call_PushCell(ENTTYPE_LIGHT);
+	
+	Call_Finish();
+	
+	Cel_ReplyToCommand(iClient, "%t", "LightSpawn");
 	
 	return Plugin_Handled;
 }
@@ -1472,7 +1512,7 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	
 	EntityType etEntityType = Cel_GetEntityType(iEntity);
 	
-	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET)
+	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LIGHT)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
 	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
@@ -1526,6 +1566,9 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 	} else if (StrEqual(sClassname, "cel_internet", false))
 	{
 		return view_as<int>(ENTTYPE_INTERNET);
+	} else if (StrEqual(sClassname, "cel_light", false))
+	{
+		return view_as<int>(ENTTYPE_LIGHT);
 	} else if (StrContains(sClassname, "effect_", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_EFFECT);
@@ -1561,6 +1604,9 @@ public int Native_GetEntityTypeFromName(Handle hPlugin, int iNumParams)
 	} else if (StrEqual(sEntityType, "internet", false))
 	{
 		return view_as<int>(ENTTYPE_INTERNET);
+	} else if (StrEqual(sEntityType, "light", false))
+	{
+		return view_as<int>(ENTTYPE_LIGHT);
 	} else if (StrEqual(sEntityType, "physics", false))
 	{
 		return view_as<int>(ENTTYPE_PHYSICS);
@@ -1595,6 +1641,10 @@ public int Native_GetEntityTypeName(Handle hPlugin, int iNumParams)
 		case ENTTYPE_INTERNET:
 		{
 			Format(sEntityType, sizeof(sEntityType), "internet cel");
+		}
+		case ENTTYPE_LIGHT:
+		{
+			Format(sEntityType, sizeof(sEntityType), "light cel");
 		}
 		case ENTTYPE_PHYSICS:
 		{
@@ -2165,6 +2215,82 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	SDKHook(iInternet, SDKHook_UsePost, Hook_InternetUse);
 	
 	return iInternet;
+}
+
+public int Native_SpawnLight(Handle hPlugin, int iNumParams)
+{
+	char sLightName[64], sOutput[64];
+	float fAngles[3], fOrigin[3];
+	int iClient = GetNativeCell(1), iColor[3];
+	
+	GetNativeArray(2, fAngles, 3);
+	GetNativeArray(3, fOrigin, 3);
+	
+	iColor[0] = GetNativeCell(4);
+	iColor[1] = GetNativeCell(5);
+	iColor[2] = GetNativeCell(6);
+	
+	int iLight = CreateEntityByName("prop_physics_override");
+	
+	if (iLight == -1)
+	return -1;
+	
+	PrecacheModel("models/roller_spikes.mdl");
+	
+	DispatchKeyValue(iLight, "model", "models/roller_spikes.mdl");
+	DispatchKeyValue(iLight, "classname", "cel_light");
+	DispatchKeyValue(iLight, "physdamagescale", "1.0");
+	DispatchKeyValue(iLight, "spawnflags", "258");
+	DispatchKeyValue(iLight, "targetname", "templight");
+	
+	TeleportEntity(iLight, fOrigin, fAngles, NULL_VECTOR);
+	
+	DispatchSpawn(iLight);
+	
+	int iLightEnt = CreateEntityByName("light_dynamic");
+	
+	DispatchKeyValue(iLightEnt, "_cone", "500");
+	DispatchKeyValue(iLightEnt, "_inner_cone", "300");
+	DispatchKeyValue(iLightEnt, "_light", "255 255 255 200");
+	DispatchKeyValue(iLightEnt, "brightness", "0.5");
+	DispatchKeyValue(iLightEnt, "distance", "750");
+	DispatchKeyValue(iLightEnt, "spawnflags", "0");
+	DispatchKeyValue(iLightEnt, "spotlight_radius", "500");
+	
+	TeleportEntity(iLightEnt, fOrigin, fAngles, NULL_VECTOR);
+	
+	DispatchSpawn(iLightEnt);
+	
+	SetVariantString("templight");
+	
+	AcceptEntityInput(iLightEnt, "setparent");
+	
+	DispatchKeyValue(iLight, "targetname", "islight");
+	
+	Format(sLightName, sizeof(sLightName), "light_%d-%d", GetRandomInt(0, 340), GetRandomInt(342, 604));
+	Format(sOutput, sizeof(sOutput), "%s,toggle,,0,-1", sLightName);
+	
+	DispatchKeyValue(iLight, "OnPlayerUse", sOutput);
+	
+	DispatchKeyValue(iLightEnt, "targetname", sLightName);
+	
+	AcceptEntityInput(iLight, "disableshadow");
+	
+	Cel_AddToCelCount(iClient);
+	
+	Cel_SetColor(iLight, iColor[0], iColor[1], iColor[2], 64);
+	
+	Cel_SetEntity(iLight, true);
+	
+	Cel_SetFrozen(iLight, true);
+	
+	Cel_SetOwner(iClient, iLight);
+	
+	Cel_SetSolid(iLight, true);
+	
+	Cel_SetRenderFX(iLight, RENDERFX_NONE);
+	
+	return iLight;
 }
 
 public int Native_SpawnProp(Handle hPlugin, int iNumParams)

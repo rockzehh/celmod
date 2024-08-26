@@ -1167,3 +1167,11 @@ addons/sourcemod/data/sqlite/clientprefs-sqlite.sq3
 celmod.bpproj
 addons/sourcemod/scripting/compile.dat
 addons/sourcemod/scripting/compile.dat
+addons/metamod/bin/metamod.2.pvkii.dll
+addons/metamod/bin/win64/metamod.2.blade.dll
+addons/metamod/bin/win64/metamod.2.cs2.dll
+addons/metamod/bin/win64/metamod.2.dota.dll
+addons/metamod/bin/win64/metamod.2.insurgency.dll
+addons/metamod/bin/win64/metamod.2.mcv.dll
+addons/metamod/bin/win64/metamod.2.tf2.dll
+addons/sourcemod/configs/admins_master.cfg

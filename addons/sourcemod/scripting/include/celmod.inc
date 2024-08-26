@@ -18,10 +18,11 @@ enum EntityType
 	ENTTYPE_CYCLER = 0, /**< Cycler prop type. cycler */
 	ENTTYPE_DOOR = 1, /**< Door prop type. prop_door_rotating */
 	ENTTYPE_DYNAMIC = 2, /**< Dynamic prop type. prop_dynamic, prop_dynamic_override */
-	ENTTYPE_EFFECT = 3, /**< Effect prop type. effect_* */
-	ENTTYPE_INTERNET = 4, /**< Internet prop type. cel_internet */ 
-	ENTTYPE_PHYSICS = 5, /**< Physics prop type. prop_physics, prop_physics_override */
-	ENTTYPE_UNKNOWN = 6, /**< Unknown prop type. */
+	ENTTYPE_EFFECT = 3, /**< Effect cel type. effect_* */
+	ENTTYPE_INTERNET = 4, /**< Internet cel type. cel_internet */ 
+	ENTTYPE_LIGHT = 5, /**< Light cel type. cel_light */ 
+	ENTTYPE_PHYSICS = 6, /**< Physics prop type. prop_physics, prop_physics_override */
+	ENTTYPE_UNKNOWN = 7, /**< Unknown prop type. */
 };
 
 enum EffectType
@@ -40,7 +41,7 @@ enum EffectType
 #define MAX_MESSAGE_LENGTH		256 /**< Max length a message can be. */
 #define MAX_BUFFER_LENGTH		(MAX_MESSAGE_LENGTH * 4) /** Max length the buffer can be. */
 #define CEL_AUTHOR "rockzehh" /**< Global version. */
-#define CEL_VERSION "1.0.1.0" /**< Global version. */
+#define CEL_VERSION "1.0.1.1" /**< Global version. */
 #define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd" /**< The url Updater uses to update. */
 
 #define PLAYER_CROWBAR_ATTACK_RADIUS 2.0 /**<Used with Crowbar VGUI. */
@@ -372,6 +373,8 @@ native void Cel_SetSolid(int iEntity, bool bSolid);
 native int Cel_SpawnDoor(int iClient, const char[] sSkin, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
 native int Cel_SpawnInternet(int iClient, const char[] sURL, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
+native int Cel_SpawnLight(int iClient, float fAngles[3], float fOrigin[3], int iR, int iG, int iB);
 
 native int Cel_SpawnProp(int iClient, const char[] sAlias, const char[] sEntityType, const char[] sModel, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 

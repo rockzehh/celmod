@@ -1,7 +1,6 @@
 #pragma semicolon 1
 
 #include <celmod>
-#include <sourcemod>
 
 #pragma newdecls required
 

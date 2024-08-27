@@ -4,10 +4,6 @@
 
 #include <celmod>
 #include <geoip>
-#include <morecolors>
-#include <sdkhooks>
-#include <sdktools>
-#include <sourcemod>
 #undef REQUIRE_PLUGIN
 #include <updater>
 
@@ -49,6 +45,7 @@ int g_iOwner[MAXENTITIES + 1];
 int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
 int g_iPropLimit;
+int g_iSaveOverride[MAXPLAYERS + 1];
 
 RenderFx g_rfRenderFX[MAXENTITIES + 1];
 
@@ -97,6 +94,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_PrintToChatAll", Native_PrintToChatAll);
 	CreateNative("Cel_RemovalBeam", Native_RemovalBeam);
 	CreateNative("Cel_ReplyToCommand", Native_ReplyToCommand);
+	CreateNative("Cel_SaveBuild", Native_SaveBuild);
 	CreateNative("Cel_SetAuthID", Native_SetAuthID);
 	CreateNative("Cel_SetCelCount", Native_SetCelCount);
 	CreateNative("Cel_SetCelLimit", Native_SetCelLimit);
@@ -1939,6 +1937,107 @@ public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
 	}
 	
 	return true;
+}
+
+public int Native_SaveBuild(Handle hPlugin, int iNumParams)
+{
+	char sFile[PLATFORM_MAX_PATH], sSaveName[96];
+	int iClient = GetNativeCell(1), iLand;
+	
+	GetNativeString(2, sSaveName, sizeof(sSaveName));
+	
+	if (FileExists(sFile))
+	{
+		switch(g_iSaveOverride[iClient])
+		{
+			case 0:
+			{
+				Cel_ReplyToCommand(iClient, "Build {green}%s{default} already exists! It will be over-written!", sSaveName);
+				Cel_ReplyToCommand(iClient, "Type {green}!save{default} <{green}buildname{default}> again to override the previous save.");
+				
+				g_iSaveOverride[iClient] = 1;
+				
+				return Plugin_Handled;
+			}
+			
+			case 1:
+			{
+				DeleteFile(sFile);
+		
+		BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
+		
+		File fFile = OpenFile(sFile, "a+");
+				
+		FlushFile(fFile);
+		
+		fFile.Close();
+		
+		g_iSaveOverride[iClient] = 0;
+			}
+		}
+	}else{
+		BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
+		
+		File fFile = OpenFile(sFile, "a+");
+				
+		FlushFile(fFile);
+		
+		fFile.Close();
+		
+		g_iSaveOverride[iClient] = 0;
+	}
+	
+	for (int i = 0; i < GetMaxEntities(); i++)
+	{
+		if (Cel_CheckOwner(iClient, i))
+		{
+			if(Cel_IsEntityInLand(i, iLand))
+			{
+				if(iLand == iClient)
+				{
+					switch(Cel_GetEntityCatagory(i))
+					{
+						case ENTTYPE_CYCLER:
+						{
+							char sBuffer[][PLATFORM_MAX_PATH];
+					
+							IntToString(view_as<int>(Cel_GetEntityCatagory(i)), sBuffer[0], sizeof(sBuffer[]));
+					
+							
+						}
+						case ENTTYPE_DOOR:
+						{
+							Format(sEntityType, sizeof(sEntityType), "door cel");
+						}
+						case ENTTYPE_DYNAMIC:
+						{
+							Format(sEntityType, sizeof(sEntityType), "dynamic prop");
+						}
+						case ENTTYPE_EFFECT:
+						{
+							Format(sEntityType, sizeof(sEntityType), "effect cel");
+						}
+						case ENTTYPE_INTERNET:
+						{
+							Format(sEntityType, sizeof(sEntityType), "internet cel");
+						}
+						case ENTTYPE_LIGHT:
+						{
+							Format(sEntityType, sizeof(sEntityType), "light cel");
+						}
+						case ENTTYPE_PHYSICS:
+						{
+							Format(sEntityType, sizeof(sEntityType), "physics prop");
+						}
+						case ENTTYPE_UNKNOWN:
+						{
+							Format(sEntityType, sizeof(sEntityType), "unknown prop type");
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 public int Native_SetAuthID(Handle hPlugin, int iNumParams)

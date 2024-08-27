@@ -5,6 +5,9 @@
 
 #include <sdkhooks>
 #include <sdktools>
+#include <morecolors>
+#include <sourcemod>
+#include <smlib>
 
 enum EntityCatagory
 {
@@ -531,6 +534,8 @@ native float Cel_GetLandGravity(int iLand);
 native int Cel_GetLandOwner(float fBottomCorner[3], float fTopCorner[3]);
 
 native int Cel_GetLandOwnerUserId(int iLand);
+
+native float Cel_GetLandPositions(int iClient, int iPosition=0, float fPosition[3]);
 
 native void Cel_GetMiddleOfABox(float fMin[3], float fMax[3], float fBuffer[3]);
 

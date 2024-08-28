@@ -265,7 +265,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	Cel_AddToCelCount(iClient);
 	Cel_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
 	Cel_SetEntity(iBase, true);
-	Cel_SetFrozen(iBase, true);
+	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);

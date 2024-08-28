@@ -258,6 +258,14 @@ native int Cel_GetHaloMaterial();
 native char Cel_GetInternetURL(int iEntity, const char[] sURL, int iMaxLength);
 
 /**
+ * Checks if the entity is movable or not.
+ *
+ * @param iEffect		Entity index.
+ * @return				True if the entity is movable, false if it isn't.
+ */
+native bool Cel_GetMotion(int iEntity);
+
+/**
  * Checks if the client has nokill enabled.
  *
  * @param iClient			Client index.
@@ -307,14 +315,6 @@ native char Cel_GetPropName(int iEntity, const char[] sPropName, int iMaxLength)
  */
 native bool Cel_IsEntity(int iEntity);
 
-/**
- * Checks if the entity is frozen.
- *
- * @param iEffect		Entity index.
- * @return				True if the entity is, false if it isn't.
- */
-native bool Cel_IsFrozen(int iEntity);
-
 native bool Cel_IsPlayer(int iClient);
 
 /**
@@ -345,6 +345,8 @@ native void Cel_RemovalBeam(int iClient, int iEntity);
 
 native void Cel_ReplyToCommand(int iClient, const char[] sMessage, any ...);
 
+native void Cel_SaveBuild(int iClient, const char[] sSaveName);
+
 native void Cel_SetAuthID(int iClient);
 
 native void Cel_SetCelCount(int iClient, int iCount);
@@ -355,9 +357,9 @@ native void Cel_SetColor(int iEntity, int iR, int iG, int iB, int iA);
 
 native void Cel_SetEntity(int iEntity, bool bEntity);
 
-native void Cel_SetFrozen(int iEntity, bool bFrozen);
-
 native void Cel_SetInternetURL(int iEntity, const char[] sURL);
+
+native void Cel_SetMotion(int iEntity, bool bMotion);
 
 native void Cel_SetNoKill(int iClient, bool bNoKill);
 
@@ -543,7 +545,7 @@ native bool Cel_IsClientInLand(int iClient, int iLand);
 
 native bool Cel_IsClientCrosshairInLand(int iClient);
 
-native bool Cel_IsEntityInLand(int iEntity, int iLand);
+native bool Cel_IsEntityInLand(int iEntity, const char[] sLandOwner, int iMaxLength);
 
 native bool Cel_IsPositionInBox(float fPos[3], float fBottomCorner[3], float fTopCorner[3]);
 

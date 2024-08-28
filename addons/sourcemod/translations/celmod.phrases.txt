@@ -31,6 +31,11 @@
 		"en"			"Usage: {green}[tag]rotate{default} <x> <y> <z>"
 	}
 	
+	"CMD_Save"
+	{
+		"en"			"Usage: {green}[tag]save{default} <buildname>"
+	}
+	
 	"CMD_SetURL"
 	{
 		"en"			"Usage: {green}[tag]seturl{default} <url>"

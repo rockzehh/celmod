@@ -10,7 +10,7 @@
 #pragma newdecls required
 
 bool g_bEntity[MAXENTITIES + 1];
-bool g_bFrozen[MAXENTITIES + 1];
+bool g_bMotion[MAXENTITIES + 1];
 bool g_bLate;
 bool g_bNoKill[MAXPLAYERS + 1];
 bool g_bPlayer[MAXPLAYERS + 1];
@@ -77,6 +77,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetEntityTypeName", Native_GetEntityTypeName);
 	CreateNative("Cel_GetHaloMaterial", Native_GetHaloMaterial);
 	CreateNative("Cel_GetInternetURL", Native_GetInternetURL);
+	CreateNative("Cel_GetMotion", Native_GetMotion);
 	CreateNative("Cel_GetNoKill", Native_GetNoKill);
 	CreateNative("Cel_GetOwner", Native_GetOwner);
 	CreateNative("Cel_GetPhysicsMaterial", Native_GetPhysicsMaterial);
@@ -84,7 +85,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetPropLimit", Native_GetPropLimit);
 	CreateNative("Cel_GetPropName", Native_GetPropName);
 	CreateNative("Cel_IsEntity", Native_IsEntity);
-	CreateNative("Cel_IsFrozen", Native_IsFrozen);
 	CreateNative("Cel_IsPlayer", Native_IsPlayer);
 	CreateNative("Cel_IsSolid", Native_IsSolid);
 	CreateNative("Cel_NotLooking", Native_NotLooking);
@@ -100,8 +100,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SetCelLimit", Native_SetCelLimit);
 	CreateNative("Cel_SetColor", Native_SetColor);
 	CreateNative("Cel_SetEntity", Native_SetEntity);
-	CreateNative("Cel_SetFrozen", Native_SetFrozen);
 	CreateNative("Cel_SetInternetURL", Native_SetInternetURL);
+	CreateNative("Cel_SetMotion", Native_SetMotion);
 	CreateNative("Cel_SetNoKill", Native_SetNoKill);
 	CreateNative("Cel_SetOwner", Native_SetOwner);
 	CreateNative("Cel_SetPlayer", Native_SetPlayer);
@@ -126,12 +126,12 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	return APLRes_Success;
 }
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
-	name = "|CelMod|", 
-	author = CEL_AUTHOR, 
-	description = "A fully customized building experience with roleplay, and extra features to enhance the standard gameplay.", 
-	version = CEL_VERSION, 
+	name = "|CelMod|",
+	author = CEL_AUTHOR,
+	description = "A fully customized building experience with roleplay, and extra features to enhance the standard gameplay.",
+	version = CEL_VERSION,
 	url = "https://github.com/rockzehh/celmod"
 };
 
@@ -224,6 +224,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on what prop you are looking at.");
 	RegConsoleCmd("sm_rotate", Command_Rotate, "|CelMod| Rotates the prop you are looking at.");
 	RegConsoleCmd("sm_s", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("sm_save", Command_Save, "|CelMod| ");
 	RegConsoleCmd("sm_seturl", Command_SetURL, "|CelMod| Sets the url of the internet cel you are looking at.");
 	RegConsoleCmd("sm_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("sm_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
@@ -264,7 +265,7 @@ public void OnClientAuthorized(int iClient, const char[] sAuthID)
 	{
 		if (IsClientInGame(i))
 		{
-			//ClientCommand(i, "play npc/metropolice/vo/on1.wav");
+//ClientCommand(i, "play npc/metropolice/vo/on1.wav");
 			EmitSoundToClient(i, "play npc/metropolice/vo/on1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}
 	}
@@ -306,7 +307,7 @@ public void OnClientDisconnect(int iClient)
 	{
 		if (IsClientInGame(i))
 		{
-			//ClientCommand(i, "play npc/metropolice/vo/off1.wav");
+//ClientCommand(i, "play npc/metropolice/vo/off1.wav");
 			EmitSoundToClient(i, "play npc/metropolice/vo/off1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}
 	}
@@ -423,7 +424,7 @@ public Action Command_Alpha(int iClient, int iArgs)
 		} else {
 			Cel_NotYours(iClient, iProp);
 			return Plugin_Handled;
-		}	
+		}
 	}
 	
 	return Plugin_Handled;
@@ -695,7 +696,7 @@ public Action Command_FreezeIt(int iClient, int iArgs)
 		} else {
 			Cel_ReplyToCommand(iClient, "%t", "DisableMotion", sEntityType);
 			
-			Cel_SetFrozen(iProp, true);
+			Cel_SetMotion(iProp, false);
 		}
 		
 		Cel_ChangeBeam(iClient, iProp);
@@ -855,6 +856,23 @@ public Action Command_Rotate(int iClient, int iArgs)
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
 	}
+	
+	return Plugin_Handled;
+}
+
+public Action Command_Save(int iClient, int iArgs)
+{
+	char sSaveName[64];
+	
+	if (iArgs < 1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_Save");
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sSaveName, sizeof(sSaveName));
+	
+	Cel_SaveBuild(iClient, sSaveName);
 	
 	return Plugin_Handled;
 }
@@ -1113,7 +1131,7 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 		} else {
 			Cel_ReplyToCommand(iClient, "%t", "EnableMotion", sEntityType);
 			
-			Cel_SetFrozen(iProp, false);
+			Cel_SetMotion(iProp, true);
 		}
 		
 		Cel_ChangeBeam(iClient, iProp);
@@ -1673,6 +1691,13 @@ public int Native_GetInternetURL(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_GetMotion(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	return g_bMotion[iEntity];
+}
+
 public int Native_GetNoKill(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
@@ -1808,13 +1833,6 @@ public int Native_IsEntity(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public int Native_IsFrozen(Handle hPlugin, int iNumParams)
-{
-	int iEntity = GetNativeCell(1);
-	
-	return g_bFrozen[iEntity];
-}
-
 public int Native_IsPlayer(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
@@ -1941,12 +1959,14 @@ public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
 
 public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 {
-	char sFile[PLATFORM_MAX_PATH], sSaveName[96];
-	int iClient = GetNativeCell(1), iLand;
+	char sFile[PLATFORM_MAX_PATH], sLandOwner[32], sOutput[PLATFORM_MAX_PATH], sSaveName[96];
+	File fFile;
+	float fEnt[2][3], fLandPos[3], fOrigin[3];
+	int iClient = GetNativeCell(1), iColor[4], iLand;
 	
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
 	
-	if (FileExists(sFile))
+	/*if (FileExists(sFile))
 	{
 		switch(g_iSaveOverride[iClient])
 		{
@@ -1957,87 +1977,127 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 				
 				g_iSaveOverride[iClient] = 1;
 				
-				return Plugin_Handled;
+				return false;
 			}
 			
 			case 1:
 			{
 				DeleteFile(sFile);
-		
-		BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
-		
-		File fFile = OpenFile(sFile, "a+");
 				
-		FlushFile(fFile);
-		
-		fFile.Close();
-		
-		g_iSaveOverride[iClient] = 0;
+				g_iSaveOverride[iClient] = 0;
 			}
 		}
-	}else{
-		BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
-		
-		File fFile = OpenFile(sFile, "a+");
-				
-		FlushFile(fFile);
-		
-		fFile.Close();
-		
-		g_iSaveOverride[iClient] = 0;
-	}
+	}*/
+	
+	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
+	
+	fFile = OpenFile(sFile, "a+");
+	
+	g_iSaveOverride[iClient] = 0;
 	
 	for (int i = 0; i < GetMaxEntities(); i++)
 	{
 		if (Cel_CheckOwner(iClient, i))
 		{
-			if(Cel_IsEntityInLand(i, iLand))
+			if(Cel_IsEntityInLand(i, sLandOwner, sizeof(sLandOwner)))
 			{
+				iLand = StringToInt(sLandOwner);
+				
+				PrintToServer("Land: %N", iLand);
 				if(iLand == iClient)
 				{
-					switch(Cel_GetEntityCatagory(i))
+					switch(Cel_GetEntityType(i))
 					{
 						case ENTTYPE_CYCLER:
 						{
-							char sBuffer[][PLATFORM_MAX_PATH];
-					
-							IntToString(view_as<int>(Cel_GetEntityCatagory(i)), sBuffer[0], sizeof(sBuffer[]));
-					
+							char sBuffer[19][PLATFORM_MAX_PATH];
+							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							//if(HasEntProp(i, Prop_Data, "m_target")) Entity_GetTargetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(Cel_IsSolid(i), sBuffer[6], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[8], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[11], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[12], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[14], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 0, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							FloatToString(fOrigin[0], sBuffer[15], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[17], sizeof(sBuffer[]));
+							
+							IntToString(Entity_GetAnimSequence(i), sBuffer[18], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 19, "^", sOutput, sizeof(sOutput));
+							
+							PrintToServer(sOutput);
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
+						}
+						case (view_as<int>(ENTTYPE_DOOR)):
+						{
 							
 						}
-						case ENTTYPE_DOOR:
+						case (view_as<int>(ENTTYPE_DYNAMIC)):
 						{
-							Format(sEntityType, sizeof(sEntityType), "door cel");
+							
 						}
-						case ENTTYPE_DYNAMIC:
+						case (view_as<int>(ENTTYPE_EFFECT)):
 						{
-							Format(sEntityType, sizeof(sEntityType), "dynamic prop");
+							
 						}
-						case ENTTYPE_EFFECT:
+						case (view_as<int>(ENTTYPE_INTERNET)):
 						{
-							Format(sEntityType, sizeof(sEntityType), "effect cel");
+							
 						}
-						case ENTTYPE_INTERNET:
+						case (view_as<int>(ENTTYPE_LIGHT)):
 						{
-							Format(sEntityType, sizeof(sEntityType), "internet cel");
+							
 						}
-						case ENTTYPE_LIGHT:
+						case (view_as<int>(ENTTYPE_PHYSICS)):
 						{
-							Format(sEntityType, sizeof(sEntityType), "light cel");
+							
 						}
-						case ENTTYPE_PHYSICS:
+						case (view_as<int>(ENTTYPE_UNKNOWN)):
 						{
-							Format(sEntityType, sizeof(sEntityType), "physics prop");
-						}
-						case ENTTYPE_UNKNOWN:
-						{
-							Format(sEntityType, sizeof(sEntityType), "unknown prop type");
+							
 						}
 					}
 				}
 			}
 		}
 	}
+	
+	fFile.Flush();
+	
+	fFile.Close();
+	
+	Cel_ReplyToCommand(iClient, "Successfully saved build: {green}%s{default}", sSaveName);
+	
+	return true;
 }
 
 public int Native_SetAuthID(Handle hPlugin, int iNumParams)
@@ -2091,18 +2151,6 @@ public int Native_SetEntity(Handle hPlugin, int iNumParams)
 	return true;
 }
 
-public int Native_SetFrozen(Handle hPlugin, int iNumParams)
-{
-	int iEntity = GetNativeCell(1);
-	bool bFrozen = view_as<bool>(GetNativeCell(2));
-	
-	bFrozen ? AcceptEntityInput(iEntity, "disablemotion") : AcceptEntityInput(iEntity, "enablemotion");
-	
-	g_bFrozen[iEntity] = bFrozen;
-	
-	return true;
-}
-
 public int Native_SetInternetURL(Handle hPlugin, int iNumParams)
 {
 	char sURL[PLATFORM_MAX_PATH];
@@ -2112,6 +2160,18 @@ public int Native_SetInternetURL(Handle hPlugin, int iNumParams)
 	GetNativeString(2, sURL, sizeof(sURL));
 	
 	Cel_CheckInputURL(sURL, g_sInternetURL[iEntity], sizeof(g_sInternetURL[]));
+	
+	return true;
+}
+
+public int Native_SetMotion(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	bool bMotion = view_as<bool>(GetNativeCell(2));
+	
+	bMotion ? AcceptEntityInput(iEntity, "enablemotion") : AcceptEntityInput(iEntity, "disablemotion");
+	
+	g_bMotion[iEntity] = bMotion;
 	
 	return true;
 }
@@ -2253,7 +2313,7 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	
 	Cel_SetEntity(iDoor, true);
 	
-	Cel_SetFrozen(iDoor, true);
+	Cel_SetMotion(iDoor, false);
 	
 	Cel_SetOwner(iClient, iDoor);
 	
@@ -2301,7 +2361,7 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	
 	Cel_SetEntity(iInternet, true);
 	
-	Cel_SetFrozen(iInternet, true);
+	Cel_SetMotion(iInternet, false);
 	
 	Cel_SetInternetURL(iInternet, sURL);
 	
@@ -2381,7 +2441,7 @@ public int Native_SpawnLight(Handle hPlugin, int iNumParams)
 	
 	Cel_SetEntity(iLight, true);
 	
-	Cel_SetFrozen(iLight, true);
+	Cel_SetMotion(iLight, false);
 	
 	Cel_SetOwner(iClient, iLight);
 	
@@ -2429,7 +2489,7 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	
 	Cel_SetEntity(iProp, true);
 	
-	Cel_SetFrozen(iProp, true);
+	Cel_SetMotion(iProp, false);
 	
 	Cel_SetOwner(iClient, iProp);
 	

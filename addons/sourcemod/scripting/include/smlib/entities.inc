@@ -335,6 +335,50 @@ stock void Entity_SetRadius(int entity, float radius)
 }
 
 /**
+ * Gets the animation sequence (m_nSequence) of an entity.
+ *
+ * @param entity			Entity index.
+ * @return					Animation sequence
+ */
+stock int Entity_GetAnimSequence(int entity)
+{
+	return GetEntProp(entity, Prop_Data, "m_nSequence");
+}
+
+/**
+ * Sets the animation sequence (m_nSequence) of an entity.
+ *
+ * @param entity			Entity index.
+ * @param sequence			Animation sequence
+ */
+stock void Entity_SetAnimSequence(int entity, int sequence)
+{
+	SetEntProp(entity, Prop_Data, "m_nSequence", sequence);
+}
+
+/**
+ * Gets the model skin (m_nSkin) of an entity.
+ *
+ * @param entity			Entity index.
+ * @return					Skin
+ */
+stock int Entity_GetSkin(int entity)
+{
+	return GetEntProp(entity, Prop_Send, "m_nSkin");
+}
+
+/**
+ * Sets the model skin (m_nSkin) of an entity.
+ *
+ * @param entity			Entity index.
+ * @param skin				Skin
+ */
+stock void Entity_SetSkin(int entity, int skin)
+{
+	SetEntProp(entity, Prop_Send, "m_nSkin", skin);
+}
+
+/**
  * Gets the Mins of an entity.
  *
  * @param entity			Entity index.

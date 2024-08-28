@@ -483,7 +483,6 @@ public int Native_GetClientCrosshairLandOwner(Handle hPlugin, int iNumParams)
 					
 					return iOwner;
 				}
-				return -1;
 			}else{
 				return -1;
 			}
@@ -555,9 +554,9 @@ public int Native_GetLandPositions(Handle hPlugin, int iNumParams)
 		{
 			fPosition = g_liLand[iClient].fMiddle;
 		}
-		
-		SetNativeArray(3, fPosition, 3);
 	}
+	
+	SetNativeArray(3, fPosition, 3);
 }
 
 public int Native_GetMiddleOfBox(Handle hPlugin, int iNumParams)
@@ -644,7 +643,7 @@ public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 {
 	char sTargetName[64];
 	float fOrigin[3];
-	int iEntity = GetNativeCell(1);
+	int iEntity = GetNativeCell(1), iMaxLength = GetNativeCell(3), iOwner;
 	
 	for (int i = 1; i < MaxClients; i++)
 	{
@@ -655,17 +654,17 @@ public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop))
 			{
 				GetEntPropString(g_liLand[i].iEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
-	
-				SetNativeCellRef(2, StringToInt(sTargetName));
+				
+				SetNativeString(2, sTargetName, iMaxLength);
 				
 				return true;
 			}else{
-				SetNativeCellRef(2, -1);
+				SetNativeString(2, "-1", iMaxLength);
 				
 				return false;
 			}
 		}else{
-			SetNativeCellRef(2, -1);
+			SetNativeString(2, "-1", iMaxLength);
 			
 			return false;
 		}

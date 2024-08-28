@@ -1,0 +1,22 @@
+|CelMod| Crowbar Menu - It's just a bind system.
+
+Choose between Left and Right attack buttons for bind.
+
+Options:
+Color
+AMT
+Skin
+Rotate
+Freeze/Unfreeze
+Solidity
+Copy/Paste
+Doors
+Locking
+Actors
+God
+Buttons
+Stacking
+Remove/Undo
+Move/Copy
+Create Land
+Disable Menu

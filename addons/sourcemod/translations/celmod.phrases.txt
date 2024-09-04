@@ -16,6 +16,11 @@
 		"en"			"Usage: {green}[tag]door{default} <skin number>"
 	}
 	
+	"CMD_LoadBuild"
+	{
+		"en"			"Usage: {green}[tag]load{default} <buildname>"
+	}
+	
 	"CMD_Remove"
 	{
 		"en"			"Usage: {green}[tag]delete{default} <all|land>"
@@ -31,7 +36,7 @@
 		"en"			"Usage: {green}[tag]rotate{default} <x> <y> <z>"
 	}
 	
-	"CMD_Save"
+	"CMD_SaveBuild"
 	{
 		"en"			"Usage: {green}[tag]save{default} <buildname>"
 	}

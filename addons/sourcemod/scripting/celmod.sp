@@ -87,6 +87,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_IsEntity", Native_IsEntity);
 	CreateNative("Cel_IsPlayer", Native_IsPlayer);
 	CreateNative("Cel_IsSolid", Native_IsSolid);
+	CreateNative("Cel_LoadBuild", Native_LoadBuild);
 	CreateNative("Cel_NotLooking", Native_NotLooking);
 	CreateNative("Cel_NotYours", Native_NotYours);
 	CreateNative("Cel_PlayChatMessageSound", Native_PlayChatMessageSound);
@@ -214,6 +215,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("sm_internet", Command_Internet, "|CelMod| Creates a working internet cel.");
 	RegConsoleCmd("sm_light", Command_Light, "|CelMpd| Creates a working, moveable light cel.");
+	RegConsoleCmd("sm_load", Command_LoadBuild, "|CelMod| Loads entities from a save file.");
 	RegConsoleCmd("sm_mark", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
 	RegConsoleCmd("sm_marker", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
 	RegConsoleCmd("sm_nokill", Command_NoKill, "|CelMod| Enables/disables godmode on the player.");
@@ -224,7 +226,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on what prop you are looking at.");
 	RegConsoleCmd("sm_rotate", Command_Rotate, "|CelMod| Rotates the prop you are looking at.");
 	RegConsoleCmd("sm_s", Command_Spawn, "|CelMod| Spawns a prop by name.");
-	RegConsoleCmd("sm_save", Command_Save, "|CelMod| ");
+	RegConsoleCmd("sm_save", Command_SaveBuild, "|CelMod| Saves all server entities that are in your land.");
 	RegConsoleCmd("sm_seturl", Command_SetURL, "|CelMod| Sets the url of the internet cel you are looking at.");
 	RegConsoleCmd("sm_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("sm_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
@@ -569,7 +571,10 @@ public Action Command_Delete(int iClient, int iArgs)
 					Call_Finish();
 					
 					if (Cel_CheckEntityType(i, "effect"))
-					AcceptEntityInput(Cel_GetEffectAttachment(i), "TurnOff");
+					{
+						AcceptEntityInput(Cel_GetEffectAttachment(i), "TurnOff");
+						AcceptEntityInput(Cel_GetEffectAttachment(i), "kill");
+					}
 					
 					AcceptEntityInput(i, "kill");
 					
@@ -619,7 +624,10 @@ public Action Command_Delete(int iClient, int iArgs)
 			Call_Finish();
 			
 			if (Cel_CheckEntityType(iProp, "effect"))
-			AcceptEntityInput(Cel_GetEffectAttachment(iProp), "TurnOff");
+			{
+				AcceptEntityInput(Cel_GetEffectAttachment(iProp), "TurnOff");
+				AcceptEntityInput(Cel_GetEffectAttachment(iProp), "kill");
+			}
 			
 			Cel_RemovalBeam(iClient, iProp);
 			
@@ -764,6 +772,23 @@ public Action Command_Light(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_LoadBuild(int iClient, int iArgs)
+{
+	char sSaveName[64];
+	
+	if (iArgs < 1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_LoadBuild");
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sSaveName, sizeof(sSaveName));
+	
+	Cel_LoadBuild(iClient, sSaveName);
+	
+	return Plugin_Handled;
+}
+
 public Action Command_NoKill(int iClient, int iArgs)
 {
 	Cel_SetNoKill(iClient, !Cel_GetNoKill(iClient));
@@ -860,13 +885,13 @@ public Action Command_Rotate(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public Action Command_Save(int iClient, int iArgs)
+public Action Command_SaveBuild(int iClient, int iArgs)
 {
 	char sSaveName[64];
 	
 	if (iArgs < 1)
 	{
-		Cel_ReplyToCommand(iClient, "%t", "CMD_Save");
+		Cel_ReplyToCommand(iClient, "%t", "CMD_SaveBuild");
 		return Plugin_Handled;
 	}
 	
@@ -1847,6 +1872,40 @@ public int Native_IsSolid(Handle hPlugin, int iNumParams)
 	return g_bSolid[iEntity];
 }
 
+public int Native_LoadBuild(Handle hPlugin, int iNumParams)
+{
+	char sBuffer[PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sSaveName[96];
+	File fFile;
+	float fDelay = 0.10;
+	Handle hLoadTimer;
+	int iClient = GetNativeCell(1);
+	
+	GetNativeString(2, sSaveName, sizeof(sSaveName));
+	
+	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
+	
+	fFile = OpenFile(sFile, "r");
+	
+	if (FileExists(sFile))
+	{
+		while (fFile.ReadLine(sBuffer, sizeof(sBuffer)))
+		{
+			CreateDataTimer(fDelay, Timer_LoadBuild, hLoadTimer);
+			
+			WritePackCell(hLoadTimer, iClient);
+			WritePackString(hLoadTimer, sBuffer);
+			
+			fDelay += 0.10;
+		}
+		
+		Cel_ReplyToCommand(iClient, "Successfully saved build: {green}%s{default}", sSaveName);
+	}else{
+		Cel_ReplyToCommand(iClient, "Build {green}%s{default} does not exist!", sSaveName);
+		
+		return false;
+	}
+}
+
 public int Native_NotLooking(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
@@ -1966,14 +2025,16 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
 	
-	/*if (FileExists(sFile))
+	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
+	
+	if (FileExists(sFile))
 	{
 		switch(g_iSaveOverride[iClient])
 		{
 			case 0:
 			{
 				Cel_ReplyToCommand(iClient, "Build {green}%s{default} already exists! It will be over-written!", sSaveName);
-				Cel_ReplyToCommand(iClient, "Type {green}!save{default} <{green}buildname{default}> again to override the previous save.");
+				Cel_ReplyToCommand(iClient, "Type {green}!save %s{default} again to override the previous save.", sSaveName);
 				
 				g_iSaveOverride[iClient] = 1;
 				
@@ -1987,9 +2048,7 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 				g_iSaveOverride[iClient] = 0;
 			}
 		}
-	}*/
-	
-	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
+	}
 	
 	fFile = OpenFile(sFile, "a+");
 	
@@ -2003,23 +2062,22 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 			{
 				iLand = StringToInt(sLandOwner);
 				
-				PrintToServer("Land: %N", iLand);
 				if(iLand == iClient)
 				{
 					switch(Cel_GetEntityType(i))
 					{
 						case ENTTYPE_CYCLER:
 						{
-							char sBuffer[19][PLATFORM_MAX_PATH];
+							char sBuffer[20][PLATFORM_MAX_PATH];
 							
 							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
 							
 							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
-							//if(HasEntProp(i, Prop_Data, "m_target")) Entity_GetTargetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
 							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
-							IntToString(Entity_GetSkin(i), sBuffer[4], sizeof(sBuffer[]));
-							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[5], sizeof(sBuffer[]));
-							IntToString(Cel_IsSolid(i), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
 							
 							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[7], sizeof(sBuffer[]));
 							
@@ -2035,7 +2093,9 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[14], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 0, fLandPos);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							Cel_PrintToChat(iClient, "%f.f %f.f %f.f", fLandPos[0], fLandPos[1], fLandPos[2]);//
 							
 							fOrigin[0] = fEnt[1][0] - fLandPos[0];
 							fOrigin[1] = fEnt[1][1] - fLandPos[1];
@@ -2045,11 +2105,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fOrigin[1], sBuffer[16], sizeof(sBuffer[]));
 							FloatToString(fOrigin[2], sBuffer[17], sizeof(sBuffer[]));
 							
-							IntToString(Entity_GetAnimSequence(i), sBuffer[18], sizeof(sBuffer[]));
+							Cel_GetPropName(i, sBuffer[18], sizeof(sBuffer[]));
+							IntToString(Entity_GetAnimSequence(i), sBuffer[19], sizeof(sBuffer[]));
 							
-							ImplodeStrings(sBuffer, 19, "^", sOutput, sizeof(sOutput));
-							
-							PrintToServer(sOutput);
+							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
@@ -2057,33 +2116,340 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							
 							fFile.Flush();
 						}
-						case (view_as<int>(ENTTYPE_DOOR)):
+						case ENTTYPE_DOOR:
 						{
+							char sBuffer[19][PLATFORM_MAX_PATH];
 							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							fOrigin[2] -= 54;
+							
+							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 19, "^", sOutput, sizeof(sOutput));
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
 						}
-						case (view_as<int>(ENTTYPE_DYNAMIC)):
+						case ENTTYPE_DYNAMIC:
 						{
+							char sBuffer[20][PLATFORM_MAX_PATH];
 							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
+							
+							Cel_GetPropName(i, sBuffer[19], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
 						}
-						case (view_as<int>(ENTTYPE_EFFECT)):
+						case ENTTYPE_EFFECT:
 						{
+							char sBuffer[21][PLATFORM_MAX_PATH];
 							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetEffectType(i)), sBuffer[19], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsEffectActive(i)), sBuffer[20], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 21, "^", sOutput, sizeof(sOutput));
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
 						}
-						case (view_as<int>(ENTTYPE_INTERNET)):
+						case ENTTYPE_INTERNET:
 						{
+							char sBuffer[20][PLATFORM_MAX_PATH];
 							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
+							
+							Cel_GetInternetURL(i, sBuffer[19], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
 						}
-						case (view_as<int>(ENTTYPE_LIGHT)):
+						case ENTTYPE_LIGHT:
 						{
+							char sBuffer[19][PLATFORM_MAX_PATH];
 							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 19, "^", sOutput, sizeof(sOutput));
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
 						}
-						case (view_as<int>(ENTTYPE_PHYSICS)):
+						case ENTTYPE_PHYSICS:
 						{
+							char sBuffer[20][PLATFORM_MAX_PATH];
 							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
+							
+							Cel_GetPropName(i, sBuffer[19], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
 						}
-						case (view_as<int>(ENTTYPE_UNKNOWN)):
+						case ENTTYPE_UNKNOWN:
 						{
+							char sBuffer[20][PLATFORM_MAX_PATH];
 							
+							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							
+							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
+							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
+							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
+							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
+							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
+							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
+							
+							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
+							
+							Entity_GetRenderColor(i, iColor);
+							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
+							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
+							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
+							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
+							
+							Cel_GetEntityAngles(i, fEnt[0]);
+							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
+							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
+							
+							Cel_GetEntityOrigin(i, fEnt[1]);
+							Cel_GetLandPositions(iClient, 1, fLandPos);
+							
+							fOrigin[0] = fEnt[1][0] - fLandPos[0];
+							fOrigin[1] = fEnt[1][1] - fLandPos[1];
+							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							
+							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
+							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
+							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
+							
+							Cel_GetPropName(i, sBuffer[19], sizeof(sBuffer[]));
+							
+							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
+							
+							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
+							
+							fFile.WriteLine(sOutput);
+							
+							fFile.Flush();
 						}
 					}
 				}
@@ -2094,6 +2460,8 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	fFile.Flush();
 	
 	fFile.Close();
+	
+	Format(sFile, sizeof(sFile), "");
 	
 	Cel_ReplyToCommand(iClient, "Successfully saved build: {green}%s{default}", sSaveName);
 	
@@ -2529,4 +2897,249 @@ public int Native_SubFromPropCount(Handle hPlugin, int iNumParams)
 stock bool Cel_FilterPlayer(int iEntity, any iContentsMask)
 {
 	return iEntity > MaxClients;
+}
+
+//Timers:
+public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
+{
+	ResetPack(hPack);
+	
+	char sFileBuffer[PLATFORM_MAX_PATH], sType[64];
+	float fCrosshairOrigin[3], fEnt[2][3], fOrigin[3];
+	int iClient = ReadPackCell(hPack);
+	
+	ReadPackString(hPack, sFileBuffer, sizeof(sFileBuffer));
+	
+	Cel_GetCrosshairHitOrigin(iClient, fCrosshairOrigin);
+	
+	EntityType etType = view_as<EntityType>(StringToInt(sFileBuffer[0]));
+	
+	switch(etType)
+	{
+		case ENTTYPE_CYCLER:
+		{
+			char sBuffer[20][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 20, sizeof(sBuffer[]));
+			
+			fEnt[0][0] = StringToFloat(sBuffer[12]);
+			fEnt[0][1] = StringToFloat(sBuffer[13]);
+			fEnt[0][2] = StringToFloat(sBuffer[14]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[15]);
+			fEnt[1][1] = StringToFloat(sBuffer[16]);
+			fEnt[1][2] = StringToFloat(sBuffer[17]);
+			
+			fOrigin[0] = fEnt[1][0] + fCrosshairOrigin[0];
+			fOrigin[1] = fEnt[1][1] + fCrosshairOrigin[1];
+			fOrigin[2] = fEnt[1][2] + fCrosshairOrigin[2];
+			
+			int iCycler = Cel_SpawnProp(iClient, sBuffer[18], "cycler", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[8]), StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]));
+			
+			Cel_SetEntity(iCycler, true);
+			Entity_SetName(iCycler, sBuffer[2]);
+			Entity_SetSpawnFlags(iCycler, StringToInt(sBuffer[4]));
+			Entity_SetSkin(iCycler, StringToInt(sBuffer[5]));
+			Cel_SetMotion(iCycler, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetRenderFX(iCycler, view_as<RenderFx>(StringToInt(sBuffer[7])));
+			Cel_SetOwner(iClient, iCycler);
+			Cel_SetPropName(iCycler, sBuffer[18]);
+			
+			Entity_SetAnimSequence(iCycler, StringToInt(sBuffer[19]));
+		}
+		case ENTTYPE_DOOR:
+		{
+			char sBuffer[19][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 19, sizeof(sBuffer[]));
+			
+			fEnt[0][0] = StringToFloat(sBuffer[13]);
+			fEnt[0][1] = StringToFloat(sBuffer[14]);
+			fEnt[0][2] = StringToFloat(sBuffer[15]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[16]);
+			fEnt[1][1] = StringToFloat(sBuffer[17]);
+			fEnt[1][2] = StringToFloat(sBuffer[18]);
+			
+			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
+			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
+			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			
+			int iProp = Cel_SpawnDoor(iClient, sBuffer[5], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
+			
+			Entity_SetName(iProp, sBuffer[2]);
+			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
+			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
+			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
+		}
+		case ENTTYPE_DYNAMIC:
+		{
+			char sBuffer[20][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 20, sizeof(sBuffer[]));
+			
+			fEnt[0][0] = StringToFloat(sBuffer[13]);
+			fEnt[0][1] = StringToFloat(sBuffer[14]);
+			fEnt[0][2] = StringToFloat(sBuffer[15]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[16]);
+			fEnt[1][1] = StringToFloat(sBuffer[17]);
+			fEnt[1][2] = StringToFloat(sBuffer[18]);
+			
+			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
+			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
+			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			
+			int iProp = Cel_SpawnProp(iClient, sBuffer[19], "prop_physics_override", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
+			
+			Entity_SetName(iProp, sBuffer[2]);
+			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
+			Entity_SetSkin(iProp, StringToInt(sBuffer[5]));
+			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
+			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
+		}
+		case ENTTYPE_EFFECT:
+		{
+			char sBuffer[21][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 21, sizeof(sBuffer[]));
+			
+			fEnt[0][0] = StringToFloat(sBuffer[13]);
+			fEnt[0][1] = StringToFloat(sBuffer[14]);
+			fEnt[0][2] = StringToFloat(sBuffer[15]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[16]);
+			fEnt[1][1] = StringToFloat(sBuffer[17]);
+			fEnt[1][2] = StringToFloat(sBuffer[18]);
+			
+			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
+			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
+			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			
+			int iProp = Cel_SpawnEffect(iClient, fOrigin, view_as<EffectType>(StringToInt(sBuffer[19])), view_as<bool>(StringToInt(sBuffer[20])), StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
+			
+			Entity_SetName(iProp, sBuffer[2]);
+			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
+			Entity_SetSkin(iProp, StringToInt(sBuffer[5]));
+			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
+			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
+			
+			Cel_SetEffectActive(iProp, view_as<bool>(StringToInt(sBuffer[20])));
+		}
+		case ENTTYPE_INTERNET:
+		{
+			char sBuffer[20][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 20, sizeof(sBuffer[]));
+			
+			fEnt[0][0] = StringToFloat(sBuffer[13]);
+			fEnt[0][1] = StringToFloat(sBuffer[14]);
+			fEnt[0][2] = StringToFloat(sBuffer[15]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[16]);
+			fEnt[1][1] = StringToFloat(sBuffer[17]);
+			fEnt[1][2] = StringToFloat(sBuffer[18]);
+			
+			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
+			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
+			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			
+			int iProp = Cel_SpawnInternet(iClient, sBuffer[19], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
+			
+			Entity_SetName(iProp, sBuffer[2]);
+			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
+			Entity_SetSkin(iProp, StringToInt(sBuffer[5]));
+			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
+			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
+		}
+		case ENTTYPE_LIGHT:
+		{
+			char sBuffer[19][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 20, sizeof(sBuffer[]));
+			
+			PrintToServer(sFileBuffer);
+			
+			fEnt[0][0] = StringToFloat(sBuffer[13]);
+			fEnt[0][1] = StringToFloat(sBuffer[14]);
+			fEnt[0][2] = StringToFloat(sBuffer[15]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[16]);
+			fEnt[1][1] = StringToFloat(sBuffer[17]);
+			fEnt[1][2] = StringToFloat(sBuffer[18]);
+			
+			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
+			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
+			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			
+			int iProp = Cel_SpawnLight(iClient, fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]));
+			
+			Entity_SetName(iProp, sBuffer[2]);
+			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
+			Entity_SetSkin(iProp, StringToInt(sBuffer[5]));
+			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
+			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
+		}
+		case ENTTYPE_PHYSICS:
+		{
+			char sBuffer[20][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 20, sizeof(sBuffer[]));
+			
+			PrintToServer(sFileBuffer);
+			
+			fEnt[0][0] = StringToFloat(sBuffer[13]);
+			fEnt[0][1] = StringToFloat(sBuffer[14]);
+			fEnt[0][2] = StringToFloat(sBuffer[15]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[16]);
+			fEnt[1][1] = StringToFloat(sBuffer[17]);
+			fEnt[1][2] = StringToFloat(sBuffer[18]);
+			
+			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
+			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
+			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			
+			int iProp = Cel_SpawnProp(iClient, sBuffer[19], "prop_physics_override", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
+			
+			Entity_SetName(iProp, sBuffer[2]);
+			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
+			Entity_SetSkin(iProp, StringToInt(sBuffer[5]));
+			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
+			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
+		}
+		case ENTTYPE_UNKNOWN:
+		{
+			char sBuffer[20][PLATFORM_MAX_PATH];
+			
+			ExplodeString(sFileBuffer, "^", sBuffer, 20, sizeof(sBuffer[]));
+			
+			fEnt[0][0] = StringToFloat(sBuffer[13]);
+			fEnt[0][1] = StringToFloat(sBuffer[14]);
+			fEnt[0][2] = StringToFloat(sBuffer[15]);
+			
+			fEnt[1][0] = StringToFloat(sBuffer[16]);
+			fEnt[1][1] = StringToFloat(sBuffer[17]);
+			fEnt[1][2] = StringToFloat(sBuffer[18]);
+			
+			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
+			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
+			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			
+			int iProp = Cel_SpawnProp(iClient, sBuffer[19], "prop_physics_override", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
+			
+			Entity_SetName(iProp, sBuffer[2]);
+			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
+			Entity_SetSkin(iProp, StringToInt(sBuffer[5]));
+			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
+			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
+			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
+		}
+	}
 }

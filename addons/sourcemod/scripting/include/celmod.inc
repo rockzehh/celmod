@@ -325,6 +325,8 @@ native bool Cel_IsPlayer(int iClient);
  */
 native bool Cel_IsSolid(int iEntity);
 
+native void Cel_LoadBuild(int iClient, const char[] sSaveName);
+
 native void Cel_NotLooking(int iClient);
 
 native void Cel_NotYours(int iClient, int iEntity);
@@ -537,7 +539,7 @@ native int Cel_GetLandOwner(float fBottomCorner[3], float fTopCorner[3]);
 
 native int Cel_GetLandOwnerUserId(int iLand);
 
-native float Cel_GetLandPositions(int iClient, int iPosition=0, float fPosition[3]);
+native float Cel_GetLandPositions(int iClient, int iPosition=1, float fPosition[3]);
 
 native void Cel_GetMiddleOfABox(float fMin[3], float fMax[3], float fBuffer[3]);
 

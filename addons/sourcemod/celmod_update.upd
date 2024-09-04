@@ -4,15 +4,11 @@
 	{
 		"Version"
 		{
-			"Latest"		"1.0.1.0"
-			"Previously"	"1.0.0.3"
+			"Latest"		"1.0.1.1"
+			"Previously"	"1.0.1.0"
 		}
 		
-		"Notes"	"Removed celserverconvars due to being useless currently."
-		"Notes"	"Started alpha/beta of celanimations and celcrowbar."
-		"Notes"	"Added a command history list to the client HUD."
-		"Notes"	"Added sm_renderfx to change the renderfx on entities."
-		"Notes"	"Added the ability to spawn a prop directly in chat. Ex. !blastdoor3, /blastdoor3"
+		"Notes"	"Started saving/loading system and is close to completion."
 	}
 	
 	"Files"

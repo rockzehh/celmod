@@ -1,6 +1,16 @@
 |CelMod| Official Update List:
 
 	2009:
+	 - 6/4/09: Created +v_forward and +v_back for controlling vehicle pods.
+	 - 6/6/09: Added turning to vehicle controls (+v_forward/+v_back).
+		- Created v_lock and v_unlock for more control over entities.
+	 - 6/7/09: Created v_button for controlling entities through +use.
+	 - 6/8/09: Fixed v_showmsgs, after being obsolete for months.
+	 - 6/9/09: Created v_buildmenu as a menu interface for commands. Still in development. Requires |CelMod| VGUI plugin.
+	 - 6/11/09: Did some maintenance to v_freeze/v_unfreeze concerning dynamic or already frozen/unfrozen props.
+		 - Modified v_spawnpod with the ability to create pods out of animated props (doll cels).
+	 - 6/12/09: Replaced v_ignite with v_fire for creating fire entities instead of igniting one.
+		 - Changed v_spawnlight to v_light for simplicity reasons.
 	 - 12/26/09: |CelMod| becomes an independent server.
 	 
 	2010

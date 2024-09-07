@@ -309,9 +309,16 @@ public Action Timer_HUD(Handle hTimer)
 				} else if(Cel_IsClientCrosshairInLand(i)){
 					iLand = Cel_GetClientCrosshairLandOwner(i);
 					
-					Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
-					
-					Cel_GetHudColor(iLand, iColor);
+					if(iLand != -1)
+					{
+						Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
+						
+						Cel_GetHudColor(iLand, iColor);
+					}else{
+						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
+						
+						Cel_GetHudColor(i, iColor);
+					}
 				}else {
 					Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
 					

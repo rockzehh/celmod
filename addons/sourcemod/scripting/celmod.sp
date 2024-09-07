@@ -1390,7 +1390,7 @@ public int Native_CheckOwner(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	int iEntity = GetNativeCell(2);
 	
-	return (Cel_GetOwner(iEntity) == iClient) ? true : false;
+	return (Cel_GetOwner(iEntity) == iClient && Cel_IsEntity(iEntity)) ? true : false;
 }
 
 public int Native_CheckPropCount(Handle hPlugin, int iNumParams)
@@ -1850,7 +1850,7 @@ public int Native_IsEntity(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
 	
-	if(iEntity > -1)
+	if(IsValidEntity(iEntity) && iEntity != -1)
 	{
 		return g_bEntity[iEntity];
 	}
@@ -2019,11 +2019,21 @@ public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
 public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 {
 	char sFile[PLATFORM_MAX_PATH], sLandOwner[32], sOutput[PLATFORM_MAX_PATH], sSaveName[96];
-	File fFile;
-	float fEnt[2][3], fLandPos[3], fOrigin[3];
+	float fEnt[2][3], fLandPos[2][3], fMiddle[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4], iLand;
 	
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
+	
+	Cel_GetLandPositions(iClient, 1, fLandPos[0]);
+	Cel_GetLandPositions(iClient, 4, fLandPos[1]);
+	
+	if(fLandPos[0][0] == 0.0 && fLandPos[0][1] == 0.0 && fLandPos[0][2] == 0.0 && fLandPos[1][0] == 0.0 && fLandPos[1][1] == 0.0 && fLandPos[1][2] == 0.0)
+	{
+		Cel_ReplyToCommand(iClient, "You do not have a land area set-up. No props will be saved!");
+		Cel_ReplyToCommand(iClient, "Type {green}!land{default} to set-up a land area.");
+		
+		return false;
+	}
 	
 	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/%s.txt", g_sAuthID[iClient], sSaveName);
 	
@@ -2050,7 +2060,9 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 		}
 	}
 	
-	fFile = OpenFile(sFile, "a+");
+	Cel_GetMiddleOfABox(fLandPos[0], fLandPos[1], fMiddle);
+	
+	fMiddle[2] = (fLandPos[0][2]);
 	
 	g_iSaveOverride[iClient] = 0;
 	
@@ -2064,6 +2076,8 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 				
 				if(iLand == iClient)
 				{
+					File fFile = OpenFile(sFile, "w");
+					
 					switch(Cel_GetEntityType(i))
 					{
 						case ENTTYPE_CYCLER:
@@ -2093,13 +2107,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[14], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
 							
-							Cel_PrintToChat(iClient, "%f.f %f.f %f.f", fLandPos[0], fLandPos[1], fLandPos[2]);//
-							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							fOrigin[0] = fEnt[1][0] - fMiddle[0];
+							fOrigin[1] = fEnt[1][1] - fMiddle[1];
+							fOrigin[2] = fEnt[1][2] - fMiddle[2];
 							
 							FloatToString(fOrigin[0], sBuffer[15], sizeof(sBuffer[]));
 							FloatToString(fOrigin[1], sBuffer[16], sizeof(sBuffer[]));
@@ -2113,8 +2124,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
 							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
 						}
 						case ENTTYPE_DOOR:
 						{
@@ -2144,11 +2153,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
 							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							fOrigin[0] = fEnt[1][0] - fMiddle[0];
+							fOrigin[1] = fEnt[1][1] - fMiddle[1];
+							fOrigin[2] = fEnt[1][2] - fMiddle[2];
 							
 							fOrigin[2] -= 54;
 							
@@ -2161,8 +2169,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
 							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
 						}
 						case ENTTYPE_DYNAMIC:
 						{
@@ -2192,11 +2198,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
 							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							fOrigin[0] = fEnt[1][0] - fMiddle[0];
+							fOrigin[1] = fEnt[1][1] - fMiddle[1];
+							fOrigin[2] = fEnt[1][2] - fMiddle[2];
 							
 							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
 							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
@@ -2209,8 +2214,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
 							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
 						}
 						case ENTTYPE_EFFECT:
 						{
@@ -2240,11 +2243,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
 							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							fOrigin[0] = fEnt[1][0] - fMiddle[0];
+							fOrigin[1] = fEnt[1][1] - fMiddle[1];
+							fOrigin[2] = fEnt[1][2] - fMiddle[2];
 							
 							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
 							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
@@ -2258,8 +2260,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
 							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
 						}
 						case ENTTYPE_INTERNET:
 						{
@@ -2289,11 +2289,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
 							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							fOrigin[0] = fEnt[1][0] - fMiddle[0];
+							fOrigin[1] = fEnt[1][1] - fMiddle[1];
+							fOrigin[2] = fEnt[1][2] - fMiddle[2];
 							
 							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
 							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
@@ -2306,8 +2305,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
 							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
 						}
 						case ENTTYPE_LIGHT:
 						{
@@ -2337,11 +2334,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
 							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							fOrigin[0] = fEnt[1][0] - fMiddle[0];
+							fOrigin[1] = fEnt[1][1] - fMiddle[1];
+							fOrigin[2] = fEnt[1][2] - fMiddle[2];
 							
 							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
 							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
@@ -2352,8 +2348,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
 							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
 						}
 						case ENTTYPE_PHYSICS:
 						{
@@ -2383,59 +2377,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
 							
 							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
 							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
-							
-							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
-							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
-							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
-							
-							Cel_GetPropName(i, sBuffer[19], sizeof(sBuffer[]));
-							
-							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
-							
-							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-							
-							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
-						}
-						case ENTTYPE_UNKNOWN:
-						{
-							char sBuffer[20][PLATFORM_MAX_PATH];
-							
-							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
-							
-							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
-							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
-							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
-							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
-							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
-							
-							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
-							
-							Entity_GetRenderColor(i, iColor);
-							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
-							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
-							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
-							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
-							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
-							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							Cel_GetLandPositions(iClient, 1, fLandPos);
-							
-							fOrigin[0] = fEnt[1][0] - fLandPos[0];
-							fOrigin[1] = fEnt[1][1] - fLandPos[1];
-							fOrigin[2] = fEnt[1][2] - fLandPos[2];
+							fOrigin[0] = fEnt[1][0] - fMiddle[0];
+							fOrigin[1] = fEnt[1][1] - fMiddle[1];
+							fOrigin[2] = fEnt[1][2] - fMiddle[2];
 							
 							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
 							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
@@ -2448,20 +2393,16 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
 							fFile.WriteLine(sOutput);
-							
-							fFile.Flush();
 						}
 					}
+					
+					fFile.Flush();
+					
+					fFile.Close();
 				}
 			}
 		}
 	}
-	
-	fFile.Flush();
-	
-	fFile.Close();
-	
-	Format(sFile, sizeof(sFile), "");
 	
 	Cel_ReplyToCommand(iClient, "Successfully saved build: {green}%s{default}", sSaveName);
 	

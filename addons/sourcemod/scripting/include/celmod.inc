@@ -622,52 +622,41 @@ public Action Timer_DisRemove(Handle hTimer, any iRef)
 }
 
 //Stocks:
-stock int Cel_GetBlueColor()
+stock void Cel_DownloadClientFiles()
 {
-	return g_iBlue;
-}
-
-stock int Cel_GetGrayColor()
-{
-	return g_iGray;
-}
-
-stock int Cel_GetGreenColor()
-{
-	return g_iGreen;
-}
-
-stock int Cel_GetOrangeColor()
-{
-	return g_iOrange;
-}
-
-stock int Cel_GetRedColor()
-{
-	return g_iRed;
-}
-
-stock int Cel_GetWhiteColor()
-{
-	return g_iWhite;
-}
-
-stock int Cel_GetYellowColor()
-{
-	return g_iYellow;
-}
-
-stock float Cel_GetDownVector()
-{
-	return g_fDown;
-}
-
-stock float Cel_GetUpVector()
-{
-	return g_fUp;
-}
-
-stock float Cel_GetZeroVector()
-{
-	return g_fZero;
+	char sPath[PLATFORM_MAX_PATH];
+	
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/downloads.txt");
+	if(!FileExists(sPath))
+	{
+		PrintToServer("|CelMod| Cannot download client files. (No download txt file exists at data/celmod/downloads.txt)");
+	}else{
+		File fDownloadFiles = OpenFile(sPath, "r");
+		char sBuffer[256];
+		
+		while (fDownloadFiles.ReadLine(sBuffer, sizeof(sBuffer)))
+		{
+			int iLen = strlen(sBuffer);
+			if (sBuffer[iLen-1] == '\n')
+			{
+				sBuffer[--iLen] = '\0';
+			}
+			
+			if (FileExists(sBuffer))
+			{
+				AddFileToDownloadsTable(sBuffer);
+			}
+			
+			if(StrContains(sBuffer, ".mdl", false) != -1)
+			{
+				PrecacheModel(sBuffer, true);
+			}
+			
+			if (fDownloadFiles.EndOfFile())
+			{
+				fDownloadFiles.Close();
+				break;
+			} 
+		}	
+	}
 }

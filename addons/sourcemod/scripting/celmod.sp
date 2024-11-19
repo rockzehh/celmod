@@ -12,6 +12,7 @@
 bool g_bEntity[MAXENTITIES + 1];
 bool g_bMotion[MAXENTITIES + 1];
 bool g_bLate;
+bool g_bIsFlying[MAXPLAYERS + 1];
 bool g_bNoKill[MAXPLAYERS + 1];
 bool g_bPlayer[MAXPLAYERS + 1];
 bool g_bSolid[MAXENTITIES + 1];
@@ -21,12 +22,14 @@ char g_sColorDB[PLATFORM_MAX_PATH];
 char g_sDefaultInternetURL[PLATFORM_MAX_PATH];
 char g_sInternetURL[MAXENTITIES + 1][PLATFORM_MAX_PATH];
 char g_sMap[PLATFORM_MAX_PATH];
+char g_sOverlayPath[PLATFORM_MAX_PATH];
 char g_sPropName[MAXENTITIES + 1][64];
 char g_sSpawnDB[PLATFORM_MAX_PATH];
 
 ConVar g_cvCelLimit;
 ConVar g_cvDefaultInternetURL;
 ConVar g_cvLightLimit;
+ConVar g_cvOverlayPath;
 ConVar g_cvPropLimit;
 
 Handle g_hOnCelSpawn;
@@ -162,12 +165,14 @@ public void OnPluginStart()
 			}
 		}
 	}
-	
+
 	if (LibraryExists("updater"))
 	{
 		Updater_AddPlugin(UPDATE_URL);
 	}
 	
+	CelMod_
+
 	AddCommandListener(Handle_Chat, "say");
 	AddCommandListener(Handle_Chat, "say_team");
 	
@@ -201,6 +206,8 @@ public void OnPluginStart()
 	HookEvent("player_disconnect", Event_Disconnect, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_Spawn, EventHookMode_Post);
 	
+	AddCommandListener(CL_Noclip, "noclip");
+	
 	RegConsoleCmd("dev_getpos", Dev_GetPos, "");
 	
 	RegAdminCmd("sm_setowner", Command_SetOwner, ADMFLAG_SLAY, "|CelMod| Sets the owner of the prop you are looking at.");
@@ -211,6 +218,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_del", Command_Delete, "|CelMod| Removes the prop you are looking at.");
 	RegConsoleCmd("sm_delete", Command_Delete, "|CelMod| Removes the prop you are looking at.");
 	RegConsoleCmd("sm_door", Command_Door, "|CelMod| Spawns a working door cel.");
+	RegConsoleCmd("sm_fly", Command_Fly, "|CelMod| Enables/disables noclip on the player.");
 	RegConsoleCmd("sm_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("sm_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("sm_internet", Command_Internet, "|CelMod| Creates a working internet cel.");
@@ -241,15 +249,20 @@ public void OnPluginStart()
 	g_cvCelLimit = CreateConVar("cm_max_player_cels", "20", "Maxiumum number of cel entities a client is allowed.");
 	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://github.com/rockzehh/celmod", "Default internet cel URL.");
 	g_cvPropLimit = CreateConVar("cm_max_player_props", "130", "Maxiumum number of props a player is allowed to spawn.");
+	g_cvOverlayPath = CreateConVar("cm_overlay_material_path", "celmod/cm_overlay2.vmt", "Default CelMod overlay path.");
 	CreateConVar("cm_version", CEL_VERSION, "The version of the plugin the server is running.");
 	
 	g_cvCelLimit.AddChangeHook(CM_OnConVarChanged);
 	g_cvDefaultInternetURL.AddChangeHook(CM_OnConVarChanged);
+	g_cvOverlayPath.AddChangeHook(CM_OnConVarChanged);
 	g_cvPropLimit.AddChangeHook(CM_OnConVarChanged);
 	
 	Cel_SetCelLimit(g_cvCelLimit.IntValue);
 	g_cvDefaultInternetURL.GetString(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL));
+	g_cvOverlayPath.GetString(g_sOverlayPath, sizeof(g_sOverlayPath));
 	Cel_SetPropLimit(g_cvPropLimit.IntValue);
+	
+	SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") - FCVAR_CHEAT);
 }
 
 public void OnClientAuthorized(int iClient, const char[] sAuthID)
@@ -267,8 +280,9 @@ public void OnClientAuthorized(int iClient, const char[] sAuthID)
 	{
 		if (IsClientInGame(i))
 		{
-//ClientCommand(i, "play npc/metropolice/vo/on1.wav");
-			EmitSoundToClient(i, "play npc/metropolice/vo/on1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+			PrecacheSound("npc/metropolice/vo/on1.wav");
+			
+			EmitSoundToClient(i, "npc/metropolice/vo/on1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}
 	}
 }
@@ -291,6 +305,10 @@ public void OnClientPutInServer(int iClient)
 	Cel_SetNoKill(iClient, false);
 	Cel_SetPlayer(iClient, true);
 	Cel_SetPropCount(iClient, 0);
+	
+	g_bIsFlying[iClient] = false;
+	
+	ClientCommand(iClient, "r_screenoverlay %s", g_sOverlayPath);
 }
 
 public void OnClientDisconnect(int iClient)
@@ -304,13 +322,18 @@ public void OnClientDisconnect(int iClient)
 	Cel_SetPlayer(iClient, false);
 	Cel_SetPropCount(iClient, 0);
 	
+	g_bIsFlying[iClient] = false;
+	
+	ClientCommand(iClient, "r_screenoverlay 0", g_sOverlayPath);
+	
 	CPrintToChatAll("{red}[-]{default} %t", "Disconnecting", sClient);
 	for (int i = 1; i < MaxClients; i++)
 	{
 		if (IsClientInGame(i))
 		{
-//ClientCommand(i, "play npc/metropolice/vo/off1.wav");
-			EmitSoundToClient(i, "play npc/metropolice/vo/off1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+			PrecacheSound("npc/metropolice/vo/off1.wav");
+			
+			EmitSoundToClient(i, "npc/metropolice/vo/off1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}
 	}
 }
@@ -329,6 +352,8 @@ public void OnMapStart()
 	DispatchSpawn(g_iEntityDissolve);
 	
 	DispatchKeyValue(g_iEntityDissolve, "classname", "celmod_entity_dissolver");
+	
+	Cel_DownloadClientFiles();
 }
 
 public void OnMapEnd()
@@ -349,6 +374,10 @@ public void CM_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const ch
 	{
 		g_cvDefaultInternetURL.GetString(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL));
 		PrintToServer("|CelMod| Default internet cel url updated to %s.", sNewValue);
+	} else if (cvConVar == g_cvOverlayPath)
+	{
+		g_cvDefaultInternetURL.GetString(g_sOverlayPath, sizeof(g_sOverlayPath));
+		PrintToServer("|CelMod| Default overlay material path updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvPropLimit) {
 		Cel_SetPropLimit(StringToInt(sNewValue));
 		PrintToServer("|CelMod| Prop limit updated to %i.", StringToInt(sNewValue));
@@ -356,6 +385,13 @@ public void CM_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const ch
 }
 
 //Commands:
+public Action CL_Noclip(int iClient, const char[] sCommand, int iArgs)
+{
+	FakeClientCommand(iClient, "sm_fly");
+	
+	return Plugin_Handled;
+}
+
 public Action Dev_GetPos(int iClient, int iArgs)
 {
 	float fAng[3], fPos[3];
@@ -445,9 +481,9 @@ public Action Command_Axis(int iClient, int iArgs)
 	fClientOrigin[2][1] += 50;
 	fClientOrigin[3][2] += 50;
 	
-	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, Cel_GetRedColor(), 10); TE_SendToClient(iClient);
-	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[2], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, Cel_GetGreenColor(), 10); TE_SendToClient(iClient);
-	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[3], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, Cel_GetBlueColor(), 10); TE_SendToClient(iClient);
+	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, g_iRed, 10); TE_SendToClient(iClient);
+	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[2], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, g_iGreen, 10); TE_SendToClient(iClient);
+	TE_SetupBeamPoints(fClientOrigin[0], fClientOrigin[3], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 60.0, 3.0, 3.0, 1, 0.0, g_iBlue, 10); TE_SendToClient(iClient);
 	
 	Cel_ReplyToCommand(iClient, "%t", "CreateAxis");
 	
@@ -680,6 +716,17 @@ public Action Command_Door(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_Fly(int iClient, int iArgs)
+{
+	g_bIsFlying[iClient] = !g_bIsFlying[iClient];
+	
+	SetEntityMoveType(iClient, g_bIsFlying[iClient] ? MOVETYPE_NOCLIP : MOVETYPE_WALK);
+	
+	Cel_ReplyToCommand(iClient, "Flying has been %s.", g_bIsFlying[iClient] ? "enabled" : "disabled");
+	
+	return Plugin_Handled;
+}
+
 public Action Command_FreezeIt(int iClient, int iArgs)
 {
 	char sEntityType[32];
@@ -872,7 +919,7 @@ public Action Command_Rotate(int iClient, int iArgs)
 			TeleportEntity(iProp, NULL_VECTOR, fAngles, NULL_VECTOR);
 		}
 		
-		TE_SetupBeamRingPoint(fOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 3.0, 0.0, Cel_GetOrangeColor(), 10, 0); TE_SendToAll();
+		TE_SetupBeamRingPoint(fOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 3.0, 0.0, g_iOrange, 10, 0); TE_SendToAll();
 		
 		PrecacheSound("buttons/lever7.wav");
 		
@@ -1123,7 +1170,7 @@ public Action Command_Stand(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		TeleportEntity(iProp, NULL_VECTOR, Cel_GetZeroVector(), NULL_VECTOR);
+		TeleportEntity(iProp, NULL_VECTOR, g_fZero, NULL_VECTOR);
 	} else {
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
@@ -1335,7 +1382,7 @@ public int Native_ChangeBeam(Handle hPlugin, int iNumParams)
 	
 	Cel_GetCrosshairHitOrigin(iClient, fHitOrigin);
 	
-	TE_SetupBeamPoints(fClientOrigin, fHitOrigin, Cel_GetPhysicsMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, Cel_GetWhiteColor(), 10); TE_SendToAll();
+	TE_SetupBeamPoints(fClientOrigin, fHitOrigin, Cel_GetPhysicsMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, g_iWhite, 10); TE_SendToAll();
 	TE_SetupSparks(fHitOrigin, NULL_VECTOR, 2, 5); TE_SendToAll();
 	
 	Format(sSound, sizeof(sSound), "weapons/airboat/airboat_gun_lastshot%i.wav", GetRandomInt(1, 2));
@@ -1979,9 +2026,9 @@ public int Native_RemovalBeam(Handle hPlugin, int iNumParams)
 	
 	Cel_GetEntityOrigin(iEntity, fEntityOrigin);
 	
-	TE_SetupBeamPoints(fClientOrigin, fEntityOrigin, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, Cel_GetGrayColor(), 10); TE_SendToAll();
+	TE_SetupBeamPoints(fClientOrigin, fEntityOrigin, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.25, 5.0, 5.0, 1, 0.0, g_iGray, 10); TE_SendToAll();
 	
-	TE_SetupBeamRingPoint(fEntityOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 5.0, 0.0, Cel_GetGrayColor(), 10, 0); TE_SendToAll();
+	TE_SetupBeamRingPoint(fEntityOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 5.0, 0.0, g_iGray, 10, 0); TE_SendToAll();
 	
 	Format(sSound, sizeof(sSound), "ambient/levels/citadel/weapon_disintegrate%i.wav", GetRandomInt(1, 4));
 	
@@ -2123,7 +2170,7 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 							
-							fFile.WriteLine(sOutput);
+							
 						}
 						case ENTTYPE_DOOR:
 						{
@@ -2167,8 +2214,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							ImplodeStrings(sBuffer, 19, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-							
-							fFile.WriteLine(sOutput);
 						}
 						case ENTTYPE_DYNAMIC:
 						{
@@ -2212,8 +2257,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-							
-							fFile.WriteLine(sOutput);
 						}
 						case ENTTYPE_EFFECT:
 						{
@@ -2258,8 +2301,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							ImplodeStrings(sBuffer, 21, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-							
-							fFile.WriteLine(sOutput);
 						}
 						case ENTTYPE_INTERNET:
 						{
@@ -2303,8 +2344,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-							
-							fFile.WriteLine(sOutput);
 						}
 						case ENTTYPE_LIGHT:
 						{
@@ -2346,8 +2385,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							ImplodeStrings(sBuffer, 19, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-							
-							fFile.WriteLine(sOutput);
 						}
 						case ENTTYPE_PHYSICS:
 						{
@@ -2391,14 +2428,19 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-							
-							fFile.WriteLine(sOutput);
 						}
 					}
 					
-					fFile.Flush();
-					
-					fFile.Close();
+					if(StrEqual(sOutput, ""))
+					{
+						fFile.Close();
+					}else{
+						fFile.WriteLine(sOutput);
+						
+						fFile.Flush();
+						
+						fFile.Close();	
+					}
 				}
 			}
 		}

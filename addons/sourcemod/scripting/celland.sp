@@ -107,12 +107,12 @@ public void OnClientPutInServer(int iClient)
 	g_liLand[iClient].bInLand = false;
 	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fBottom = Cel_GetZeroVector();
-	g_liLand[iClient].fBottomTop = Cel_GetZeroVector();
+	g_liLand[iClient].fBottom = g_fZero;
+	g_liLand[iClient].fBottomTop = g_fZero;
 	g_liLand[iClient].fGravity = 1.0;
-	g_liLand[iClient].fMiddle = Cel_GetZeroVector();
-	g_liLand[iClient].fOriginal = Cel_GetZeroVector();
-	g_liLand[iClient].fTop = Cel_GetZeroVector();
+	g_liLand[iClient].fMiddle = g_fZero;
+	g_liLand[iClient].fOriginal = g_fZero;
+	g_liLand[iClient].fTop = g_fZero;
 	
 	g_liLand[iClient].iEntity = -1;
 	g_liLand[iClient].iOwner = -1;
@@ -131,12 +131,12 @@ public void OnClientDisconnect(int iClient)
 	g_liLand[iClient].bInLand = false;
 	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fBottom = Cel_GetZeroVector();
-	g_liLand[iClient].fBottomTop = Cel_GetZeroVector();
+	g_liLand[iClient].fBottom = g_fZero;
+	g_liLand[iClient].fBottomTop = g_fZero;
 	g_liLand[iClient].fGravity = 1.0;
-	g_liLand[iClient].fMiddle = Cel_GetZeroVector();
-	g_liLand[iClient].fOriginal = Cel_GetZeroVector();
-	g_liLand[iClient].fTop = Cel_GetZeroVector();
+	g_liLand[iClient].fMiddle = g_fZero;
+	g_liLand[iClient].fOriginal = g_fZero;
+	g_liLand[iClient].fTop = g_fZero;
 	
 	g_liLand[iClient].iEntity = -1;
 	g_liLand[iClient].iOwner = -1;
@@ -330,11 +330,11 @@ public int Native_ClearLand(Handle hPlugin, int iNumParams)
 	g_liLand[iClient].bInLand = false;
 	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fBottom = Cel_GetZeroVector();
-	g_liLand[iClient].fBottomTop = Cel_GetZeroVector();
-	g_liLand[iClient].fMiddle = Cel_GetZeroVector();
-	g_liLand[iClient].fOriginal = Cel_GetZeroVector();
-	g_liLand[iClient].fTop = Cel_GetZeroVector();
+	g_liLand[iClient].fBottom = g_fZero;
+	g_liLand[iClient].fBottomTop = g_fZero;
+	g_liLand[iClient].fMiddle = g_fZero;
+	g_liLand[iClient].fOriginal = g_fZero;
+	g_liLand[iClient].fTop = g_fZero;
 	
 	AcceptEntityInput(g_liLand[iClient].iEntity, "kill");
 	
@@ -797,7 +797,7 @@ public Action Timer_GettingTop(Handle hTimer, any iPlayer)
 	{
 		Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottomTop);
 		
-		Handle hTraceRay = TR_TraceRayEx(g_liLand[iClient].fBottomTop, Cel_GetUpVector(), MASK_ALL, RayType_Infinite);
+		Handle hTraceRay = TR_TraceRayEx(g_liLand[iClient].fBottomTop, g_fUp, MASK_ALL, RayType_Infinite);
 		
 		if (TR_DidHit(hTraceRay))
 		{

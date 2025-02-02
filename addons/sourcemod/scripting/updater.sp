@@ -59,7 +59,7 @@ enum UpdateStatus {
 #define EXTENSION_ERROR			"This plugin requires SteamWorks extensions to function."
 #define TEMP_FILE_EXT			"temp"		// All files are downloaded with this extension first.
 #define MAX_URL_LENGTH			256
-#define UPDATE_URL				"https://raw.githubusercontent.com/rockzehh/updater-nukkonyan/main/updater_update.upd"
+#define UPDATE_URL				"https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/addons/sourcemod/updater_url.upd"
 
 bool g_bGetDownload, g_bGetSource;
 
@@ -133,7 +133,7 @@ public void OnAllPluginsLoaded()	{
 	Call_Finish();
 }
 
-Action Timer_CheckUpdates(Handle timer)	{
+public Action Timer_CheckUpdates(Handle timer)	{
 	Updater_FreeMemory();
 	
 	// Update everything!
@@ -144,6 +144,8 @@ Action Timer_CheckUpdates(Handle timer)	{
 	}
 	
 	_fLastUpdate = GetTickedTime();
+	
+	return Plugin_Continue;
 }
 
 Action Command_Check(int client, int args)	{
@@ -156,11 +158,15 @@ Action Command_Check(int client, int args)	{
 			TriggerTimer(_hUpdateTimer, true);
 		}
 	}
+	
+	return Plugin_Handled;
 }
 
 Action Command_ForceCheck(int client, int args)	{
 	ReplyToCommand(client, "[Updater] Force-checking for updates.");
 	CreateTimer(0.1, Timer_CheckUpdates);
+	
+	return Plugin_Handled;
 }
 
 Action Command_Status(int client, int args)	{
@@ -182,6 +188,8 @@ Action Command_Status(int client, int args)	{
 	
 	ReplyToCommand(client, "Last update check was %.1f minutes ago.", (GetTickedTime() - _fLastUpdate) / 60.0);
 	ReplyToCommand(client, "[Updater] --- Status End ---");
+	
+	return Plugin_Handled;
 }
 
 void OnVersionChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue) { if(!StrEqual(newvalue, PLUGIN_VERSION)) cvar.SetString(PLUGIN_VERSION); }

@@ -1120,3 +1120,4 @@ addons/sourcemod/scripting/basecommands/who.sp
 addons/sourcemod/scripting/compile.dat
 addons/sourcemod/configs/admins.cfg
 addons/sourcemod/configs/admins_master.cfg
+addons/sourcemod/celmod_proj.bpproj

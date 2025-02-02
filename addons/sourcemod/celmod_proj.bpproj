@@ -1,0 +1,9 @@
+[ProjectOptions]
+RelativeProject=1
+RelativeNoIncludes=1
+[Project]
+c2459c21-6651-46f9-bf3e-1bbd3631abf7=C:\Users\zacha\OneDrive\Documents\Source Servers\CelMod-HL2DM\hl2mp\addons\sourcemod\scripting\include\celmod.inc
+ddc1faa6-e8bb-41e0-a871-d4f89d30218b=C:\Users\zacha\OneDrive\Documents\Source Servers\CelMod-HL2DM\hl2mp\addons\sourcemod\scripting\celmod.sp
+d6ee4750-5c9e-44ba-a6f6-f742782bd376=C:\Users\zacha\OneDrive\Documents\Source Servers\CelMod-HL2DM\hl2mp\addons\sourcemod\celmod_update.upd
+a9b5c1b2-11c3-4a5c-8dc2-7ff64aea416c=C:\Users\zacha\OneDrive\Documents\Source Servers\CelMod-HL2DM\hl2mp\addons\sourcemod\scripting\updater.sp
+83e2fd83-50c3-4355-95eb-1b54c9c63a59=C:\Users\zacha\OneDrive\Documents\Source Servers\CelMod-HL2DM\hl2mp\addons\sourcemod\updater_url.upd

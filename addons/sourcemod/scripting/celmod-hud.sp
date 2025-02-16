@@ -31,7 +31,7 @@ public Plugin myinfo =
 	author = CEL_AUTHOR, 
 	description = "Creates and controls the custom player hud.", 
 	version = CEL_VERSION, 
-	url = CEL_URL
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()

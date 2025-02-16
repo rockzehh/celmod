@@ -136,7 +136,7 @@ public Plugin myinfo =
 	author = CEL_AUTHOR,
 	description = "A fully customized building experience with roleplay, and extra features to enhance the standard gameplay.",
 	version = CEL_VERSION,
-	url = CEL_URL
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnLibraryAdded(const char[] sName)

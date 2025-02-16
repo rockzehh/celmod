@@ -1,0 +1,28 @@
+@font-face {
+    font-family: 'Red Hat Display', sans-serif;
+    font-style: normal;
+}
+a {
+	text-decoration: none;
+}
+a:hover {
+	color: #FFCD5B;
+	transition: color 0.5s;
+}
+body {
+	background: rgb(45,45,45);
+	background: linear-gradient(180deg, rgba(45,45,45,1) 0%, rgba(30,30,30,1) 35%, rgba(5,5,5,1) 100%);
+	background-attachment: fixed;
+	background-position: right top;
+	color: #FFCD5B;
+	font-family: 'Red Hat Display';
+}
+.cmColor {
+	color: #9CF;
+}
+.h {
+	color: #71E100;
+}
+.highlight {
+	color: #71E100;
+}

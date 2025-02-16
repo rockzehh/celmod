@@ -32,9 +32,9 @@ public Plugin myinfo =
 {
 	name = "|CelMod| Effects", 
 	author = CEL_AUTHOR, 
-	description = "Creates a effect emitter.", 
+	description = "Creates a effect effect.", 
 	version = CEL_VERSION, 
-	url = CEL_URL
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()

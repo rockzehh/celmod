@@ -16,56 +16,47 @@ Handle g_hGettingTop[MAXPLAYERS+1];
 Handle g_hLandTimer[MAXPLAYERS+1];
 
 int g_iBeam = -1;
-int g_iCurrentLandEntity[MAXPLAYERS + 1];
-int g_iCurrentLandOwner[MAXPLAYERS + 1];
 int g_iHalo = -1;
 int g_iLand = -1;
 int g_iLaser = -1;
 int g_iPhys = -1;
 
 enum struct Land {
-	bool bGodMode;
-	bool bInDeathmatchMode;
-	bool bInsideLand;
-	bool bLandCreated;
-	bool bLandDrawing;
-	bool bLandGettingTopPos;
-	bool bModeCoop;
-	bool bModeDeathmatch;
-	bool bModeShop;
-	
-	float fLandGravity;
-	float fLandPosBottom[3];
-	float fLandPosBottomMiddle[3];
-	float fLandPosBottomTop[3];
-	float fLandPosStarting[3];
-	float fLandPosTop[3];
-	
-	int iLandEntity;
-	int iLandOwner;
-	int iLandStage;
+	bool bDeathmatch;
+	bool bDrawing;
+	bool bGettingTop;
+	bool bInDeathmatch;
+	bool bInLand;
+	bool bMade;
+	float fBottom[3];
+	float fBottomTop[3];
+	float fGravity;
+	float fMiddle[3];
+	float fOriginal[3];
+	float fTop[3];
+	int iEntity;
+	int iOwner;
+	int iPosition;
 }
 
-Land g_liLand[MAXPLAYERS+1];
+Land g_liLand[MAXENTITIES+1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
+	CreateNative("Cel_CreateLandEntity", Native_CreateLandEntity);
 	CreateNative("Cel_ClearLand", Native_ClearLand);
-	CreateNative("Cel_CreateLand", Native_CreateLand);
-	CreateNative("Cel_DrawLandBorders", Native_DrawLandBorders);
+	CreateNative("Cel_DrawLand", Native_DrawLand);
 	CreateNative("Cel_GetClientCrosshairLandOwner", Native_GetClientCrosshairLandOwner);
-	CreateNative("Cel_GetCurrentLandEntity", Native_GetCurrentLandEntity);
-	CreateNative("Cel_GetCurrentLandOwner", Native_GetCurrentLandOwner);
-	CreateNative("Cel_GetLandEntity", Native_GetLandEntity);
-	CreateNative("Cel_GetLandGravity", Native_GetLandGravity);
+	//CreateNative("Cel_GetLandGravity", Native_GetLandGravity);
 	CreateNative("Cel_GetLandOwner", Native_GetLandOwner);
+	CreateNative("Cel_GetLandOwnerUserId", Native_GetLandOwnerUserId);
 	CreateNative("Cel_GetLandPositions", Native_GetLandPositions);
 	CreateNative("Cel_GetMiddleOfABox", Native_GetMiddleOfBox);
-	CreateNative("Cel_IsClientCrosshairInLand", Native_IsClientCrosshairInLand);
 	CreateNative("Cel_IsClientInLand", Native_IsClientInLand);
+	CreateNative("Cel_IsClientCrosshairInLand", Native_IsClientCrosshairInLand);
 	CreateNative("Cel_IsEntityInLand", Native_IsEntityInLand);
 	CreateNative("Cel_IsPositionInBox", Native_IsPositionInBox);
-	CreateNative("Cel_SetLandGravity", Native_SetLandGravity);
+	//CreateNative("Cel_SetLandGravity", Native_SetLandGravity);
 	
 	g_bLate = bLate;
 	
@@ -78,7 +69,7 @@ public Plugin myinfo =
 	author = CEL_AUTHOR,
 	description = "Creates a personal building area.",
 	version = CEL_VERSION,
-	url = CEL_URL
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()
@@ -109,28 +100,23 @@ public void OnPluginStart()
 
 public void OnClientPutInServer(int iClient)
 {
-	g_liLand[iClient].bModeCoop = false;
-	g_liLand[iClient].bModeShop = false;
-	g_liLand[iClient].bModeDeathmatch = false;
-	g_liLand[iClient].bLandDrawing = false;
-	g_liLand[iClient].bLandGettingTopPos = false;
-	g_liLand[iClient].bInDeathmatchMode = false;
-	g_liLand[iClient].bInsideLand = false;
-	g_liLand[iClient].bLandCreated = false;
+	g_liLand[iClient].bDeathmatch = false;
+	g_liLand[iClient].bDrawing = false;
+	g_liLand[iClient].bGettingTop = false;
+	g_liLand[iClient].bInDeathmatch = false;
+	g_liLand[iClient].bInLand = false;
+	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fLandPosBottom = g_fZero;
-	g_liLand[iClient].fLandPosBottomTop = g_fZero;
-	g_liLand[iClient].fLandGravity = 1.0;
-	g_liLand[iClient].fLandPosBottomMiddle = g_fZero;
-	g_liLand[iClient].fLandPosStarting = g_fZero;
-	g_liLand[iClient].fLandPosTop = g_fZero;
+	g_liLand[iClient].fBottom = g_fZero;
+	g_liLand[iClient].fBottomTop = g_fZero;
+	g_liLand[iClient].fGravity = 1.0;
+	g_liLand[iClient].fMiddle = g_fZero;
+	g_liLand[iClient].fOriginal = g_fZero;
+	g_liLand[iClient].fTop = g_fZero;
 	
-	g_liLand[iClient].iLandEntity = -1;
-	g_liLand[iClient].iLandOwner = -1;
-	g_liLand[iClient].iLandStage = 0;
-	
-	g_iCurrentLandEntity[iClient] = -1;
-	g_iCurrentLandOwner[iClient] = -1;
+	g_liLand[iClient].iEntity = -1;
+	g_liLand[iClient].iOwner = -1;
+	g_liLand[iClient].iPosition = 0;
 	
 	g_hGettingTop[iClient] = CreateTimer(0.1, Timer_GettingTop, GetClientUserId(iClient), TIMER_REPEAT);
 	g_hLandTimer[iClient] = CreateTimer(0.1, Timer_Land, GetClientUserId(iClient), TIMER_REPEAT);
@@ -138,28 +124,23 @@ public void OnClientPutInServer(int iClient)
 
 public void OnClientDisconnect(int iClient)
 {
-	g_liLand[iClient].bModeCoop = false;
-	g_liLand[iClient].bModeShop = false;
-	g_liLand[iClient].bModeDeathmatch = false;
-	g_liLand[iClient].bLandDrawing = false;
-	g_liLand[iClient].bLandGettingTopPos = false;
-	g_liLand[iClient].bInDeathmatchMode = false;
-	g_liLand[iClient].bInsideLand = false;
-	g_liLand[iClient].bLandCreated = false;
+	g_liLand[iClient].bDeathmatch = false;
+	g_liLand[iClient].bDrawing = false;
+	g_liLand[iClient].bGettingTop = false;
+	g_liLand[iClient].bInDeathmatch = false;
+	g_liLand[iClient].bInLand = false;
+	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fLandPosBottom = g_fZero;
-	g_liLand[iClient].fLandPosBottomTop = g_fZero;
-	g_liLand[iClient].fLandGravity = 1.0;
-	g_liLand[iClient].fLandPosBottomMiddle = g_fZero;
-	g_liLand[iClient].fLandPosStarting = g_fZero;
-	g_liLand[iClient].fLandPosTop = g_fZero;
+	g_liLand[iClient].fBottom = g_fZero;
+	g_liLand[iClient].fBottomTop = g_fZero;
+	g_liLand[iClient].fGravity = 1.0;
+	g_liLand[iClient].fMiddle = g_fZero;
+	g_liLand[iClient].fOriginal = g_fZero;
+	g_liLand[iClient].fTop = g_fZero;
 	
-	g_liLand[iClient].iLandEntity = -1;
-	g_liLand[iClient].iLandOwner = -1;
-	g_liLand[iClient].iLandStage = 0;
-	
-	g_iCurrentLandEntity[iClient] = -1;
-	g_iCurrentLandOwner[iClient] = -1;
+	g_liLand[iClient].iEntity = -1;
+	g_liLand[iClient].iOwner = -1;
+	g_liLand[iClient].iPosition = 0;
 	
 	if(g_hGettingTop[iClient] != INVALID_HANDLE)
 	{
@@ -202,37 +183,35 @@ public void CMLand_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, cons
 //Commands:
 public Action Command_Land(int iClient, int iArgs)
 {
-	switch(g_liLand[iClient].iLandStage)
+	switch(g_liLand[iClient].iPosition)
 	{
 		case 0:
 		{
-			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fLandPosBottom);
-			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fLandPosStarting);
+			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottom);
+			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fOriginal);
 			
-			g_liLand[iClient].bLandDrawing = true;
-			g_liLand[iClient].bLandGettingTopPos = true;
+			g_liLand[iClient].bDrawing = true;
+			g_liLand[iClient].bGettingTop = true;
 			
 			Cel_ReplyToCommand(iClient, "%t", "LandStarted");
 			
-			g_liLand[iClient].iLandStage = 1;
+			g_liLand[iClient].iPosition = 1;
 		}
 		
 		case 1:
 		{
-			g_liLand[iClient].bLandGettingTopPos = false;
-			g_liLand[iClient].bLandCreated = true;
+			g_liLand[iClient].bGettingTop = false;
+			g_liLand[iClient].bMade = true;
 			
-			Cel_GetMiddleOfABox(g_liLand[iClient].fLandPosBottom, g_liLand[iClient].fLandPosTop, g_liLand[iClient].fLandPosBottomMiddle);
+			Cel_GetMiddleOfABox(g_liLand[iClient].fBottom, g_liLand[iClient].fTop, g_liLand[iClient].fMiddle);
 			
-			g_liLand[iClient].fLandPosBottomMiddle[2] = g_liLand[iClient].fLandPosBottom[2];
+			Cel_CreateLandEntity(iClient, g_liLand[iClient].fBottom, g_liLand[iClient].fTop);
 			
-			Cel_CreateLandEntity(iClient, g_liLand[iClient].fLandPosBottom, g_liLand[iClient].fLandPosTop);
-			
-			g_liLand[iClient].iLandStage = 2;
+			g_liLand[iClient].iPosition = 2;
 			
 			Cel_ReplyToCommand(iClient, "%t", "LandFinished");
 			
-			TE_SetupSparks(g_liLand[iClient].fLandPosBottomMiddle, NULL_VECTOR, 150, 25);
+			TE_SetupSparks(g_liLand[iClient].fMiddle, NULL_VECTOR, 150, 25);
 		}
 		
 		case 2:
@@ -248,9 +227,9 @@ public Action Command_Land(int iClient, int iArgs)
 
 public Action Command_LandDeathmatch(int iClient, int iArgs)
 {
-	g_liLand[iClient].bModeDeathmatch = !g_liLand[iClient].bModeDeathmatch;
+	g_liLand[iClient].bDeathmatch = !g_liLand[iClient].bDeathmatch;
 	
-	Cel_ReplyToCommand(iClient, "%t", g_liLand[iClient].bModeDeathmatch ? "DeathmatchOn" : "DeathmatchOff");
+	Cel_ReplyToCommand(iClient, "%t", g_liLand[iClient].bDeathmatch ? "DeathmatchOn" : "DeathmatchOff");
 	
 	return Plugin_Handled;
 }
@@ -267,16 +246,16 @@ public Action Command_LandGravity(int iClient, int iArgs)
 	
 	GetCmdArg(1, sGravity, sizeof(sGravity));
 	
-	g_liLand[iClient].fLandGravity = StringToFloat(sGravity);
+	g_liLand[iClient].fGravity = StringToFloat(sGravity);
 	
 	return Plugin_Handled;
 }
 
 //Natives:
-public int Native_CreateLand(Handle hPlugin, int iNumParams)
+public int Native_CreateLandEntity(Handle hPlugin, int iNumParams)
 {
 	char sOwner[64];
-	float fMax[3], fLandPosMiddle[3], fMin[3];
+	float fMax[3], fMiddle[3], fMin[3];
 	int iClient, iEnt;
 	
 	iClient = GetNativeCell(1);
@@ -294,34 +273,34 @@ public int Native_CreateLand(Handle hPlugin, int iNumParams)
 	DispatchSpawn(iEnt);
 	ActivateEntity(iEnt);
 	
-	Cel_GetMiddleOfABox(fMin, fMax, fLandPosMiddle);
+	Cel_GetMiddleOfABox(fMin, fMax, fMiddle);
 	
-	TeleportEntity(iEnt, fLandPosMiddle, NULL_VECTOR, NULL_VECTOR);
+	TeleportEntity(iEnt, fMiddle, NULL_VECTOR, NULL_VECTOR);
 	
 	PrecacheModel(LAND_MODEL);
 	SetEntityModel(iEnt, LAND_MODEL);
 	
-	fMin[0] = fMin[0] - fLandPosMiddle[0];
+	fMin[0] = fMin[0] - fMiddle[0];
 	if (fMin[0] > 0.0)
 	fMin[0] *= -1.0;
 	
-	fMin[1] = fMin[1] - fLandPosMiddle[1];
+	fMin[1] = fMin[1] - fMiddle[1];
 	if (fMin[1] > 0.0)
 	fMin[1] *= -1.0;
 	
-	fMin[2] = fMin[2] - fLandPosMiddle[2];
+	fMin[2] = fMin[2] - fMiddle[2];
 	if (fMin[2] > 0.0)
 	fMin[2] *= -1.0;
 	
-	fMax[0] = fMax[0] - fLandPosMiddle[0];
+	fMax[0] = fMax[0] - fMiddle[0];
 	if (fMax[0] < 0.0)
 	fMax[0] *= -1.0;
 	
-	fMax[1] = fMax[1] - fLandPosMiddle[1];
+	fMax[1] = fMax[1] - fMiddle[1];
 	if (fMax[1] < 0.0)
 	fMax[1] *= -1.0;
 	
-	fMax[2] = fMax[2] - fLandPosMiddle[2];
+	fMax[2] = fMax[2] - fMiddle[2];
 	if (fMax[2] < 0.0)
 	fMax[2] *= -1.0;
 	
@@ -337,36 +316,29 @@ public int Native_CreateLand(Handle hPlugin, int iNumParams)
 	HookSingleEntityOutput(iEnt, "OnStartTouch", EntOut_LandOnStartTouch);
 	HookSingleEntityOutput(iEnt, "OnEndTouch", EntOut_LandOnEndTouch);
 	
-	g_liLand[iClient].iLandEntity = iEnt;
+	g_liLand[iClient].iEntity = iEnt;
 	
-	return g_liLand[iClient].iLandEntity;
+	return g_liLand[iClient].iEntity;
 }
 
 public int Native_ClearLand(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 	
-	g_liLand[iClient].bModeCoop = false;
-	g_liLand[iClient].bModeShop = false;
-	g_liLand[iClient].bModeDeathmatch = false;
-	g_liLand[iClient].bLandDrawing = false;
-	g_liLand[iClient].bLandGettingTopPos = false;
-	g_liLand[iClient].bInDeathmatchMode = false;
-	g_liLand[iClient].bInsideLand = false;
-	g_liLand[iClient].bLandCreated = false;
+	g_liLand[iClient].bDrawing = false;
+	g_liLand[iClient].bGettingTop = false;
+	g_liLand[iClient].bInLand = false;
+	g_liLand[iClient].bMade = false;
 	
-	g_liLand[iClient].fLandPosBottom = g_fZero;
-	g_liLand[iClient].fLandPosBottomTop = g_fZero;
-	g_liLand[iClient].fLandGravity = 1.0;
-	g_liLand[iClient].fLandPosBottomMiddle = g_fZero;
-	g_liLand[iClient].fLandPosStarting = g_fZero;
-	g_liLand[iClient].fLandPosTop = g_fZero;
+	g_liLand[iClient].fBottom = g_fZero;
+	g_liLand[iClient].fBottomTop = g_fZero;
+	g_liLand[iClient].fMiddle = g_fZero;
+	g_liLand[iClient].fOriginal = g_fZero;
+	g_liLand[iClient].fTop = g_fZero;
 	
-	g_liLand[iClient].iLandEntity = -1;
-	g_liLand[iClient].iLandOwner = -1;
-	g_liLand[iClient].iLandStage = 0;
+	AcceptEntityInput(g_liLand[iClient].iEntity, "kill");
 	
-	AcceptEntityInput(g_liLand[iClient].iLandEntity, "kill");
+	g_liLand[iClient].iPosition = 0;
 	
 	return true;
 }
@@ -380,7 +352,7 @@ public int Native_DrawLand(Handle hPlugin, int iNumParams)
 	GetNativeArray(1, fFrom, 3);
 	GetNativeArray(2, fTo, 3);
 	fLife = view_as<float>(GetNativeCell(3));
-
+	//iColor[0] = GetNativeCell(4);
 	GetNativeArray(4, iColor, 4);
 	
 	float fLeftBottomFront[3];
@@ -490,7 +462,7 @@ public int Native_DrawLand(Handle hPlugin, int iNumParams)
 public int Native_GetClientCrosshairLandOwner(Handle hPlugin, int iNumParams)
 {
 	char sTargetName[64];
-	float fOrigin[3], fLandPosTop[3];
+	float fOrigin[3], fTop[3];
 	int iClient = GetNativeCell(1), iOwner;
 	
 	for (int i = 1; i < MaxClients; i++)
@@ -501,11 +473,11 @@ public int Native_GetClientCrosshairLandOwner(Handle hPlugin, int iNumParams)
 			
 			fOrigin[2] += 1.0;
 			
-			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop))
 			{
-				if(IsValidEdict(g_liLand[i].iLandEntity))
+				if(IsValidEdict(g_liLand[i].iEntity))
 				{
-					GetEntPropString(g_liLand[i].iLandEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
+					GetEntPropString(g_liLand[i].iEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
 					
 					iOwner = StringToInt(sTargetName);
 					
@@ -522,20 +494,20 @@ public int Native_GetClientCrosshairLandOwner(Handle hPlugin, int iNumParams)
 	return -1;
 }
 
-public int Native_GetLandEntity(Handle hPlugin, int iNumParams)
+public int Native_GetLandOwner(Handle hPlugin, int iNumParams)
 {
-	float fLandPosBottom[3], fLandPosTop[3];
+	float fBottom[3], fTop[3];
 	
-	GetNativeArray(1, fLandPosBottom, 3);
-	GetNativeArray(2, fLandPosTop, 3);
+	GetNativeArray(1, fBottom, 3);
+	GetNativeArray(2, fTop, 3);
 	
 	for (int i = 1; i < MaxClients; i++)
 	{
 		if (IsClientAuthorized(i))
 		{
-			if(g_liLand[i].fLandPosBottom[0] == fLandPosBottom[0] && g_liLand[i].fLandPosBottom[1] == fLandPosBottom[1] && g_liLand[i].fLandPosBottom[2] == fLandPosBottom[2] && g_liLand[i].fLandPosTop[0] == fLandPosTop[0] && g_liLand[i].fLandPosTop[1] == fLandPosTop[1] && g_liLand[i].fLandPosTop[2] == fLandPosTop[2])
+			if(g_liLand[i].fBottom[0] == fBottom[0] && g_liLand[i].fBottom[1] == fBottom[1] && g_liLand[i].fBottom[2] == fBottom[2] && g_liLand[i].fTop[0] == fTop[0] && g_liLand[i].fTop[1] == fTop[1] && g_liLand[i].fTop[2] == fTop[2])
 			{
-				return g_liLand[i].iLandEntity;
+				return i;
 			}
 		}
 	}
@@ -543,22 +515,13 @@ public int Native_GetLandEntity(Handle hPlugin, int iNumParams)
 	return -1;
 }
 
-public int Native_GetLandOwner(Handle hPlugin, int iNumParams)
+public int Native_GetLandOwnerUserId(Handle hPlugin, int iNumParams)
 {
-	float fLandPosBottom[3], fLandPosTop[3];
+	int iLand = GetNativeCell(1);
 	
-	GetNativeArray(1, fLandPosBottom, 3);
-	GetNativeArray(2, fLandPosTop, 3);
-	
-	for (int i = 1; i < MaxClients; i++)
+	if(iLand >= 1)
 	{
-		if (IsClientAuthorized(i))
-		{
-			if(g_liLand[i].fLandPosBottom[0] == fLandPosBottom[0] && g_liLand[i].fLandPosBottom[1] == fLandPosBottom[1] && g_liLand[i].fLandPosBottom[2] == fLandPosBottom[2] && g_liLand[i].fLandPosTop[0] == fLandPosTop[0] && g_liLand[i].fLandPosTop[1] == fLandPosTop[1] && g_liLand[i].fLandPosTop[2] == fLandPosTop[2])
-			{
-				return i;
-			}
-		}
+		return iLand;
 	}
 	
 	return -1;
@@ -573,23 +536,23 @@ public int Native_GetLandPositions(Handle hPlugin, int iNumParams)
 	{
 		case 1:
 		{
-			fPosition = g_liLand[iClient].fLandPosStarting;
+			fPosition = g_liLand[iClient].fOriginal;
 		}
 		case 2:
 		{
-			fPosition = g_liLand[iClient].fLandPosBottom;
+			fPosition = g_liLand[iClient].fBottom;
 		}
 		case 3:
 		{
-			fPosition = g_liLand[iClient].fLandPosTop;
+			fPosition = g_liLand[iClient].fTop;
 		}
 		case 4:
 		{
-			fPosition = g_liLand[iClient].fLandPosBottomTop;
+			fPosition = g_liLand[iClient].fBottomTop;
 		}
 		case 5:
 		{
-			fPosition = g_liLand[iClient].fLandPosBottomMiddle;
+			fPosition = g_liLand[iClient].fMiddle;
 		}
 	}
 	
@@ -630,9 +593,9 @@ public int Native_IsClientInLand(Handle hPlugin, int iNumParams)
 		{
 			GetClientAbsOrigin(iClient, fOrigin);
 			
-			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop))
 			{
-				GetEntPropString(g_liLand[i].iLandEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
+				GetEntPropString(g_liLand[i].iEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
 	
 				SetNativeCellRef(2, StringToInt(sTargetName));
 				
@@ -651,7 +614,7 @@ public int Native_IsClientInLand(Handle hPlugin, int iNumParams)
 public int Native_IsClientCrosshairInLand(Handle hPlugin, int iNumParams)
 {
 	char sTargetName[64];
-	float fOrigin[3], fLandPosTop[3];
+	float fOrigin[3], fTop[3];
 	int iClient = GetNativeCell(1);
 	
 	for (int i = 1; i < MaxClients; i++)
@@ -662,7 +625,7 @@ public int Native_IsClientCrosshairInLand(Handle hPlugin, int iNumParams)
 			
 			fOrigin[2] += 1.0;
 			
-			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop))
 			{
 				return true;
 			}else{
@@ -688,9 +651,9 @@ public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 		{
 			Entity_GetAbsOrigin(iEntity, fOrigin);
 			
-			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fBottom, g_liLand[i].fTop))
 			{
-				GetEntPropString(g_liLand[i].iLandEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
+				GetEntPropString(g_liLand[i].iEntity, Prop_Data, "m_iName", sTargetName, sizeof(sTargetName));
 				
 				SetNativeString(2, sTargetName, iMaxLength);
 				
@@ -787,21 +750,21 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 	
 	int iOwner = StringToInt(sTargetName);
 	
-	if(!g_liLand[iActivator].bInsideLand)
+	if(!g_liLand[iActivator].bInLand)
 	{
 		Cel_PrintToChat(iActivator, "You have entered {green}%N{default}'s land.", iOwner);
 	}
 	
-	g_liLand[iActivator].bInsideLand = true;
-	g_liLand[iActivator].iLandOwner = iOwner;
+	g_liLand[iActivator].bInLand = true;
+	g_liLand[iActivator].iOwner = iOwner;
 	
-	SetEntityGravity(iActivator, g_liLand[iOwner].fLandGravity);
+	SetEntityGravity(iActivator, g_liLand[iOwner].fGravity);
 	
-	if(g_liLand[iOwner].bModeDeathmatch)
+	if(g_liLand[iOwner].bDeathmatch)
 	{
 		SetEntProp(iActivator, Prop_Data, "m_takedamage", 2, 1);
 		
-		g_liLand[iActivator].bInDeathmatchMode = true;
+		g_liLand[iActivator].bInDeathmatch = true;
 		
 		Cel_PrintToChat(iActivator, "This land has {red}deathmatch{default} mode enabled!");
 	}
@@ -812,16 +775,16 @@ public void EntOut_LandOnEndTouch(const char[] sOutput, int iCaller, int iActiva
 	if (iActivator < 1 || iActivator > MaxClients || !IsClientInGame(iActivator) || !IsPlayerAlive(iActivator))
 	return;
 	
-	g_liLand[iActivator].bInsideLand = false;
-	g_liLand[iActivator].iLandOwner = -1;
+	g_liLand[iActivator].bInLand = false;
+	g_liLand[iActivator].iOwner = -1;
 	
 	SetEntityGravity(iActivator, 1.0);
 	
-	if(g_liLand[iActivator].bInDeathmatchMode)
+	if(g_liLand[iActivator].bInDeathmatch)
 	{
 		Cel_SetNoKill(iActivator, Cel_GetNoKill(iActivator));
 		
-		g_liLand[iActivator].bInDeathmatchMode = false;
+		g_liLand[iActivator].bInDeathmatch = false;
 	}
 }
 
@@ -830,34 +793,33 @@ public Action Timer_GettingTop(Handle hTimer, any iPlayer)
 {
 	int iClient = GetClientOfUserId(iPlayer);
 	
-	if(g_liLand[iClient].bLandGettingTopPos)
+	if(g_liLand[iClient].bGettingTop)
 	{
-		Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fLandPosBottomTop);
+		Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fBottomTop);
 		
-		Handle hTraceRay = TR_TraceRayEx(g_liLand[iClient].fLandPosBottomTop, g_fUp, MASK_ALL, RayType_Infinite);
+		Handle hTraceRay = TR_TraceRayEx(g_liLand[iClient].fBottomTop, g_fUp, MASK_ALL, RayType_Infinite);
 		
 		if (TR_DidHit(hTraceRay))
 		{
-			TR_GetEndPosition(g_liLand[iClient].fLandPosTop, hTraceRay);
+			TR_GetEndPosition(g_liLand[iClient].fTop, hTraceRay);
 			
 			CloseHandle(hTraceRay);
 		}
 		
-		//Thank you Instakill.
 		for(int x = 0; x < 2; x++)
 		{
-			if(g_liLand[iClient].fLandPosBottomTop[x] > g_liLand[iClient].fLandPosBottom[x] + g_fMaxLandSize) {
-				g_liLand[iClient].fLandPosBottomTop[x] = g_liLand[iClient].fLandPosBottom[x] + g_fMaxLandSize;
+			if(g_liLand[iClient].fBottomTop[x] > g_liLand[iClient].fBottom[x] + g_fMaxLandSize) {
+				g_liLand[iClient].fBottomTop[x] = g_liLand[iClient].fBottom[x] + g_fMaxLandSize;
 			}
-			if(g_liLand[iClient].fLandPosTop[x] > g_liLand[iClient].fLandPosBottom[x] + g_fMaxLandSize) {
-				g_liLand[iClient].fLandPosTop[x] = g_liLand[iClient].fLandPosBottom[x] + g_fMaxLandSize;
+			if(g_liLand[iClient].fTop[x] > g_liLand[iClient].fBottom[x] + g_fMaxLandSize) {
+				g_liLand[iClient].fTop[x] = g_liLand[iClient].fBottom[x] + g_fMaxLandSize;
 			}
 			
-			if(g_liLand[iClient].fLandPosBottomTop[x] < g_liLand[iClient].fLandPosBottom[x] - g_fMaxLandSize) {
-				g_liLand[iClient].fLandPosBottomTop[x] = g_liLand[iClient].fLandPosBottom[x] - g_fMaxLandSize;
+			if(g_liLand[iClient].fBottomTop[x] < g_liLand[iClient].fBottom[x] - g_fMaxLandSize) {
+				g_liLand[iClient].fBottomTop[x] = g_liLand[iClient].fBottom[x] - g_fMaxLandSize;
 			}
-			if(g_liLand[iClient].fLandPosTop[x] < g_liLand[iClient].fLandPosBottom[x] - g_fMaxLandSize) {
-				g_liLand[iClient].fLandPosTop[x] = g_liLand[iClient].fLandPosBottom[x] - g_fMaxLandSize;
+			if(g_liLand[iClient].fTop[x] < g_liLand[iClient].fBottom[x] - g_fMaxLandSize) {
+				g_liLand[iClient].fTop[x] = g_liLand[iClient].fBottom[x] - g_fMaxLandSize;
 			}
 		}
 	}
@@ -871,9 +833,9 @@ public Action Timer_Land(Handle hTimer, any iPlayer)
 	
 	Cel_GetHudColor(iClient, iColor);
 	
-	if(g_liLand[iClient].bLandDrawing)
+	if(g_liLand[iClient].bDrawing)
 	{
-		Cel_DrawLandBorders(g_liLand[iClient].fLandPosStarting, g_liLand[iClient].fLandPosBottomTop, 0.1, iColor, true);
+		Cel_DrawLand(g_liLand[iClient].fOriginal, g_liLand[iClient].fBottomTop, 0.1, iColor, true);
 	}
 	
 	return Plugin_Continue;

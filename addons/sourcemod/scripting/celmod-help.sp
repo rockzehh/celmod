@@ -31,7 +31,7 @@ public Plugin myinfo =
 	author = CEL_AUTHOR, 
 	description = "Helpful commands for server owners and players.", 
 	version = CEL_VERSION, 
-	url = CEL_URL
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()

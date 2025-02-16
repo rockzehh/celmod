@@ -15,7 +15,7 @@ public Plugin myinfo =
 	author = CEL_AUTHOR, 
 	description = "", 
 	version = CEL_VERSION, 
-	url = CEL_URL
+	url = "https://github.com/rockzehh/celmod"
 };
 
 public void OnPluginStart()

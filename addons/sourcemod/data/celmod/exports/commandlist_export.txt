@@ -1,0 +1,46 @@
+cm_exportcolorlist - Server - Exports the color list into a text or html file in 'data/celmod/exports'.
+cm_exportcommandlist - Server - Exports the command list into a text or html file in 'data/celmod/exports'.
+cm_exportproplist - Server - Exports the prop list into a text or html file in 'data/celmod/exports'.
+sm_alpha - Client - Changes the transparency on the prop you are looking at.
+sm_amt - Client - Changes the transparency on the prop you are looking at.
+sm_axis - Client - Creates a marker to the player showing every axis.
+sm_cmds - Client - Displays the command list.
+sm_color - Client - Colors the prop you are looking at.
+sm_colorlist - Client - Displays the color list.
+sm_colors - Client - Displays the color list.
+sm_commandlist - Client - Displays the command list.
+sm_commands - Client - Displays the command list.
+sm_del - Client - Removes the prop you are looking at.
+sm_delete - Client - Removes the prop you are looking at.
+sm_door - Client - Spawns a working door cel.
+sm_effect - Client - Spawns a working effect cel.
+sm_effectlist - Client - Displays the effect list.
+sm_effects - Client - Displays the effect list.
+sm_freeze - Client - Freezes the prop you are looking at.
+sm_freezeit - Client - Freezes the prop you are looking at.
+sm_internet - Client - Creates a working internet cel.
+sm_land - Client - Creates a building zone.
+sm_landdeathmatch - Client - Changes the deathmatch setting within the land.
+sm_landgravity - Client - Changes the gravity within the land.
+sm_mark - Client - Creates a marker to the player showing every axis.
+sm_marker - Client - Creates a marker to the player showing every axis.
+sm_nokill - Client - Enables/disables godmode on the player.
+sm_p - Client - Spawns a prop by name.
+sm_paint - Client - Colors the prop you are looking at.
+sm_pmove - Client - Moves the prop you are looking at on it's origin.
+sm_proplist - Client - Displays the prop list.
+sm_props - Client - Displays the prop list.
+sm_remove - Client - Removes the prop you are looking at.
+sm_renderfx - Client - Changes the RenderFX on what prop you are looking at.
+sm_rotate - Client - Rotates the prop you are looking at.
+sm_s - Client - Spawns a prop by name.
+sm_setowner - Admin - Sets the owner of the prop you are looking at.
+sm_seturl - Client - Sets the url of the internet cel you are looking at.
+sm_smove - Client - Moves the prop you are looking at on it's origin.
+sm_solid - Client - Enables/disables solidicity on the prop you are looking at.
+sm_spawn - Client - Spawns a prop by name.
+sm_stand - Client - Resets the angles on the prop you are looking at.
+sm_straight - Client - Resets the angles on the prop you are looking at.
+sm_straighten - Client - Resets the angles on the prop you are looking at.
+sm_unfreeze - Client - Unfreezes the prop you are looking at.
+sm_unfreezeit - Client - Unfreezes the prop you are looking at.

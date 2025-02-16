@@ -4,23 +4,33 @@
 	{
 		"Version"
 		{
-			"Latest"		"1.0.0a"
+			"Latest"		"2.0.0.0"
 			"Previously"	"1.0.1.1"
 		}
 		
-		"Notes"	"Started the project over to build a more structured plugin built on the important aspects first."
+		"Notes"	"Started rewritting plugin aspects."
 	}
 	
 	"Files"
 	{
 		"Plugin"	"Path_SM/data/celmod/colors.txt"
+		"Plugin"	"Path_SM/data/celmod/shop.txt"
 		"Plugin"	"Path_SM/data/celmod/sounds.txt"
 		"Plugin"	"Path_SM/data/celmod/spawns.txt"
 		"Plugin"	"Path_SM/plugins/funcommands.smx"
 		"Plugin"	"Path_SM/plugins/celmod.smx"
+		"Plugin"	"Path_SM/plugins/celmod-effects.smx"
+		"Plugin"	"Path_SM/plugins/celmod-help.smx"
+		"Plugin"	"Path_SM/plugins/celmod-hud.smx"
+		"Plugin"	"Path_SM/plugins/celmod-land.smx"
+		"Plugin"	"Path_SM/scripting/celmod.inc"
 		
 		"Source"	"Path_SM/scripting/funcommands.sp"
-		"Source"	"Path_SM/scripting/celmod.sp"
+		"Source"	"Path_SM/scripting/celmod.smx"
+		"Source"	"Path_SM/scripting/celmod-effects.smx"
+		"Source"	"Path_SM/scripting/celmod-help.smx"
+		"Source"	"Path_SM/scripting/celmod-hud.smx"
+		"Source"	"Path_SM/scripting/celmod-land.smx"
 		"Source"	"Path_SM/scripting/funcommands/ice.sp"
 		"Source"	"Path_SM/scripting/include/celmod.inc"
 		"Source"	"Path_SM/scripting/include/morecolors.inc"

@@ -1,0 +1,7 @@
+|CelMod| New Update List:
+
+	2024:
+	 - 04/23/24: Added commands !landdeathmatch and !landgravity to change the respective settings for your land.
+		 - Added more command options for !alpha (all), !color (all, hud) and !delete (all, land).
+	 - 08/11/24: Added command !renderfx to change the RenderFX on entities.
+		 - Added command history HUD and the ablitiy to spawn a prop without the !spawn command. Ex. !blastdoor3, /blastdoor3

@@ -2,7 +2,7 @@
 
 **|CelMod|** is a fully customized building experience, and extra features to enhance the standard gameplay.
 
-Latest release is *1.0.1.0*, current working version is *1.0.1.1*.
+Latest release is *1.0.1.1*, current working version is *1.0.1.1*.
 
 Built against SourceMod *1.11.0-git6968* and Metamod: Source *1.11.0-git1155*.
 
@@ -25,15 +25,18 @@ sm_delete|Removes the prop you are looking at.|sm_del, sm_remove|Client|
 sm_door|Spawns a working door cel.|None|Client|
 sm_effect|Spawns a working effect cel.|None|Client|
 sm_effectlist|Displays the effect list.|sm_effects|Client|[Effects List](https://rockzehh.github.io/celmod/effects.html)
+sm_fly|Enables/disables nocip on the player.|None|Client|
 sm_freeze|Freezes the prop you are looking at.|sm_freezeit|Client|
 sm_internet|Creates a working internet cel.|None|Client|
 sm_land|Creates a building zone.|None|Client|
 sm_landdeathmatch|Changes the deathmatch setting within the land.|None|Client|
 sm_landgravity|Changes the gravity within the land.|None|Client|
+sm_load|Loads entites from a save file.|None|Client|
 sm_nokill|Enables/disables godmode on the player.|None|Client|
 sm_proplist|Displays the prop list.|sm_props|Client|[Prop List](https://rockzehh.github.io/celmod/proplist.html)
 sm_renderfx|Changes the RenderFX on what prop you are looking at.|None|Client|
 sm_rotate|Rotates the prop you are looking at.|None|Client|
+sm_save|Saves all server entties that are in your land.|None|Client|
 sm_setowner|Sets the owner of the prop you are looking at.|None|Admin|
 sm_seturl|Sets the url of the internet cel you are looking at|None|Client|
 sm_smove|Moves the prop you are looking at on it's origin|sm_pmove|Client|

@@ -1179,3 +1179,10 @@ steam.inf
 addons/sourcemod/scripting/cel_lands.sp
 addons/sourcemod/scripting/celmod-2025.sp
 addons/sourcemod/scripting/include/celmod-2025.inc
+addons/sourcemod/data/sqlite/clientprefs-sqlite.sq3
+*.log
+cfg/sourcemod/basevotes.cfg
+cfg/sourcemod/funcommands.cfg
+cfg/sourcemod/funvotes.cfg
+*.cache
+*.lst

@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+	"$basetexture" "celmod/cm_overlay2"
+	"$translucent" "1"
+}

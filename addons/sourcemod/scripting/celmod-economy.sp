@@ -13,9 +13,9 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 
 public Plugin myinfo = 
 {
-	name = "|CelMod| ", 
+	name = "|CelMod| Economy", 
 	author = CEL_AUTHOR, 
-	description = "", 
+	description = "Controls the econonmy aspects of CelMod.", 
 	version = CEL_VERSION, 
 	url = CEL_URL
 };

@@ -28,7 +28,6 @@ char g_sSpawnDB[PLATFORM_MAX_PATH];
 
 ConVar g_cvCelLimit;
 ConVar g_cvDefaultInternetURL;
-ConVar g_cvLightLimit;
 ConVar g_cvOverlayPath;
 ConVar g_cvPropLimit;
 
@@ -42,8 +41,6 @@ int g_iCelLimit;
 int g_iColor[MAXENTITIES + 1][4];
 int g_iEntityDissolve;
 int g_iHalo;
-int g_iLightCount;
-int g_iLightLimit;
 int g_iOwner[MAXENTITIES + 1];
 int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
@@ -115,7 +112,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SetSolid", Native_SetSolid);
 	CreateNative("Cel_SpawnDoor", Native_SpawnDoor);
 	CreateNative("Cel_SpawnInternet", Native_SpawnInternet);
-	CreateNative("Cel_SpawnLight", Native_SpawnLight);
 	CreateNative("Cel_SpawnProp", Native_SpawnProp);
 	CreateNative("Cel_SubFromCelCount", Native_SubFromCelCount);
 	CreateNative("Cel_SubFromPropCount", Native_SubFromPropCount);
@@ -170,8 +166,6 @@ public void OnPluginStart()
 	{
 		Updater_AddPlugin(UPDATE_URL);
 	}
-	
-	CelMod_
 
 	AddCommandListener(Handle_Chat, "say");
 	AddCommandListener(Handle_Chat, "say_team");
@@ -222,7 +216,6 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("sm_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("sm_internet", Command_Internet, "|CelMod| Creates a working internet cel.");
-	RegConsoleCmd("sm_light", Command_Light, "|CelMpd| Creates a working, moveable light cel.");
 	RegConsoleCmd("sm_load", Command_LoadBuild, "|CelMod| Loads entities from a save file.");
 	RegConsoleCmd("sm_mark", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
 	RegConsoleCmd("sm_marker", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
@@ -787,34 +780,6 @@ public Action Command_Internet(int iClient, int iArgs)
 	Call_Finish();
 	
 	Cel_ReplyToCommand(iClient, "%t", "InternetSpawn");
-	
-	return Plugin_Handled;
-}
-
-public Action Command_Light(int iClient, int iArgs)
-{
-	float fAngles[3], fOrigin[3];
-	
-	if (!Cel_CheckCelCount(iClient))
-	{
-		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
-		return Plugin_Handled;
-	}
-	
-	GetClientAbsAngles(iClient, fAngles);
-	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
-	
-	int iLight = Cel_SpawnLight(iClient, fAngles, fOrigin, 255, 255, 255);
-	
-	Call_StartForward(g_hOnCelSpawn);
-	
-	Call_PushCell(iLight);
-	Call_PushCell(iClient);
-	Call_PushCell(ENTTYPE_LIGHT);
-	
-	Call_Finish();
-	
-	Cel_ReplyToCommand(iClient, "%t", "LightSpawn");
 	
 	return Plugin_Handled;
 }
@@ -2117,10 +2082,8 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	{
 		if (Cel_CheckOwner(iClient, i))
 		{
-			if(Cel_IsEntityInLand(i, sLandOwner, sizeof(sLandOwner)))
+			if(Cel_IsEntityInLand(i, iLand))
 			{
-				iLand = StringToInt(sLandOwner);
-				
 				if(iLand == iClient)
 				{
 					File fFile = OpenFile(sFile, "w");
@@ -2342,47 +2305,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							Cel_GetInternetURL(i, sBuffer[19], sizeof(sBuffer[]));
 							
 							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
-							
-							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
-						}
-						case ENTTYPE_LIGHT:
-						{
-							char sBuffer[19][PLATFORM_MAX_PATH];
-							
-							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
-							
-							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[3], sizeof(sBuffer[]));
-							IntToString(Entity_GetSpawnFlags(i), sBuffer[4], sizeof(sBuffer[]));
-							IntToString(Entity_GetSkin(i), sBuffer[5], sizeof(sBuffer[]));
-							IntToString(view_as<int>(Cel_GetMotion(i)), sBuffer[6], sizeof(sBuffer[]));
-							IntToString(view_as<int>(Cel_IsSolid(i)), sBuffer[7], sizeof(sBuffer[]));
-							
-							IntToString(view_as<int>(Cel_GetRenderFX(i)), sBuffer[8], sizeof(sBuffer[]));
-							
-							Entity_GetRenderColor(i, iColor);
-							IntToString(iColor[0], sBuffer[9], sizeof(sBuffer[]));
-							IntToString(iColor[1], sBuffer[10], sizeof(sBuffer[]));
-							IntToString(iColor[2], sBuffer[11], sizeof(sBuffer[]));
-							IntToString(iColor[3], sBuffer[12], sizeof(sBuffer[]));
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							FloatToString(fEnt[0][0], sBuffer[13], sizeof(sBuffer[]));
-							FloatToString(fEnt[0][1], sBuffer[14], sizeof(sBuffer[]));
-							FloatToString(fEnt[0][2], sBuffer[15], sizeof(sBuffer[]));
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							
-							fOrigin[0] = fEnt[1][0] - fMiddle[0];
-							fOrigin[1] = fEnt[1][1] - fMiddle[1];
-							fOrigin[2] = fEnt[1][2] - fMiddle[2];
-							
-							FloatToString(fOrigin[0], sBuffer[16], sizeof(sBuffer[]));
-							FloatToString(fOrigin[1], sBuffer[17], sizeof(sBuffer[]));
-							FloatToString(fOrigin[2], sBuffer[18], sizeof(sBuffer[]));
-							
-							ImplodeStrings(sBuffer, 19, "^", sOutput, sizeof(sOutput));
 							
 							VFormat(sOutput, sizeof(sOutput), sOutput, 2);
 						}
@@ -2727,82 +2649,6 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	return iInternet;
 }
 
-public int Native_SpawnLight(Handle hPlugin, int iNumParams)
-{
-	char sLightName[64], sOutput[64];
-	float fAngles[3], fOrigin[3];
-	int iClient = GetNativeCell(1), iColor[3];
-	
-	GetNativeArray(2, fAngles, 3);
-	GetNativeArray(3, fOrigin, 3);
-	
-	iColor[0] = GetNativeCell(4);
-	iColor[1] = GetNativeCell(5);
-	iColor[2] = GetNativeCell(6);
-	
-	int iLight = CreateEntityByName("prop_physics_override");
-	
-	if (iLight == -1)
-	return -1;
-	
-	PrecacheModel("models/roller_spikes.mdl");
-	
-	DispatchKeyValue(iLight, "model", "models/roller_spikes.mdl");
-	DispatchKeyValue(iLight, "classname", "cel_light");
-	DispatchKeyValue(iLight, "physdamagescale", "1.0");
-	DispatchKeyValue(iLight, "spawnflags", "258");
-	DispatchKeyValue(iLight, "targetname", "templight");
-	
-	TeleportEntity(iLight, fOrigin, fAngles, NULL_VECTOR);
-	
-	DispatchSpawn(iLight);
-	
-	int iLightEnt = CreateEntityByName("light_dynamic");
-	
-	DispatchKeyValue(iLightEnt, "_cone", "500");
-	DispatchKeyValue(iLightEnt, "_inner_cone", "300");
-	DispatchKeyValue(iLightEnt, "_light", "255 255 255 200");
-	DispatchKeyValue(iLightEnt, "brightness", "0.5");
-	DispatchKeyValue(iLightEnt, "distance", "750");
-	DispatchKeyValue(iLightEnt, "spawnflags", "0");
-	DispatchKeyValue(iLightEnt, "spotlight_radius", "500");
-	
-	TeleportEntity(iLightEnt, fOrigin, fAngles, NULL_VECTOR);
-	
-	DispatchSpawn(iLightEnt);
-	
-	SetVariantString("templight");
-	
-	AcceptEntityInput(iLightEnt, "setparent");
-	
-	DispatchKeyValue(iLight, "targetname", "islight");
-	
-	Format(sLightName, sizeof(sLightName), "light_%d-%d", GetRandomInt(0, 340), GetRandomInt(342, 604));
-	Format(sOutput, sizeof(sOutput), "%s,toggle,,0,-1", sLightName);
-	
-	DispatchKeyValue(iLight, "OnPlayerUse", sOutput);
-	
-	DispatchKeyValue(iLightEnt, "targetname", sLightName);
-	
-	AcceptEntityInput(iLight, "disableshadow");
-	
-	Cel_AddToCelCount(iClient);
-	
-	Cel_SetColor(iLight, iColor[0], iColor[1], iColor[2], 64);
-	
-	Cel_SetEntity(iLight, true);
-	
-	Cel_SetMotion(iLight, false);
-	
-	Cel_SetOwner(iClient, iLight);
-	
-	Cel_SetSolid(iLight, true);
-	
-	Cel_SetRenderFX(iLight, RENDERFX_NONE);
-	
-	return iLight;
-}
-
 public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 {
 	char sAlias[64], sModel[64], sEntityType[64];
@@ -2877,7 +2723,7 @@ public int Native_SubFromPropCount(Handle hPlugin, int iNumParams)
 }
 
 //Stocks:
-stock bool Cel_FilterPlayer(int iEntity, any iContentsMask)
+public bool Cel_FilterPlayer(int iEntity, int iContentsMask)
 {
 	return iEntity > MaxClients;
 }
@@ -2887,7 +2733,7 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 {
 	ResetPack(hPack);
 	
-	char sFileBuffer[PLATFORM_MAX_PATH], sType[64];
+	char sFileBuffer[PLATFORM_MAX_PATH];
 	float fCrosshairOrigin[3], fEnt[2][3], fOrigin[3];
 	int iClient = ReadPackCell(hPack);
 	
@@ -3039,35 +2885,6 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
 			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
 		}
-		case ENTTYPE_LIGHT:
-		{
-			char sBuffer[19][PLATFORM_MAX_PATH];
-			
-			ExplodeString(sFileBuffer, "^", sBuffer, 20, sizeof(sBuffer[]));
-			
-			PrintToServer(sFileBuffer);
-			
-			fEnt[0][0] = StringToFloat(sBuffer[13]);
-			fEnt[0][1] = StringToFloat(sBuffer[14]);
-			fEnt[0][2] = StringToFloat(sBuffer[15]);
-			
-			fEnt[1][0] = StringToFloat(sBuffer[16]);
-			fEnt[1][1] = StringToFloat(sBuffer[17]);
-			fEnt[1][2] = StringToFloat(sBuffer[18]);
-			
-			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
-			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
-			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
-			
-			int iProp = Cel_SpawnLight(iClient, fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]));
-			
-			Entity_SetName(iProp, sBuffer[2]);
-			Entity_SetSpawnFlags(iProp, StringToInt(sBuffer[4]));
-			Entity_SetSkin(iProp, StringToInt(sBuffer[5]));
-			Cel_SetMotion(iProp, view_as<bool>(StringToInt(sBuffer[6])));
-			Cel_SetSolid(iProp, view_as<bool>(StringToInt(sBuffer[7])));
-			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
-		}
 		case ENTTYPE_PHYSICS:
 		{
 			char sBuffer[20][PLATFORM_MAX_PATH];
@@ -3125,4 +2942,6 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			Cel_SetRenderFX(iProp, view_as<RenderFx>(StringToInt(sBuffer[8])));
 		}
 	}
+	
+	return Plugin_Continue;
 }

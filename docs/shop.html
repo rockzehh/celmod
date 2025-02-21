@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+<title>|CelMod| - Shop</title>
+<link rel="stylesheet" href="style2014.css"/>
+
+</head><body alink="#FFB200" bgcolor="#222222" vlink="#FFB200" link="#FFB200" text="#FFB200" background="./images/grassfloor002a.png"><script type="text/javascript" src="./scripts/header_centered.js"></script>
+<div id="main">
+<div id="content">
+
+<h2><span class="celColor">|CelMod| Shop</span><br>
+</h2>
+<p>You buy these using <span class="h">!buy</span> (<span class="h">name</span>)</p>
+<p>- Unlockable Props -</p>
+<p>Note: You only have to pay for these <b>ONCE</b>.<br>
+  <b>combineprops - 100K CL</b><br>
+</p>
+<p>- Unlockable Commands -</p>
+<p>Note: You only have to pay for these <b>ONCE</b>.<br>
+  <b>fire - 4000 CL</b><br>
+  <b>gravity - 10000 CL</b><br>
+  <b>weld - 20000 CL</b><br>
+  <b>light - 30000 CL</b><br>
+  <b>text - 50000 CL</b><br>
+  <b>anim - 50000 CL</b><br>
+  <b>cland - 100K CL</b><br>
+  <b>landskin - 100K CL</b><br>
+  <b>turret - 200K CL</b><br>
+  <b>landcolor - 200K CL</b><br>
+  <b>internet - 200K CL</b><br>
+  <b>seturl - 500K CL</b><br>
+</p>
+</div>
+</div>
+<script type="text/javascript" src="./scripts/footer.js"></script>
+<script type="text/javascript" src="./scripts/dynamicbg.js"></script>
+</body>
+
+<script language="javascript">
+
+var bolds = document.getElementsByTagName('b');
+for(var i = 0; i < bolds.length; i++)
+{
+	var b = bolds[i].innerHTML;
+	if(b.indexOf("CL") != -1)
+	{
+		var space = b.indexOf(" ");
+		bolds[i].innerHTML = '<span class="h">'+b.substring(0, space)+'</span>'+b.substring(space, bolds[i].length);
+	}
+}
+
+</script>
+</html>

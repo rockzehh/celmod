@@ -21,9 +21,9 @@ ctx.fillRect(0, 0, w, h);
 var imgs = [];
 var r = -1;
 if(document.title.indexOf('A Living Project') > -1) {
-    for(var i = 0; i < 7; i++) {
+    for(var i = 0; i < 8; i++) {
         imgs[i] = document.createElement('img');
-        imgs[i].setAttribute('src', './images/bg/map'+(i+1)+'.jpg');
+        imgs[i].setAttribute('src', './images/bg/bg'+(i+1)+'.jpg');
         imgs[i].setAttribute('width', w);
         imgs[i].setAttribute('height', h);
         document.body.appendChild(imgs[i]);

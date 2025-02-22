@@ -21,7 +21,7 @@ ctx.fillRect(0, 0, w, h);
 var imgs = [];
 var r = -1;
 if(document.title.indexOf('A Living Project') > -1) {
-    for(var i = 0; i < 8; i++) {
+    for(var i = 1; i < 8; i++) {
         imgs[i] = document.createElement('img');
         imgs[i].setAttribute('src', './images/bg/bg'+(i+1)+'.jpg');
         imgs[i].setAttribute('width', w);

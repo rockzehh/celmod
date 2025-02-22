@@ -53,7 +53,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_ClearLand", Native_ClearLand);
 	CreateNative("Cel_CreateLand", Native_CreateLand);
 	CreateNative("Cel_DrawLandBorders", Native_DrawLandBorders);
-	CreateNative("Cel_GetClientCrosshairLandOwner", Native_GetClientCrosshairLandOwner);
 	CreateNative("Cel_GetCurrentLandEntity", Native_GetCurrentLandEntity);
 	CreateNative("Cel_GetCurrentLandOwner", Native_GetCurrentLandOwner);
 	CreateNative("Cel_GetLandEntity", Native_GetLandEntity);
@@ -485,36 +484,6 @@ public int Native_DrawLandBorders(Handle hPlugin, int iNumParams)
 	TE_SetupBeamPoints(fRightTopBack, fRightTopFront, g_iLand, 0, 0, 0, fLife, 3.0, 3.0, 10, 0.0, iColor, 0); TE_SendToAll(0.0);
 	
 	return true;
-}
-
-public int Native_GetClientCrosshairLandOwner(Handle hPlugin, int iNumParams)
-{
-	float fOrigin[3];
-	int iClient = GetNativeCell(1);
-	
-	for (int i = 1; i < MaxClients; i++)
-	{
-		if (IsClientAuthorized(i))
-		{
-			Cel_GetCrosshairHitOrigin(iClient, fOrigin);
-			
-			fOrigin[2] += 1.0;
-			
-			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
-			{
-				if(IsValidEdict(g_liLand[i].iLandEntity))
-				{
-					return g_liLand[i].iLandOwner;
-				}
-			}else{
-				return -1;
-			}
-		}else{
-			return -1;
-		}
-	}
-	
-	return -1;
 }
 
 public int Native_GetLandEntity(Handle hPlugin, int iNumParams)

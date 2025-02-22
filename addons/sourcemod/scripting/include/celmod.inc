@@ -918,14 +918,6 @@ native int Cel_CreateLand(int iClient, float fMin[3], float fMax[3]);
 native void Cel_DrawLandBorders(float fFrom[3], float fTo[3], float fLife, int iColor[4], bool bFlat=true);
 
 /**
- * Retrieves the owner of the land that the client is aiming at.
- *
- * @param iClient  The client index of the player.
- * @return         The client index of the land owner, or -1 if none found.
- */
-native int Cel_GetClientCrosshairLandOwner(int iClient);
-
-/**
  * Retrieves the current land entity associated with a client.
  *
  * @param iClient  The client index of the player.
@@ -1006,9 +998,10 @@ native void Cel_GetMiddleOfABox(float fMin[3], float fMax[3], float fBuffer[3]);
  * Checks if the client’s crosshair is currently aimed at a land area.
  *
  * @param iClient  The client index of the player.
+ * @param iLandOwner  The client index of the land owner.
  * @return         True if the crosshair is in a land area, false otherwise.
  */
-native bool Cel_IsClientCrosshairInLand(int iClient);
+native bool Cel_IsClientCrosshairInLand(int iClient, int iLandOwner);
 
 /**
  * Checks if a client is inside a specific land area.

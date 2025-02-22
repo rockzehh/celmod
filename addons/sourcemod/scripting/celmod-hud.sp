@@ -306,9 +306,7 @@ public Action Timer_HUD(Handle hTimer)
 						
 						Cel_GetHudColor(i, iColor);
 					}
-				} else if(Cel_IsClientCrosshairInLand(i)){
-					iLand = Cel_GetClientCrosshairLandOwner(i);
-					
+				} else if(Cel_IsClientCrosshairInLand(i, iLand)){
 					if(iLand != -1)
 					{
 						Format(sMessage, sizeof(sMessage), "Land: %N", iLand);

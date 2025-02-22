@@ -21,7 +21,7 @@ ctx.fillRect(0, 0, w, h);
 var imgs = [];
 var r = -1;
 if(document.title.indexOf('A Living Project') > -1) {
-    for(var i = 1; i < 8; i++) {
+    for(var i = 0; i < 8; i++) {
         imgs[i] = document.createElement('img');
         imgs[i].setAttribute('src', './images/bg/bg'+(i+1)+'.jpg');
         imgs[i].setAttribute('width', w);
@@ -48,7 +48,7 @@ if(document.title.indexOf('A Living Project') > -1) {
 
 function keepHeights() {
     if(r > -1) {
-        for(var i = 0; i < 7; i++) {
+        for(var i = 0; i < 8; i++) {
             if(r == i) { imgs[i].style.zIndex = -3; } else {
                 imgs[i].style.zIndex = -5
             }
@@ -69,7 +69,7 @@ function randomBG(oldr) {
 	imgs[r].style.opacity = "0.0";
 	imgs[r].amt = [0, 1];
     tween(imgs[r], 500, 1, function() {
-        for(var i = 0; i < 7; i++) {
+        for(var i = 0; i < 8; i++) {
 	        if(i != r) {
                 imgs[i].style.opacity = "0.0";
                 imgs[i].style.display = 'none';

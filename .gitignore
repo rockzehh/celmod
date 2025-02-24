@@ -245,3 +245,5 @@ addons/sourcemod/scripting/include/celmod-2025.inc
 *.ain
 addons/sourcemod/data/updater.txt
 /addons/sourcemod/data/celmod/users
+/bin
+cfg/autumnbot.cfg

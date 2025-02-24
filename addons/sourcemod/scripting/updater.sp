@@ -45,7 +45,7 @@ public Plugin myinfo = {
 }
 
 enum UpdateStatus {
-	Status_Idle,		
+	Status_Idle,
 	Status_Checking,		// Checking for updates.
 	Status_Downloading,		// Downloading an update.
 	Status_Updated,			// Update is complete.
@@ -89,33 +89,33 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()	{
 	if(!STEAMWORKS_AVAILABLE())
 		SetFailState(EXTENSION_ERROR);
-	
+
 	LoadTranslations("common.phrases");
-	
+
 	g_OnLoaded = new GlobalForward("Updater_OnLoaded", ET_Event);
-	
+
 	// Convars.
 	ConVar hCvar = null;
-	
+
 	(hCvar = CreateConVar("sm_updater_version", PLUGIN_VERSION, "Updater - version", FCVAR_NOTIFY|FCVAR_DONTRECORD)).AddChangeHook(OnVersionChanged);
 	OnVersionChanged(hCvar, "", "");
-	
+
 	(hCvar = CreateConVar("sm_updater", "2", "Updater - Determines update functionality. (1 = Notify, 2 = Download, 3 = Include source code)", _, true, 1.0, true, 3.0)).AddChangeHook(OnSettingsChanged);
 	OnSettingsChanged(hCvar, "", "");
-	
+
 	// Commands.
 	RegAdminCmd("sm_updater_check", Command_Check, ADMFLAG_RCON, "Updater - Forces Updater to check for updates.");
 	RegAdminCmd("sm_updater_forcecheck", Command_ForceCheck, ADMFLAG_RCON, "Updater - Forces updater to check for updates without limits");
 	RegAdminCmd("sm_updater_status", Command_Status, ADMFLAG_RCON, "Updater - View the status of Updater.");
-	
+
 	// Initialize arrays.
 	g_hPluginPacks = new ArrayList();
 	g_hDownloadQueue = new ArrayList();
 	g_hRemoveQueue = new ArrayList();
-	
+
 	// Temp path for checking update files.
 	BuildPath(Path_SM, _sDataPath, sizeof(_sDataPath), "data/updater.txt");
-	
+
 	#if !defined DEBUG
 	// Add this plugin to the autoupdater.
 	Updater_AddPlugin(GetMyHandle(), UPDATE_URL);
@@ -128,29 +128,29 @@ public void OnPluginStart()	{
 public void OnAllPluginsLoaded()	{
 	// Check for updates on startup.
 	TriggerTimer(_hUpdateTimer, true);
-	
+
 	Call_StartForward(g_OnLoaded);
 	Call_Finish();
 }
 
 public Action Timer_CheckUpdates(Handle timer)	{
 	Updater_FreeMemory();
-	
+
 	// Update everything!
 	int maxPlugins = GetMaxPlugins();
-	for(int i = 0; i < maxPlugins; i++)	{		
+	for(int i = 0; i < maxPlugins; i++)	{
 		if(Updater_GetStatus(i) == Status_Idle)
 			Updater_Check(i);
 	}
-	
+
 	_fLastUpdate = GetTickedTime();
-	
+
 	return Plugin_Continue;
 }
 
 Action Command_Check(int client, int args)	{
 	float fNextUpdate = _fLastUpdate + 3600.0;
-	
+
 	switch(fNextUpdate > GetTickedTime())	{
 		case true: ReplyToCommand(client, "[Updater] Updates can only be checked once per hour. %.1f minutes remaining.", (fNextUpdate - GetTickedTime()) / 60.0);
 		case false:	{
@@ -158,14 +158,14 @@ Action Command_Check(int client, int args)	{
 			TriggerTimer(_hUpdateTimer, true);
 		}
 	}
-	
+
 	return Plugin_Handled;
 }
 
 Action Command_ForceCheck(int client, int args)	{
 	ReplyToCommand(client, "[Updater] Force-checking for updates.");
 	CreateTimer(0.1, Timer_CheckUpdates);
-	
+
 	return Plugin_Handled;
 }
 
@@ -173,22 +173,22 @@ Action Command_Status(int client, int args)	{
 	char sFilename[64];
 	Handle hPlugin = null;
 	int maxPlugins = GetMaxPlugins();
-	
+
 	ReplyToCommand(client, "[Updater] -- Status Begin --");
 	ReplyToCommand(client, "Plugins being monitored for updates:");
-	
+
 	for(int i = 0; i < maxPlugins; i++)	{
 		hPlugin = IndexToPlugin(i);
-		
+
 		if(IsValidPlugin(hPlugin))	{
 			GetPluginFilename(hPlugin, sFilename, sizeof(sFilename));
 			ReplyToCommand(client, "  [%i]  %s", i, sFilename);
 		}
 	}
-	
+
 	ReplyToCommand(client, "Last update check was %.1f minutes ago.", (GetTickedTime() - _fLastUpdate) / 60.0);
 	ReplyToCommand(client, "[Updater] --- Status End ---");
-	
+
 	return Plugin_Handled;
 }
 
@@ -200,12 +200,12 @@ void OnSettingsChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue
 			g_bGetDownload = false;
 			g_bGetSource = false;
 		}
-		
+
 		case 2:	{ // Download updates.
 			g_bGetDownload = true;
 			g_bGetSource = false;
 		}
-		
+
 		case 3:	{ // Download with source code.
 			g_bGetDownload = true;
 			g_bGetSource = true;
@@ -216,7 +216,7 @@ void OnSettingsChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue
 #if !defined DEBUG
 public void Updater_OnPluginUpdated() {
 	Updater_Log("Reloading Updater plugin... updates will resume automatically.");
-	
+
 	// Reload this plugin.
 	char filename[64];
 	GetPluginFilename(INVALID_HANDLE, filename, sizeof(filename));
@@ -237,19 +237,19 @@ void Updater_FreeMemory()	{
 	// Make sure that no threads are active.
 	if(g_bDownloading || g_hDownloadQueue.Length)
 		return;
-	
-	// Remove all queued plugins.	
+
+	// Remove all queued plugins.
 	int index;
 	int maxPlugins = g_hRemoveQueue.Length;
 	for(int i = 0; i < maxPlugins; i++)	{
 		index = PluginToIndex(g_hRemoveQueue.Get(i));
-		
+
 		if (index != -1)
 			Updater_RemovePlugin(index);
 	}
-	
+
 	g_hRemoveQueue.Clear();
-	
+
 	// Remove plugins that have been unloaded.
 	for(int i = 0; i < GetMaxPlugins(); i++)	{
 		if(!IsValidPlugin(IndexToPlugin(i)))	{

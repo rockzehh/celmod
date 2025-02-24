@@ -22,7 +22,16 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	
+	if (g_bLate)
+	{
+		for (int i = 1; i < MaxClients; i++)
+		{
+			if (IsClientAuthorized(i))
+			{
+				OnClientPutInServer(i);
+			}
+		}
+	}
 }
 
 public void OnClientPutInServer(int iClient)

@@ -11,42 +11,42 @@
 
 enum EntityCatagory
 {
-	ENTCATAGORY_CEL = 0, 
-	ENTCATAGORY_PROP = 1, 
-	ENTCATAGORY_UNKNOWN = 2, 
+	ENTCATAGORY_CEL = 0,
+	ENTCATAGORY_PROP = 1,
+	ENTCATAGORY_UNKNOWN = 2,
 };
 
 enum EntityType
 {
-	ENTTYPE_CYCLER = 0, 
-	ENTTYPE_DOOR = 1, 
-	ENTTYPE_DYNAMIC = 2, 
-	ENTTYPE_EFFECT = 3, 
-	ENTTYPE_INTERNET = 4, 
-	ENTTYPE_LIGHT = 5, 
-	ENTTYPE_PHYSICS = 6, 
-	ENTTYPE_UNKNOWN = 7, 
+	ENTTYPE_CYCLER = 0,
+	ENTTYPE_DOOR = 1,
+	ENTTYPE_DYNAMIC = 2,
+	ENTTYPE_EFFECT = 3,
+	ENTTYPE_INTERNET = 4,
+	ENTTYPE_LIGHT = 5,
+	ENTTYPE_PHYSICS = 6,
+	ENTTYPE_UNKNOWN = 7,
 };
 
 enum EffectType
 {
-	EFFECT_CORE = 0,  
-	EFFECT_EXPLOSION = 1, 
-	EFFECT_FIRE = 2,  
-	EFFECT_SHAKE = 3, 
-	EFFECT_SMOKESTACK = 4,  
-	EFFECT_SPOTLIGHT = 5,  
-	EFFECT_STEAM = 6,  
-	EFFECT_UNKNOWN = 7, 
+	EFFECT_CORE = 0,
+	EFFECT_EXPLOSION = 1,
+	EFFECT_FIRE = 2,
+	EFFECT_SHAKE = 3,
+	EFFECT_SMOKESTACK = 4,
+	EFFECT_SPOTLIGHT = 5,
+	EFFECT_STEAM = 6,
+	EFFECT_UNKNOWN = 7,
 };
 
-#define CEL_AUTHOR "rockzehh" 
+#define CEL_AUTHOR "rockzehh"
 #define CEL_URL "https://github.com/rockzehh/celmod"
-#define CEL_VERSION "2.0.0" 
-#define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd" 
+#define CEL_VERSION "2.0.0"
+#define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd"
 
-#define MAXENTITIES 2048 
-#define PLAYER_CROWBAR_ATTACK_RADIUS 2.0 
+#define MAXENTITIES 2048
+#define PLAYER_CROWBAR_ATTACK_RADIUS 2.0
 #define PLAYER_USE_RADIUS 80.0
 
 float g_fDown[3] = { 90.0, 0.0, 0.0 };
@@ -63,6 +63,7 @@ int g_iWhite[4] =  { 255, 255, 255, 175 };
 int g_iYellow[4] =  { 255, 255, 0, 175 };
 
 //========== celmod.smx ==========
+
 /**
  * Called when a Cel entity is spawned.
  *
@@ -203,11 +204,9 @@ native void Cel_DissolveEntity(int iEntity);
  * Retrieves a client's Steam Auth ID.
  *
  * @param iClient   The client index to get the Auth ID for.
- * @param sAuthID   The output string storing the client's Auth ID.
- * @param iMaxLength The maximum length of the output string.
- * @return          The client's Auth ID as a string.
+ * @return          The client's Auth ID.
  */
-native char Cel_GetAuthID(int iClient, char[] sAuthID, int iMaxLength);
+native char Cel_GetAuthID(int iClient);
 
 /**
  * Retrieves the material used for beams.
@@ -425,14 +424,6 @@ native bool Cel_IsPlayer(int iClient);
 native bool Cel_IsSolid(int iEntity);
 
 /**
- * Loads a saved build for a client.
- *
- * @param iClient   The client index.
- * @param sSaveName The name of the save file.
- */
-native void Cel_LoadBuild(int iClient, const char[] sSaveName);
-
-/**
  * Notifies a client that they are not looking at a valid entity.
  *
  * @param iClient  The client index.
@@ -487,14 +478,6 @@ native void Cel_RemovalBeam(int iClient, int iEntity);
  * @param ...       Additional formatting arguments.
  */
 native void Cel_ReplyToCommand(int iClient, const char[] sMessage, any ...);
-
-/**
- * Saves a client's current build.
- *
- * @param iClient   The client index.
- * @param sSaveName The name of the save file.
- */
-native void Cel_SaveBuild(int iClient, const char[] sSaveName);
 
 /**
  * Sets a client's authentication ID.
@@ -698,7 +681,9 @@ stock void Cel_GetEntityOrigin(int iEntity, float fOrigin[3])
 {
     GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", fOrigin);
 }
+
 //========== celmod-effects.smx ==========
+
 /**
  * Called when an effect entity is spawned.
  *
@@ -796,7 +781,9 @@ native void Cel_SetEffectType(int iEffect, EffectType etEffectType);
  * @return           The entity index of the spawned effect.
  */
 native int Cel_SpawnEffect(const int iClient, const float fOrigin[3], const EffectType etEffect, bool bActivate, const int iR, const int iG, const int iB, const int iA);
+
 //========== celmod-help.smx ==========
+
 /**
  * Validates and processes a given input URL.
  *
@@ -888,7 +875,9 @@ native void Cel_SendHudMessage(int iClient, int iChannel, float fX, float fY, in
  * @param iA       Alpha (transparency) value (0-255).
  */
 native void Cel_SetHudColor(int iClient, int iR, int iG, int iB, int iA);
+
 //========== celmod-land.smx ==========
+
 /**
  * Clears the land data associated with a client.
  *
@@ -1038,7 +1027,9 @@ native bool Cel_IsPositionInBox(float fPos[3], float fBottomCorner[3], float fTo
  * @param fGravity    The new gravity value.
  */
 native void Cel_SetLandGravity(int iLandOwner, float fGravity);
+
 //========== celmod-clientstorage.smx ==========
+
 /**
  * Checks if a client has made a specific purchase.
  *
@@ -1133,6 +1124,26 @@ native void Cel_SetClientSettingInt(int iClient, char[] sSetting, int iValue);
  */
 native void Cel_SetClientSettingString(int iClient, char[] sSetting, char[] sValue);
 
+//========== celmod-buildsaving.smx ==========
+
+native int Cel_GetSaveSystemVersion();
+
+/**
+ * Loads a saved build for a client.
+ *
+ * @param iClient   The client index.
+ * @param sSaveName The name of the save file.
+ */
+native void Cel_LoadBuild(int iClient, const char[] sSaveName);
+
+/**
+ * Saves a client's current build.
+ *
+ * @param iClient   The client index.
+ * @param sSaveName The name of the save file.
+ */
+native void Cel_SaveBuild(int iClient, const char[] sSaveName);
+
 //Hooks:
 public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
 {
@@ -1169,14 +1180,14 @@ public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utT
 			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "TurnOn" : "TurnOff");
 		}
 	}
-	
+
 	Cel_SetEffectActive(iEntity, !Cel_IsEffectActive(iEntity));
 }
 
 public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
 {
 	char sURL[PLATFORM_MAX_PATH];
-	
+
 	Cel_GetInternetURL(iEntity, sURL, sizeof(sURL));
 	Cel_OpenMOTDOnClient(iActivator, true, "|CelMod| Viewer", sURL, MOTDPANEL_TYPE_URL);
 }
@@ -1185,18 +1196,18 @@ public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType u
 public Action Timer_DelayRemove(Handle hTimer, any iRef)
 {
 	int iEntity = EntRefToEntIndex(iRef);
-	
+
 	AcceptEntityInput(iEntity, "kill");
-	
+
 	return Plugin_Continue;
 }
 
 public Action Timer_DisRemove(Handle hTimer, any iRef)
 {
 	int iEntity = EntRefToEntIndex(iRef);
-	
+
 	Cel_DissolveEntity(iEntity);
-	
+
 	return Plugin_Continue;
 }
 
@@ -1204,36 +1215,36 @@ public Action Timer_DisRemove(Handle hTimer, any iRef)
 stock void Cel_DownloadClientFiles()
 {
 	char sPath[PLATFORM_MAX_PATH];
-	
+
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/downloads.txt");
-	
+
 	if(!FileExists(sPath))
 	{
 		PrintToServer("|CelMod| Cannot download client files. (No download txt file exists at data/celmod/downloads.txt)");
 	}else{
 		File fDownloadFiles = OpenFile(sPath, "r");
-		
+
 		char sBuffer[256];
-		
+
 		while (fDownloadFiles.ReadLine(sBuffer, sizeof(sBuffer)))
 		{
 			int iLen = strlen(sBuffer);
-			
+
 			if (sBuffer[iLen-1] == '\n')
 			{
 				sBuffer[--iLen] = '\0';
 			}
-			
+
 			if (FileExists(sBuffer))
 			{
 				AddFileToDownloadsTable(sBuffer);
 			}
-			
+
 			if(StrContains(sBuffer, ".mdl", false) != -1)
 			{
 				PrecacheModel(sBuffer, true);
 			}
-			
+
 			if (fDownloadFiles.EndOfFile())
 			{
 				fDownloadFiles.Close();

@@ -62,8 +62,6 @@ addons/sourcemod/scripting/basecommands/
 addons/sourcemod/scripting/basetriggers.sp
 addons/sourcemod/scripting/basevotes.sp
 addons/sourcemod/scripting/basevotes/
-addons/sourcemod/scripting/cel_lands.sp
-addons/sourcemod/scripting/celmod-2025.sp
 addons/sourcemod/scripting/clientprefs.sp
 addons/sourcemod/scripting/compile.dat
 addons/sourcemod/scripting/compile.exe
@@ -85,7 +83,6 @@ addons/sourcemod/scripting/include/adt_trie.inc
 addons/sourcemod/scripting/include/banning.inc
 addons/sourcemod/scripting/include/basecomm.inc
 addons/sourcemod/scripting/include/bitbuffer.inc
-addons/sourcemod/scripting/include/celmod-2025.inc
 addons/sourcemod/scripting/include/clientprefs.inc
 addons/sourcemod/scripting/include/clients.inc
 addons/sourcemod/scripting/include/commandfilters.inc
@@ -160,7 +157,6 @@ addons/sourcemod/scripting/spcomp.exe
 addons/sourcemod/scripting/spcomp64.exe
 addons/sourcemod/scripting/sql-admin-manager.sp
 addons/sourcemod/scripting/testsuite/
-addons/sourcemod/translations/
 addons/sourcemod/translations/adminhelp.phrases.txt
 addons/sourcemod/translations/adminmenu.phrases.txt
 addons/sourcemod/translations/antiflood.phrases.txt
@@ -194,6 +190,7 @@ addons/sourcemod/translations/mapchooser.phrases.txt
 addons/sourcemod/translations/nextmap.phrases.txt
 addons/sourcemod/translations/nl/
 addons/sourcemod/translations/no/
+addons/sourcemod/translations/nominations.phrases.txt
 addons/sourcemod/translations/pl/
 addons/sourcemod/translations/playercommands.phrases.txt
 addons/sourcemod/translations/plugin.basecommands.txt
@@ -239,11 +236,17 @@ maps/dm_underpass.bsp
 maps/halls3.bsp
 resource/
 steam.inf
-addons/sourcemod/scripting/cel_lands.sp
-addons/sourcemod/scripting/celmod-2025.sp
-addons/sourcemod/scripting/include/celmod-2025.inc
 *.ain
 addons/sourcemod/data/updater.txt
 /addons/sourcemod/data/celmod/users
-/bin
-cfg/autumnbot.cfg
+addons/sourcemod/translations/cze
+/addons/metamod
+addons/sourcemod/plugins/admin-sql-prefetch.smx
+addons/sourcemod/plugins/admin-sql-threaded.smx
+addons/sourcemod/plugins/mapchooser.smx
+addons/sourcemod/plugins/nominations.smx
+addons/sourcemod/plugins/randomcycle.smx
+addons/sourcemod/plugins/rockthevote.smx
+addons/sourcemod/plugins/sql-admin-manager.smx
+addons/sourcemod/plugins/swag.smx
+cfg/server.cfg

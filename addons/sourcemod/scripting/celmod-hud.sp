@@ -226,6 +226,7 @@ public Action Timer_CommandHUD(Handle hTimer)
 public Action Timer_HUD(Handle hTimer)
 {
 	char sBuffer[128], sBufferArray[2][128], sMessage[MAX_MESSAGE_LENGTH], sPropname[128];
+	float fOrigin[3];
 	int iColor[4], iLand;
 
 	if (g_bHudEnable)
@@ -306,8 +307,12 @@ public Action Timer_HUD(Handle hTimer)
 
 						Cel_GetHudColor(i, iColor);
 					}
-				} else if(Cel_IsClientCrosshairInLand(i, iLand)){
-					if(iLand != -1)
+				} else if(Cel_IsClientCrosshairInLand(i)){
+					Cel_GetCrosshairHitOrigin(i, fOrigin);
+					
+					iLand = Cel_GetLandOwnerFromPosition(fOrigin);
+					
+					if(iLand != 0)
 					{
 						Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
 

@@ -19,14 +19,15 @@ bool g_bSolid[MAXENTITIES + 1];
 
 char g_sColorDB[PLATFORM_MAX_PATH];
 char g_sDefaultInternetURL[PLATFORM_MAX_PATH];
+char g_sDownloadPath[PLATFORM_MAX_PATH];
 char g_sInternetURL[MAXENTITIES + 1][PLATFORM_MAX_PATH];
-char g_sMap[PLATFORM_MAX_PATH];
 char g_sOverlayPath[PLATFORM_MAX_PATH];
 char g_sPropName[MAXENTITIES + 1][64];
 char g_sSpawnDB[PLATFORM_MAX_PATH];
 
 ConVar g_cvCelLimit;
 ConVar g_cvDefaultInternetURL;
+ConVar g_cvDownloadPath;
 ConVar g_cvOverlayPath;
 ConVar g_cvPropLimit;
 
@@ -48,6 +49,14 @@ int g_iPropLimit;
 
 RenderFx g_rfRenderFX[MAXENTITIES + 1];
 
+//Colors:
+int g_iBlue[4] =  { 0, 0, 255, 175 };
+int g_iGray[4] =  { 255, 255, 255, 300 };
+int g_iGreen[4] =  { 0, 255, 0, 175 };
+int g_iOrange[4] =  { 255, 128, 0, 175 };
+int g_iRed[4] =  { 255, 0, 0, 175 };
+int g_iWhite[4] =  { 255, 255, 255, 175 };
+
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_AddToCelCount", Native_AddToCelCount);
@@ -62,6 +71,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_CheckPropCount", Native_CheckPropCount);
 	CreateNative("Cel_CheckSpawnDB", Native_CheckSpawnDB);
 	CreateNative("Cel_DissolveEntity", Native_DissolveEntity);
+	CreateNative("Cel_DownloadClientFiles", Native_DownloadClientFiles);
 	CreateNative("Cel_GetAuthID", Native_GetAuthID);
 	CreateNative("Cel_GetBeamMaterial", Native_GetBeamMaterial);
 	CreateNative("Cel_GetClientAimTarget", Native_GetClientAimTarget);
@@ -236,17 +246,20 @@ public void OnPluginStart()
 	CreateConVar("celmod", "1", "Notifies the server that the plugin is running.");
 	g_cvCelLimit = CreateConVar("cm_max_player_cels", "20", "Maxiumum number of cel entities a client is allowed.");
 	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://github.com/rockzehh/celmod", "Default internet cel URL.");
+	g_cvDownloadPath = CreateConVar("cm_download_list_path", "data/celmod/downloads.txt", "Path for the download list for clients.");
 	g_cvPropLimit = CreateConVar("cm_max_player_props", "130", "Maxiumum number of props a player is allowed to spawn.");
 	g_cvOverlayPath = CreateConVar("cm_overlay_material_path", "celmod/cm_overlay2.vmt", "Default CelMod overlay path.");
 	CreateConVar("cm_version", CEL_VERSION, "The version of the plugin the server is running.");
 
 	g_cvCelLimit.AddChangeHook(CM_OnConVarChanged);
 	g_cvDefaultInternetURL.AddChangeHook(CM_OnConVarChanged);
+	g_cvDownloadPath.AddChangeHook(CM_OnConVarChanged);
 	g_cvOverlayPath.AddChangeHook(CM_OnConVarChanged);
 	g_cvPropLimit.AddChangeHook(CM_OnConVarChanged);
 
 	Cel_SetCelLimit(g_cvCelLimit.IntValue);
 	g_cvDefaultInternetURL.GetString(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL));
+	g_cvDownloadPath.GetString(g_sDownloadPath, sizeof(g_sDownloadPath));
 	g_cvOverlayPath.GetString(g_sOverlayPath, sizeof(g_sOverlayPath));
 	Cel_SetPropLimit(g_cvPropLimit.IntValue);
 
@@ -360,9 +373,13 @@ public void CM_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const ch
 	{
 		g_cvDefaultInternetURL.GetString(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL));
 		PrintToServer("|CelMod| Default internet cel url updated to %s.", sNewValue);
+	} else if (cvConVar == g_cvDownloadPath)
+	{
+		g_cvDownloadPath.GetString(g_sDownloadPath, sizeof(g_sDownloadPath));
+		PrintToServer("|CelMod| Download list path updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvOverlayPath)
 	{
-		g_cvDefaultInternetURL.GetString(g_sOverlayPath, sizeof(g_sOverlayPath));
+		g_cvOverlayPath.GetString(g_sOverlayPath, sizeof(g_sOverlayPath));
 		PrintToServer("|CelMod| Default overlay material path updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvPropLimit) {
 		Cel_SetPropLimit(StringToInt(sNewValue));
@@ -500,7 +517,7 @@ public Action Command_Color(int iClient, int iArgs)
 				{
 					if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
 					{
-						ExplodeString(sColorString, "^", sColorBuffer, 3, sizeof(sColorBuffer[]));
+						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 
 						Cel_GetEntityTypeName(Cel_GetEntityType(i), sEntityType, sizeof(sEntityType));
 
@@ -513,7 +530,7 @@ public Action Command_Color(int iClient, int iArgs)
 				Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor);
 			}else if(StrContains(sOption, "hud", false) !=-1)
 			{
-				ExplodeString(sColorString, "^", sColorBuffer, 3, sizeof(sColorBuffer[]));
+				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 
 				Cel_SetHudColor(iClient, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 
@@ -539,7 +556,7 @@ public Action Command_Color(int iClient, int iArgs)
 		{
 			if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 			{
-				ExplodeString(sColorString, "^", sColorBuffer, 3, sizeof(sColorBuffer[]));
+				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 
 				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 
@@ -1023,7 +1040,7 @@ public Action Command_Spawn(int iClient, int iArgs)
 
 	if (Cel_CheckSpawnDB(sAlias, sSpawnString, sizeof(sSpawnString)))
 	{
-		ExplodeString(sSpawnString, "^", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
+		ExplodeString(sSpawnString, "|", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
 
 		GetClientAbsAngles(iClient, fAngles);
 		Cel_GetCrosshairHitOrigin(iClient, fOrigin);
@@ -1157,7 +1174,7 @@ public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 			return Plugin_Handled;
 		}
 
-		ExplodeString(sSpawnString, "^", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
+		ExplodeString(sSpawnString, "|", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
 
 		GetClientAbsAngles(iClient, fAngles);
 		Cel_GetCrosshairHitOrigin(iClient, fOrigin);
@@ -1437,6 +1454,48 @@ public int Native_DissolveEntity(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_DownloadClientFiles(Handle hPlugin, int iNumParams)
+{
+	char sPath[PLATFORM_MAX_PATH];
+
+	BuildPath(Path_SM, sPath, sizeof(sPath), g_sDownloadPath);
+
+	if(!FileExists(sPath))
+	{
+		PrintToServer("|CelMod| Cannot download client files. (No download txt file exists at data/celmod/downloads.txt)");
+	}else{
+		File fDownloadFiles = OpenFile(sPath, "r");
+
+		char sBuffer[256];
+
+		while (fDownloadFiles.ReadLine(sBuffer, sizeof(sBuffer)))
+		{
+			int iLen = strlen(sBuffer);
+
+			if (sBuffer[iLen-1] == '\n')
+			{
+				sBuffer[--iLen] = '\0';
+			}
+
+			if (FileExists(sBuffer))
+			{
+				AddFileToDownloadsTable(sBuffer);
+			}
+
+			if(StrContains(sBuffer, ".mdl", false) != -1)
+			{
+				PrecacheModel(sBuffer, true);
+			}
+
+			if (fDownloadFiles.EndOfFile())
+			{
+				fDownloadFiles.Close();
+				break;
+			}
+		}
+	}
+}
+
 public int Native_GetAuthID(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
@@ -1525,7 +1584,7 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LIGHT)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
-	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
+	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS || etEntityType == ENTTYPE_CLEER)
 	{
 		return view_as<int>(ENTCATAGORY_PROP);
 	} else {
@@ -1582,6 +1641,9 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 	} else if (StrContains(sClassname, "effect_", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_EFFECT);
+	} else if (StrContains(sClassname, "prop_cleer", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_DYNAMIC);
 	} else if (StrContains(sClassname, "prop_dynamic", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_DYNAMIC);
@@ -1599,7 +1661,10 @@ public int Native_GetEntityTypeFromName(Handle hPlugin, int iNumParams)
 
 	GetNativeString(1, sEntityType, sizeof(sEntityType));
 
-	if (StrEqual(sEntityType, "cycler", false))
+	if (StrEqual(sEntityType, "cleer", false))
+	{
+		return view_as<int>(ENTTYPE_CLEER);
+	} else if (StrEqual(sEntityType, "cycler", false))
 	{
 		return view_as<int>(ENTTYPE_CYCLER);
 	} else if (StrEqual(sEntityType, "door", false))
@@ -1635,6 +1700,10 @@ public int Native_GetEntityTypeName(Handle hPlugin, int iNumParams)
 		case ENTTYPE_CYCLER:
 		{
 			Format(sEntityType, sizeof(sEntityType), "cycler prop");
+		}
+		case ENTTYPE_CLEER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "cleer deposit box");
 		}
 		case ENTTYPE_DOOR:
 		{

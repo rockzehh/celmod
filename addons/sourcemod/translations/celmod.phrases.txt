@@ -1,0 +1,321 @@
+"Phrases"
+{
+	//celmod.smx
+	"CMD_Alpha"
+	{
+		"en"			"Usage: {green}[tag]alpha{default} <transparency value> <all>"
+	}
+	
+	"CMD_Color"
+	{
+		"en"			"Usage: {green}[tag]color{default} <color name> <all|hud>"
+	}
+	
+	"CMD_Door"
+	{
+		"en"			"Usage: {green}[tag]door{default} <skin number>"
+	}
+	
+	"CMD_LoadBuild"
+	{
+		"en"			"Usage: {green}[tag]load{default} <buildname>"
+	}
+	
+	"CMD_Remove"
+	{
+		"en"			"Usage: {green}[tag]delete{default} <all|land>"
+	}
+	
+	"CMD_RenderFX"
+	{
+		"en"			"Usage: {green}[tag]renderfx{default} <rendermode>"
+	}
+	
+	"CMD_Rotate"
+	{
+		"en"			"Usage: {green}[tag]rotate{default} <x> <y> <z>"
+	}
+	
+	"CMD_SaveBuild"
+	{
+		"en"			"Usage: {green}[tag]save{default} <buildname>"
+	}
+	
+	"CMD_SetURL"
+	{
+		"en"			"Usage: {green}[tag]seturl{default} <url>"
+	}
+	
+	"CMD_Spawn"
+	{
+		"en"			"Usage: {green}[tag]spawn{default} <prop name>"
+	}
+	
+	"CantFindTarget"
+	{
+		"en"			"Cannot find specified target."
+	}
+	
+	"CantUseCommand-Prop"
+	{
+		"en"			"You cannot use this command on this prop."
+	}
+	
+	"ColorNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Color {green}{1}{default} not found."
+	}
+	
+	"Connecting"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Player {green}{1}{default} connecting from {green}{2}{default}"
+	}
+	
+	"CreateAxis"
+	{
+		"en"			"Created {red}X{default}, {green}Y{default}, and {blue}Z{default} axis markers."
+	}
+	
+	"DisableMotion"
+	{
+		"#format"		"{1:s}"
+		"en"			"Disabled motion on {1}."
+	}
+	
+	"Disconnecting"
+	{
+		"#format"		"{1:s}"
+		"en"			"Player {green}{1}{default} disconnected"
+	}
+	
+	"DoorLock"
+	{
+		"en"			"Door has been locked."
+	}
+	
+	"DoorSpawn"
+	{
+		"en"			"Spawned {green}door{default} cel."
+	}
+	
+	"DoorUnlock"
+	{
+		"en"			"Door has been unlocked."
+	}
+	
+	"EnableMotion"
+	{
+		"#format"		"{1:s}"
+		"en"			"Enabled motion on {1}."
+	}
+	
+	"FileNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Cannot find '{1}'. Plugin cannot run!"
+	}
+	
+	"InternetSpawn"
+	{
+		"en"			"Spawned {green}internet{default} cel."
+	}
+	
+	"LightSpawn"
+	{
+		"en"			"Spawned {green}light{default} cel."
+	}
+	
+	"MaxCelLimit"
+	{
+		"#format"		"{1:i}"
+		"en"			"You have reached the max cel limit. ({green}{1}{default})"
+	}
+	
+	"MaxPropLimit"
+	{
+		"#format"		"{1:i}"
+		"en"			"You have reached the max prop limit. ({green}{1}{default})"
+	}
+	
+	"NoKill"
+	{
+		"#format"		"{1:s}"
+		"en"			"Turned nokill {1}."
+	}
+	
+	"NotLooking"
+	{
+		"en"			"You are not looking at anything."
+	}
+	
+	"NotYours"
+	{
+		"#format"		"{1:s}"
+		"en"			"This {1} does not belong to you."
+	}
+	
+	"OnlyOnInternetCels"
+	{
+		"en"			"You can only use this command on internet cels."
+	}
+	
+	"PropNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Prop {green}{1}{default} not found."
+	}
+	
+	"SetAllColor"
+	{
+		"#format"		"{1:s}"
+		"en"			"Set color on all to {green}{1}{default}."
+	}
+	
+	"SetAllTransparency"
+	{
+		"#format"		"{1:i}"
+		"en"			"Set transparency on all to {green}{1}{default}."
+	}
+	
+	"SetColor"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Set color on {1} to {green}{2}{default}."
+	}
+	
+	"SetHudColor"
+	{
+		"#format"		"{1:s}"
+		"en"			"Set hud color to {green}{1}{default}."
+	}
+	
+	"SetOwnerClient"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Set ownership of {green}{1}{default} to {green}{2}{default}."
+	}
+	
+	"SetOwnerTarget"
+	{
+		"#format"		"{1:s},{2:s},{3:s}"
+		"en"			"{green}{1}{default} set ownership of {green}{2}{default} to {green}{3}{default}."
+	}
+	
+	"SetRenderFX"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Set renderfx on {1} to {green}{2}{default}."
+	}
+	
+	"SetSolidicity"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Turned solidicity {1} on {2}."
+	}
+	
+	"SetTransparency"
+	{
+		"#format"		"{1:s},{2:i}"
+		"en"			"Set transparency on {1} to {green}{2}{default}."
+	}
+	
+	"SetURL"
+	{
+		"en"			"Updated url on internet cel."
+	}
+	
+	"SpawnProp"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned prop {green}{1}{default}."
+	}
+	
+	"Remove"
+	{
+		"#format"		"{1:s}"
+		"en"			"Removed {1}."
+	}
+	
+	"RemoveAll"
+	{
+		"#format"		"{1:s}"
+		"en"			"Removed {1}."
+	}
+	
+	//celanimation.smx
+	"CMD_Animation"
+	{
+		"en"			"Usage: {green}[tag]anim{default} <name>"
+	}
+	
+	//celeffects.smx
+	"CMD_Effect"
+	{
+		"en"			"Usage: {green}[tag]effect{default} <effect type>"
+	}
+	
+	"InvalidEffect"
+	{
+		"en"			"Invalid effect type."
+	}
+	
+	"SpawnEffect"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} effect cel."
+	}
+	
+	//celland.smx
+	"CMD_LandGravity"
+	{
+		"en"			"Usage: {green}[tag]gravity{default} <gravity>"
+	}
+	
+	"DeathmatchOff"
+	{
+		"en"			"Deathmatch mode off."
+	}
+	
+	"DeathmatchOn"
+	{
+		"en"			"Deathmatch mode on."
+	}
+	
+	"LandCleared"
+	{
+		"en"			"Land cleared."
+	}
+	
+	"LandFinished"
+	{
+		"en"			"Finished drawing land. Type {green}!land{default} again to clear your land."
+	}
+	
+	"LandStarted"
+	{
+		"en"			"Started drawing land. Type {green}!land{default} again to complete your land."
+	}
+	
+	//celhelp.smx
+	"DisplayColorList"
+	{
+		"en"			"Displaying color list."
+	}
+	
+	"DisplayCommandList"
+	{
+		"en"			"Displaying command list."
+	}
+	
+	"DisplayEffectList"
+	{
+		"en"			"Displaying effect list."
+	}
+	
+	"DisplayPropList"
+	{
+		"en"			"Displaying prop list."
+	}
+}

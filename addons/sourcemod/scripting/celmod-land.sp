@@ -20,6 +20,7 @@ int g_iCurrentLandEntity[MAXPLAYERS + 1];
 int g_iCurrentLandOwner[MAXPLAYERS + 1];
 int g_iHalo = -1;
 int g_iLand = -1;
+int g_iLandEntOwner[MAXENTITIES + 1];
 int g_iLaser = -1;
 int g_iPhys = -1;
 
@@ -58,6 +59,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetLandEntity", Native_GetLandEntity);
 	CreateNative("Cel_GetLandGravity", Native_GetLandGravity);
 	CreateNative("Cel_GetLandOwner", Native_GetLandOwner);
+	CreateNative("Cel_GetLandOwnerFromPosition", Native_GetLandOwnerFromPosition);
 	CreateNative("Cel_GetLandPositions", Native_GetLandPositions);
 	CreateNative("Cel_GetMiddleOfABox", Native_GetMiddleOfBox);
 	CreateNative("Cel_IsClientCrosshairInLand", Native_IsClientCrosshairInLand);
@@ -232,8 +234,6 @@ public Action Command_Land(int iClient, int iArgs)
 			g_liLand[iClient].iLandStage = 2;
 
 			Cel_ReplyToCommand(iClient, "%t", "LandFinished");
-
-			TE_SetupSparks(g_liLand[iClient].fLandPosBottomMiddle, NULL_VECTOR, 150, 25);
 		}
 
 		case 2:
@@ -334,7 +334,8 @@ public int Native_CreateLand(Handle hPlugin, int iNumParams)
 
 	HookSingleEntityOutput(iEnt, "OnStartTouch", EntOut_LandOnStartTouch);
 	HookSingleEntityOutput(iEnt, "OnEndTouch", EntOut_LandOnEndTouch);
-
+	
+	g_iLandEntOwner[iEnt] = iClient;
 	g_liLand[iClient].iLandEntity = iEnt;
 	g_liLand[iClient].iLandOwner = iClient;
 
@@ -528,6 +529,26 @@ public int Native_GetLandOwner(Handle hPlugin, int iNumParams)
 	return -1;
 }
 
+public int Native_GetLandOwnerFromPosition(Handle hPlugin, int iNumParams)
+{
+	float fOrigin[3];
+	
+	GetNativeArray(1, fOrigin, 3);
+	
+	for (int i = 1; i < MaxClients; i++)
+	{
+		if (IsClientAuthorized(i))
+		{
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			{
+				return g_liLand[i].iLandOwner;
+			}
+		}
+	}
+	
+	return -1;
+}
+
 public void Native_GetLandPositions(Handle hPlugin, int iNumParams)
 {
 	float fPosition[3];
@@ -595,8 +616,6 @@ public int Native_IsClientInLand(Handle hPlugin, int iNumParams)
 
 			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
 			{
-				SetNativeCellRef(2, g_liLand[i].iLandOwner);
-
 				return true;
 			}
 		}
@@ -620,17 +639,9 @@ public int Native_IsClientCrosshairInLand(Handle hPlugin, int iNumParams)
 
 			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
 			{
-				SetNativeCellRef(2, g_liLand[i].iLandOwner);
-
 				return true;
-			}else{
-				SetNativeCellRef(2, -1);
-
-				return false;
 			}
 		}else{
-			SetNativeCellRef(2, -1);
-
 			return false;
 		}
 	}
@@ -651,17 +662,11 @@ public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 
 			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
 			{
-				SetNativeCellRef(2, g_liLand[i].iLandOwner);
-
 				return true;
 			}else{
-				SetNativeCellRef(2, -1);
-
 				return false;
 			}
 		}else{
-			SetNativeCellRef(2, -1);
-
 			return false;
 		}
 	}
@@ -782,9 +787,9 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 {
 	if (iActivator < 1 || iActivator > MaxClients || !IsClientInGame(iActivator) || !IsPlayerAlive(iActivator))
 	return;
-
-	int iOwner = g_liLand[iCaller].iLandOwner;
-
+	
+	int iOwner = g_iLandEntOwner[iCaller];
+	
 	if(!g_liLand[iActivator].bInsideLand)
 	{
 		Cel_PrintToChat(iActivator, "You have entered {green}%N{default}'s land.", iOwner);

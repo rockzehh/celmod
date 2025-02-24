@@ -186,8 +186,12 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	{
 		if (Cel_CheckOwner(iClient, i))
 		{
-			if(Cel_IsEntityInLand(i, iLand))
+			if(Cel_IsEntityInLand(i))
 			{
+				Cel_GetEntityOrigin(i, fEnt[1]);
+				
+				iLand = Cel_GetLandOwnerFromPosition(fEnt[1]);
+				
 				if(iLand == iClient)
 				{
 					File fFile = OpenFile(sFile, "w");

@@ -25,7 +25,8 @@ enum EntityType
 	ENTTYPE_INTERNET = 4,
 	ENTTYPE_LIGHT = 5,
 	ENTTYPE_PHYSICS = 6,
-	ENTTYPE_UNKNOWN = 7,
+	ENTTYPE_CLEER = 7,
+	ENTTYPE_UNKNOWN = 8
 };
 
 enum EffectType
@@ -52,15 +53,6 @@ enum EffectType
 float g_fDown[3] = { 90.0, 0.0, 0.0 };
 float g_fUp[3] = { -90.0, 0.0, 0.0 };
 float g_fZero[3] = { 0.0, 0.0, 0.0 };
-
-//Colors:
-int g_iBlue[4] =  { 0, 0, 255, 175 };
-int g_iGray[4] =  { 255, 255, 255, 300 };
-int g_iGreen[4] =  { 0, 255, 0, 175 };
-int g_iOrange[4] =  { 255, 128, 0, 175 };
-int g_iRed[4] =  { 255, 0, 0, 175 };
-int g_iWhite[4] =  { 255, 255, 255, 175 };
-int g_iYellow[4] =  { 255, 255, 0, 175 };
 
 //========== celmod.smx ==========
 
@@ -199,6 +191,8 @@ native bool Cel_CheckSpawnDB(const char[] sAlias, char[] sSpawnString, int iMaxL
  * @param iEntity  The entity index to dissolve.
  */
 native void Cel_DissolveEntity(int iEntity);
+
+native void Cel_DownloadClientFiles();
 
 /**
  * Retrieves a client's Steam Auth ID.
@@ -964,6 +958,8 @@ native float Cel_GetLandGravity(int iLandOwner);
  */
 native int Cel_GetLandOwner(float fBottomCorner[3], float fTopCorner[3]);
 
+native int Cel_GetLandOwnerFromPosition(float fOrigin[3]);
+
 /**
  * Retrieves a position from a land entity, useful for determining points in a land area.
  *
@@ -983,32 +979,11 @@ native float Cel_GetLandPositions(int iClient, int iPosition=1, float fPosition[
  */
 native void Cel_GetMiddleOfABox(float fMin[3], float fMax[3], float fBuffer[3]);
 
-/**
- * Checks if the client’s crosshair is currently aimed at a land area.
- *
- * @param iClient  The client index of the player.
- * @param iLandOwner  The client index of the land owner.
- * @return         True if the crosshair is in a land area, false otherwise.
- */
-native bool Cel_IsClientCrosshairInLand(int iClient, int iLandOwner);
+native bool Cel_IsClientCrosshairInLand(int iClient);
 
-/**
- * Checks if a client is inside a specific land area.
- *
- * @param iClient     The client index of the player.
- * @param iLandOwner  The client index of the land owner.
- * @return            True if the client is in the land, false otherwise.
- */
-native bool Cel_IsClientInLand(int iClient, int iLandOwner);
+native bool Cel_IsClientInLand(int iClient);
 
-/**
- * Checks if an entity is inside a specific land area.
- *
- * @param iEntity     The entity index.
- * @param iLandOwner  The client index of the land owner.
- * @return            True if the entity is in the land, false otherwise.
- */
-native bool Cel_IsEntityInLand(int iEntity, int iLandOwner);
+native bool Cel_IsEntityInLand(int iEntity);
 
 /**
  * Checks if a given position is inside a defined land area.
@@ -1209,47 +1184,4 @@ public Action Timer_DisRemove(Handle hTimer, any iRef)
 	Cel_DissolveEntity(iEntity);
 
 	return Plugin_Continue;
-}
-
-//Stocks:
-stock void Cel_DownloadClientFiles()
-{
-	char sPath[PLATFORM_MAX_PATH];
-
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/downloads.txt");
-
-	if(!FileExists(sPath))
-	{
-		PrintToServer("|CelMod| Cannot download client files. (No download txt file exists at data/celmod/downloads.txt)");
-	}else{
-		File fDownloadFiles = OpenFile(sPath, "r");
-
-		char sBuffer[256];
-
-		while (fDownloadFiles.ReadLine(sBuffer, sizeof(sBuffer)))
-		{
-			int iLen = strlen(sBuffer);
-
-			if (sBuffer[iLen-1] == '\n')
-			{
-				sBuffer[--iLen] = '\0';
-			}
-
-			if (FileExists(sBuffer))
-			{
-				AddFileToDownloadsTable(sBuffer);
-			}
-
-			if(StrContains(sBuffer, ".mdl", false) != -1)
-			{
-				PrecacheModel(sBuffer, true);
-			}
-
-			if (fDownloadFiles.EndOfFile())
-			{
-				fDownloadFiles.Close();
-				break;
-			}
-		}
-	}
 }

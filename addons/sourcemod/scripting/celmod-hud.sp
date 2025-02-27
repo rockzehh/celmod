@@ -312,7 +312,7 @@ public Action Timer_HUD(Handle hTimer)
 					
 					iLand = Cel_GetLandOwnerFromPosition(fOrigin);
 					
-					if(iLand != 0)
+					if(iLand != -1)
 					{
 						Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
 

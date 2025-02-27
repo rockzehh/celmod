@@ -194,13 +194,7 @@ native void Cel_DissolveEntity(int iEntity);
 
 native void Cel_DownloadClientFiles();
 
-/**
- * Retrieves a client's Steam Auth ID.
- *
- * @param iClient   The client index to get the Auth ID for.
- * @return          The client's Auth ID.
- */
-native char Cel_GetAuthID(int iClient);
+native char Cel_GetAuthID(int iClient, char[] sAuthID, int iMaxLength);
 
 /**
  * Retrieves the material used for beams.

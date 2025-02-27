@@ -54,16 +54,20 @@ public void OnPluginStart()
 
 public void OnClientPutInServer(int iClient)
 {
+	char sAuthID[64];
+	
 	g_kvClientPurchases[iClient] = new KeyValues("Vault");
 	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
-	BuildPath(Path_SM, g_sClientPurchases[iClient], sizeof(g_sClientPurchases[]), "data/celmod/users/%i/purchases.txt", Cel_GetAuthID(iClient));
+	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
+
+	BuildPath(Path_SM, g_sClientPurchases[iClient], sizeof(g_sClientPurchases[]), "data/celmod/users/%s/purchases.txt", sAuthID);
 	if (!FileExists(g_sClientPurchases[iClient]))
 	{
 		Cel_CreateClientPurchases(iClient);
 	}
 
-	BuildPath(Path_SM, g_sClientSettings[iClient], sizeof(g_sClientSettings[]), "data/celmod/users/%i/settings.txt", Cel_GetAuthID(iClient));
+	BuildPath(Path_SM, g_sClientSettings[iClient], sizeof(g_sClientSettings[]), "data/celmod/users/%s/settings.txt", sAuthID);
 	if (!FileExists(g_sClientSettings[iClient]))
 	{
 		Cel_CreateClientSettings(iClient);

@@ -17,6 +17,7 @@ bool g_bNoKill[MAXPLAYERS + 1];
 bool g_bPlayer[MAXPLAYERS + 1];
 bool g_bSolid[MAXENTITIES + 1];
 
+char g_sAuthID[MAXPLAYERS + 1][64];
 char g_sColorDB[PLATFORM_MAX_PATH];
 char g_sDefaultInternetURL[PLATFORM_MAX_PATH];
 char g_sDownloadPath[PLATFORM_MAX_PATH];
@@ -35,7 +36,6 @@ Handle g_hOnCelSpawn;
 Handle g_hOnEntityRemove;
 Handle g_hOnPropSpawn;
 
-int g_iAuthID[MAXPLAYERS + 1];
 int g_iBeam;
 int g_iCelCount[MAXPLAYERS + 1];
 int g_iCelLimit;
@@ -290,11 +290,13 @@ public void OnClientAuthorized(int iClient, const char[] sAuthID)
 
 public void OnClientPutInServer(int iClient)
 {
-	char sPath[PLATFORM_MAX_PATH];
-
+	char sAuthID[64], sPath[PLATFORM_MAX_PATH];
+	
 	Cel_ChooseHudColor(iClient);
-
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/users/%i", Cel_GetAuthID(iClient));
+	
+	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
+	
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/users/%s", sAuthID);
 	if (!DirExists(sPath))
 	{
 		CreateDirectory(sPath, 511);
@@ -1498,9 +1500,11 @@ public int Native_DownloadClientFiles(Handle hPlugin, int iNumParams)
 
 public int Native_GetAuthID(Handle hPlugin, int iNumParams)
 {
-	int iClient = GetNativeCell(1);
-
-	return g_iAuthID[iClient];
+	int iClient = GetNativeCell(1), iMaxLength = GetNativeCell(3);
+	
+	SetNativeString(2, g_sAuthID[iClient], iMaxLength);
+	
+	return true;
 }
 
 public int Native_GetBeamMaterial(Handle hPlugin, int iNumParams)
@@ -2022,12 +2026,10 @@ public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
 
 public int Native_SetAuthID(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[32];
+	char sAuthID[64];
 	int iClient = GetNativeCell(1);
 
-	GetClientAuthId(iClient, AuthId_SteamID64, sAuthID, sizeof(sAuthID));
-
-	g_iAuthID[iClient] = StringToInt(sAuthID);
+	GetClientAuthId(iClient, AuthId_SteamID64, g_sAuthID[iClient], sizeof(g_sAuthID));
 
 	return true;
 }

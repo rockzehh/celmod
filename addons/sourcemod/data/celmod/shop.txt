@@ -2,20 +2,15 @@
 {
 	"Commands"
 	{
-		"fire"	"4000"
-		"gravity"	"10000"
-		"weld"	"20000"
-		"light"	"30000"
-		"text"	"50000"
-		"anim"	"50000"
-		"turret"	"200000"
-		"landcolor"	"200000"
-		"internet"	"200000"
-		"seturl"	"500000"
-	}
-	
-	"Models"
-	{
-		"combineprops"	"100000"
+		"combineprops"	"100000|combine props"
+		"gravity"	"10000|!landgravity"
+		"weld"	"20000|!weld"
+		"light"	"30000|!light"
+		"text"	"50000|!text"
+		"anim"	"50000|!anim"
+		"turret"	"200000|!turret"
+		"landcolor"	"200000|!landcolor"
+		"internet"	"200000|!internet"
+		"seturl"	"500000|!seturl"
 	}
 }

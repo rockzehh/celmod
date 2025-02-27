@@ -49,9 +49,13 @@ public void OnPluginStart()
 
 public void OnClientPutInServer(int iClient)
 {
-	char sPath[PLATFORM_MAX_PATH];
-
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/users/%i/saves", Cel_GetAuthID(iClient));
+	char sAuthID[64], sPath[PLATFORM_MAX_PATH];
+	
+	Cel_ChooseHudColor(iClient);
+	
+	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
+	
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod/users/%s/saves", sAuthID);
 	if (!DirExists(sPath))
 	{
 		CreateDirectory(sPath, 511);
@@ -94,15 +98,18 @@ public Action Command_SaveBuild(int iClient, int iArgs)
 
 public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 {
-	char sBuffer[PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sSaveName[96];
+	
+	char sAuthID[64], sBuffer[PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sSaveName[96];
 	File fFile;
 	float fDelay = 0.10;
 	Handle hLoadTimer;
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
+	
+	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
 
-	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%i/saves/%s.txt", Cel_GetAuthID(iClient), sSaveName);
+	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/saves/%s.txt", sAuthID, sSaveName);
 
 	fFile = OpenFile(sFile, "r");
 
@@ -134,7 +141,7 @@ public int Native_GetSaveSystemVersion(Handle hPlugin, int iNumParams)
 
 public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 {
-	char sFile[PLATFORM_MAX_PATH], sOutput[PLATFORM_MAX_PATH], sSaveName[96];
+	char sAuthID[64], sFile[PLATFORM_MAX_PATH], sOutput[PLATFORM_MAX_PATH], sSaveName[96];
 	float fEnt[2][3], fLandPos[2][3], fMiddle[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4], iLand;
 
@@ -150,8 +157,10 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 
 		return false;
 	}
+	
+	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
 
-	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%i/saves/%s.txt", Cel_GetAuthID(iClient), sSaveName);
+	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/saves/%s.txt", sAuthID, sSaveName);
 
 	if (FileExists(sFile))
 	{
@@ -181,6 +190,8 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	fMiddle[2] = (fLandPos[0][2]);
 
 	g_iSaveOverride[iClient] = 0;
+	
+	File fFile = OpenFile(sFile, "w");
 
 	for (int i = 0; i < GetMaxEntities(); i++)
 	{
@@ -194,8 +205,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 				
 				if(iLand == iClient)
 				{
-					File fFile = OpenFile(sFile, "w");
-
 					switch(Cel_GetEntityType(i))
 					{
 						case ENTTYPE_CYCLER:

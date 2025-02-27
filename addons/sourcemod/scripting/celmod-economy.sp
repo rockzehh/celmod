@@ -21,14 +21,18 @@ enum Economy
 }
 
 int g_iCleerAmount[MAXENTITIES + 1];
+int g_iEntityPrice[MAXENTITTES + 1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_AddToClientBalance", Native_AddToClientBalance);
 	CreateNative("Cel_BuyCommand", Native_BuyCommand);
-	CreateNative("Cel_BuyObject", Native_BuyObject);
+	CreateNative("Cel_BuyEntity", Native_BuyEntity);
 	CreateNative("Cel_CancelSale", Native_CanelSale);
+	CreateNative("Cel_CheckClientBalance", Native_CheckClientBalance);
 	CreateNative("Cel_GetClientPurchaseStatus", Native_GetClientPurchaseStatus);
+	CreateNative("Cel_GetEntityPrice", Native_GetEntityPrice);
+	CreateNative("Cel_CheckShopDB", Native_CheckShopDB);
 	CreateNative("Cel_CreateCleerBox", Native_CreateCleerBox);
 	CreateNative("Cel_GetCleerBoxAmount", Native_GetCleerBoxAmount);
 	CreateNative("Cel_GetClientBalance", Native_GetClientBalance);
@@ -65,7 +69,7 @@ public void OnPluginStart()
 	g_cvCleerModel = CreateConVar("cm_cleer_box_model", "", "Model path for the cleers box.");
 	
 	g_cvCleerModel.AddChangeHook(CMEconomy_OnConVarChanged);
-
+	
 	g_cvCleerModel.GetString(g_sCleerModel, sizeof(g_sCleerModel));
 	
 	RegAdminCmd("sm_setbalance", Command_SetBalance, ADMFLAG_SLAY, "|CelMod| Sets the balance of the client you are specifing.");
@@ -107,32 +111,32 @@ public Action Command_SetBalance(int iClient, int iArgs)
 	
 	GetCmdArg(1, sBalance, sizeof(sBalance));
 	GetCmdArg(2, sTarget, sizeof(sTarget));
-
+	
 	GetClientName(iClient, sNames[0], sizeof(sNames[]));
-
+	
 	if (StrEqual(sTarget, ""))
 	{
 		Cel_SetClientBalance(iClient, StringToInt(sBalance));
 		
 		Cel_ReplyToCommand(iClient, "%t", "SetBalanceClient", sNames[0], g_eEconomy[iClient].sCleerTranslation);
-
+		
 		return Plugin_Handled;
 	}
-
+	
 	int iTarget = FindTarget(iClient, sTarget, true, false);
-
+	
 	if (iTarget == -1)
 	{
 		Cel_ReplyToCommand(iClient, "%t", "CantFindTarget");
 		return Plugin_Handled;
 	}
-
+	
 	GetClientName(iTarget, sNames[1], sizeof(sNames[]));
-
+	
 	Cel_SetClientBalance(iTarget, StringToInt(sBalance));
-
+	
 	Cel_ReplyToCommand(iClient, "%t", "SetBalanceClient", sNames[1], g_eEconomy[iTarget].sCleerTranslation);
-
+	
 	return Plugin_Handled;
 }
 
@@ -145,27 +149,77 @@ public Action Command_Balance(int iClient, int iArgs)
 
 public Action Command_Buy(int iClient, int iArgs)
 {
-	char sEntityType[32];
-
-	if (Cel_GetClientAimTarget(iClient) == -1)
+	char sOption[64];
+	
+	int iPrice;
+	
+	GetCmdArg(1, sOption, sizeof(sOption));
+	
+	if(StrEqual(sOption, ""))
 	{
-		Cel_NotLooking(iClient);
-		return Plugin_Handled;
-	}
-
-	int iProp = Cel_GetClientAimTarget(iClient);
-
-	if (Cel_CheckOwner(iClient, iProp))
-	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-
+		if (Cel_GetClientAimTarget(iClient) == -1)
+		{
+			Cel_NotLooking(iClient);
+			return Plugin_Handled;
+		}
 		
-
-		Cel_ChangeBeam(iClient, iProp);
-	} else {
-		Cel_NotYours(iClient, iProp);
+		int iProp = Cel_GetClientAimTarget(iClient);
+		
+		if (Cel_IsEntityForSale(iProp))
+		{
+			if(Cel_CheckClientBalance(iClient, Cel_GetEntityPrice(iProp)))
+			{
+				Cel_BuyEntity(iClient, Cel_GetOwner(iProp), iProp, Cel_GetEntityPrice(iProp));
+				
+				return Plugin_Handled;
+			}else{
+				Cel_ReplyToCommand(iClient, "%t", "InsufficantFunds");
+				return Plugin_Handled;
+			}
+		} else {
+			Cel_NotYours(iClient, iProp);
+			return Plugin_Handled;
+		}	
+	}
+	
+	if(Cel_CheckShopDB(sOption, iPrice, sDisplay, sizeof(sDisplay)))
+	{
+		if(Cel_CheckClientBalance(iClient, iPrice))
+		{
+			Cel_SaveClientPurchase(iClient, sOption, true);
+			
+			Cel_SubFromClientBalance(iClient, iPrice);
+			
+			Cel_ReplyToCommand(iClient, "%t", "PurchaseCommand", sOption, iPrice);
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "InsufficantFunds");
+			return Plugin_Handled;
+		}
+	}else{
+		Cel_ReplyToCommand(iClient, "%t", "NotInShop", sOption);
 		return Plugin_Handled;
 	}
-
+	
 	return Plugin_Handled;
+}
+
+//Natives
+public void Native_BuyEntity(Handle hPlugin, int iNumParams)
+{
+	char sEntityType[32];
+	
+	int iBuyer = GetNativeCell(1), iOwner = GetNativeCell(2), iPrice = GetNativeCell(4), iProp = GetNativeCell(3);
+	
+	Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+	
+	Cel_SetOwner(iClient, iProp);
+	
+	Cel_CancelSale(iProp);
+	
+	Cel_AddToClientBalance(iOwner, iPrice);
+	
+	Cel_SubFromClientBalance(iClient, iPrice);
+	
+	Cel_ReplyToCommand(iClient, "%t", "BoughtEntity", sEntityType, iOwner, iPrice);
+	Cel_ReplyToCommand(iOwner, "%t", "SoldEntity", sEntityType, iClient, iPrice);
 }

@@ -21,9 +21,9 @@ ctx.fillRect(0, 0, w, h);
 var imgs = [];
 var r = -1;
 if(document.title.indexOf('A Living Project') > -1) {
-    for(var i = 1; i < 8; i++) {
+    for(var i = 0; i < 7; i++) {
         imgs[i] = document.createElement('img');
-        imgs[i].setAttribute('src', './images/bg/bg'+(i+1)+'.jpg');
+        imgs[i].setAttribute('src', './images/bg/map'+(i+1)+'.png');
         imgs[i].setAttribute('width', w);
         imgs[i].setAttribute('height', h);
         document.body.appendChild(imgs[i]);
@@ -37,18 +37,11 @@ if(document.title.indexOf('A Living Project') > -1) {
 
     randomBG(-1);
     setInterval(keepHeights, 100);
-
-    var logo = document.getElementById('logo');
-    var main = document.getElementById('main');
-    var footer = document.getElementById('footer');
-    //hover(logo, true);
-   // hover(main, false);
-    //hover(footer, true);
 }
 
 function keepHeights() {
     if(r > -1) {
-        for(var i = 1; i < 8; i++) {
+        for(var i = 0; i < 7; i++) {
             if(r == i) { imgs[i].style.zIndex = -3; } else {
                 imgs[i].style.zIndex = -5
             }
@@ -69,7 +62,7 @@ function randomBG(oldr) {
 	imgs[r].style.opacity = "0.0";
 	imgs[r].amt = [0, 1];
     tween(imgs[r], 500, 1, function() {
-        for(var i = 1; i < 8; i++) {
+        for(var i = 0; i < 7; i++) {
 	        if(i != r) {
                 imgs[i].style.opacity = "0.0";
                 imgs[i].style.display = 'none';

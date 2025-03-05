@@ -78,6 +78,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetCelCount", Native_GetCelCount);
 	CreateNative("Cel_GetCelLimit", Native_GetCelLimit);
 	CreateNative("Cel_GetColor", Native_GetColor);
+	CreateNative("Cel_GetCombinedCount", Native_GetCombinedCount);
 	CreateNative("Cel_GetCrosshairHitOrigin", Native_GetCrosshairHitOrigin);
 	CreateNative("Cel_GetEntityCatagory", Native_GetEntityCatagory);
 	CreateNative("Cel_GetEntityCatagoryName", Native_GetEntityCatagoryName);
@@ -1294,7 +1295,7 @@ public int Native_AddToCelCount(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 
-	int iCount = Cel_GetCelCount(iClient), iFinalCount = iCount += 1;
+	int iFinalCount = (g_iCelCount[iClient] += 1);
 
 	Cel_SetCelCount(iClient, iFinalCount);
 
@@ -1305,7 +1306,7 @@ public int Native_AddToPropCount(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 
-	int iCount = Cel_GetPropCount(iClient), iFinalCount = iCount += 1;
+	int iFinalCount = (g_iPropCount[iClient] += 1);
 
 	Cel_SetPropCount(iClient, iFinalCount);
 
@@ -1496,6 +1497,8 @@ public int Native_DownloadClientFiles(Handle hPlugin, int iNumParams)
 			}
 		}
 	}
+	
+	return true;
 }
 
 public int Native_GetAuthID(Handle hPlugin, int iNumParams)
@@ -1554,6 +1557,13 @@ public int Native_GetColor(Handle hPlugin, int iNumParams)
 	SetNativeArray(2, iColor, 4);
 
 	return true;
+}
+
+public int Native_GetCombinedCount(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	
+	return (g_iPropCount[iClient] += g_iCelCount[iClient]);
 }
 
 public int Native_GetCrosshairHitOrigin(Handle hPlugin, int iNumParams)
@@ -2026,7 +2036,6 @@ public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
 
 public int Native_SetAuthID(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[64];
 	int iClient = GetNativeCell(1);
 
 	GetClientAuthId(iClient, AuthId_SteamID64, g_sAuthID[iClient], sizeof(g_sAuthID));
@@ -2356,7 +2365,7 @@ public int Native_SubFromCelCount(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 
-	int iCount = Cel_GetCelCount(iClient), iFinalCount = iCount -= 1;
+	int iFinalCount = (g_iCelCount[iClient] -= 1);
 
 	Cel_SetCelCount(iClient, iFinalCount);
 
@@ -2367,7 +2376,7 @@ public int Native_SubFromPropCount(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 
-	int iCount = Cel_GetPropCount(iClient), iFinalCount = iCount -= 1;
+	int iFinalCount = (g_iPropCount[iClient] -= 1);
 
 	Cel_SetPropCount(iClient, iFinalCount);
 

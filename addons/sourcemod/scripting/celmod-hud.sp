@@ -225,7 +225,7 @@ public Action Timer_CommandHUD(Handle hTimer)
 
 public Action Timer_HUD(Handle hTimer)
 {
-	char sBuffer[128], sBufferArray[2][128], sMessage[MAX_MESSAGE_LENGTH], sPropname[128];
+	char sBalance[64], sBuffer[128], sBufferArray[2][128], sMessage[MAX_MESSAGE_LENGTH], sPropname[128];
 	float fOrigin[3];
 	int iColor[4], iLand;
 
@@ -294,16 +294,20 @@ public Action Timer_HUD(Handle hTimer)
 
 							Cel_GetHudColor(i, iColor);
 						} else {
-							Format(sMessage, sizeof(sMessage), "Owner: %N\nEntity: Unknown", Cel_GetOwner(iEntity));
+							Format(sMessage, sizeof(sMessage), "Owner: %N\nCel: ???", Cel_GetOwner(iEntity));
 
 							Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 						}
 					} else if (Cel_IsPlayer(iEntity)) {
-						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(iEntity), Cel_GetCelCount(iEntity));
+						Cel_GetClientBalanceTranslated(iEntity, sBalance, sizeof(sBalance));
+						
+						Format(sMessage, sizeof(sMessage), "%N\nBalance: %s | Spawned: %d", iEntity, sBalance, Cel_GetCombinedCount(iEntity));
 
 						Cel_GetHudColor(iEntity, iColor);
 					} else {
-						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
+						Cel_GetClientBalanceTranslated(i, sBalance, sizeof(sBalance));
+						
+						Format(sMessage, sizeof(sMessage), "Balance: %s\nSpawned: %d", sBalance, Cel_GetCombinedCount(i));
 
 						Cel_GetHudColor(i, iColor);
 					}
@@ -318,12 +322,16 @@ public Action Timer_HUD(Handle hTimer)
 
 						Cel_GetHudColor(iLand, iColor);
 					}else{
-						Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
+						Cel_GetClientBalanceTranslated(i, sBalance, sizeof(sBalance));
+						
+						Format(sMessage, sizeof(sMessage), "Balance: %s\nSpawned: %d", sBalance, Cel_GetCombinedCount(i));
 
 						Cel_GetHudColor(i, iColor);
 					}
 				}else {
-					Format(sMessage, sizeof(sMessage), "Props Spawned: %d\nCels Spawned: %d", Cel_GetPropCount(i), Cel_GetCelCount(i));
+					Cel_GetClientBalanceTranslated(i, sBalance, sizeof(sBalance));
+					
+					Format(sMessage, sizeof(sMessage), "Balance: %s\nSpawned: %d", sBalance, Cel_GetCombinedCount(i));
 
 					Cel_GetHudColor(i, iColor);
 				}

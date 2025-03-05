@@ -235,6 +235,8 @@ native int Cel_GetClientAimTarget(int iClient);
  */
 native int Cel_GetColor(int iEntity, int iColor[4]);
 
+native int Cel_GetCombinedCount(int iClient);
+
 /**
  * Retrieves the world position where a client is aiming.
  *

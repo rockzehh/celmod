@@ -26,7 +26,7 @@ enum EntityType
 	ENTTYPE_LIGHT = 5,
 	ENTTYPE_PHYSICS = 6,
 	ENTTYPE_CLEER = 7,
-	ENTTYPE_UNKNOWN = 8
+	ENTTYPE_UNKNOWN = 8,
 };
 
 enum EffectType
@@ -999,13 +999,7 @@ native void Cel_SetLandGravity(int iLandOwner, float fGravity);
 
 //========== celmod-clientstorage.smx ==========
 
-/**
- * Checks if a client has made a specific purchase.
- *
- * @param iClient  The client index.
- * @return         Returns true if the client has made the purchase, false otherwise.
- */
-native bool Cel_CheckClientPurchase(int iClient);
+native bool Cel_CheckClientPurchase(int iClient, char[] sCommand);
 
 /**
  * Creates an initial set of purchases for the specified client.
@@ -1112,6 +1106,36 @@ native void Cel_LoadBuild(int iClient, const char[] sSaveName);
  * @param sSaveName The name of the save file.
  */
 native void Cel_SaveBuild(int iClient, const char[] sSaveName);
+
+//========== celmod-economy.smx ==========
+
+native void Cel_AddToClientBalance(int iClient, int iBalance);
+
+native void Cel_BuyCommand(int iClient, char[] sCommand, char[] sDisplayText, int iMaxLength);
+
+native void Cel_BuyEntity(int iClient, int iOwner, int iProp, int iPrice);
+
+native void Cel_CancelSale(int iClient, int iProp);
+
+native bool Cel_CheckClientBalance(int iClient, int iPrice);
+
+native bool Cel_CheckShopDB(char[] sCommand, int iPrice, char[] sDisplayText, int iMaxLength);
+
+native int Cel_GetClientBalance(int iClient);
+
+native void Cel_GetClientBalanceTranslated(int iClient, char[] sBalance, int iMaxLength);
+
+native bool Cel_GetClientPurchaseStatus(int iClient, char[] sCommand);
+
+native int Cel_GetEntityPrice(int iEntity);
+
+native bool Cel_IsEntityForSale(int iEntity);
+
+native void Cel_SetClientBalance(int iClient, int iBalance);
+
+native void Cel_StartSale(int iClient, int iEntity, int iPrice);
+
+native void Cel_SubFromClientBalance(int iClient, int iBalance);
 
 //Hooks:
 public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)

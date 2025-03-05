@@ -169,139 +169,119 @@ public OnPluginStart()
 	BuildPath(PathType:0, g_sClientPrefs, 64, "data/celmod/g_sClientPrefs.txt");
 }
 
-cmMsg(client, String:Msg[])
+public void cmMsg(int client, const char sMsg[])
 {
-	PrintToChat(client, "\x04|CelMod|\x01 %s", Msg);
-	int random = GetRandomInt(0, 1);
-	switch (random)
-	{
-		case 0:
-		{
-			ClientCommand(client, "playgamesound NPC_Stalker.FootStepRight");
-		}
-		case 1:
-		{
-			ClientCommand(client, "playgamesound NPC_Stalker.FootStepLeft");
-		}
-		default:
-		{
-		}
-	}
-	return 0;
+    // Send a chat message to the client
+    PrintToChat(client, "\x04|CelMod|\x01 %s", sMsg);
+
+    // Determine which sound to play
+    const char* sSound = (GetRandomInt(0, 1) == 0) ? "NPC_Stalker.FootStepRight" : "NPC_Stalker.FootStepLeft";
+
+    // Play the selected sound to the client
+    EmitSoundToClient(client, sSound);
 }
 
-PerformByClass(client, ent, String:action[])
+public void PerformByClass(int client, int ent, const char action[])
 {
-	decl String:classname[32];
-	char brokeClass[2][32] = {
-		"_",
-		"."
-	};
-	decl String:classMsg[256];
-	GetEdictClassname(ent, classname, 32);
-	if (StrContains(classname, "_", false) == -1)
-	{
-		Format(classMsg, 255, "%s %s.", action, classname);
-	}
-	else
-	{
-		ExplodeString(classname, "_", brokeClass, 2, 32);
-		if (StrEqual(brokeClass[0][brokeClass], "combine", false))
-		{
-			Format(classMsg, 255, "%s %s %s.", action, brokeClass[0][brokeClass], brokeClass[1]);
-		}
-		Format(classMsg, 255, "%s %s %s.", action, brokeClass[1], brokeClass[0][brokeClass]);
-	}
-	cmMsg(client, classMsg);
-	return 0;
+    char classname[32];
+    char classMsg[256];
+
+    // Retrieve the entity's class name
+    GetEdictClassname(ent, classname, sizeof(classname));
+
+    // Check if the classname starts with "combine_"
+    if (strncmp(classname, "combine_", 8) == 0)
+    {
+        // Format message as "action combine rest_of_classname."
+        Format(classMsg, sizeof(classMsg), "%s combine %s.", action, classname[8]);
+    }
+    else
+    {
+        // Format message as "action classname."
+        Format(classMsg, sizeof(classMsg), "%s %s.", action, classname);
+    }
+
+    // Send the formatted message to the client
+    cmMsg(client, classMsg);
 }
 
-tooFast(client)
+public void tooFast(int client)
 {
-	char fastMsg[256];
-	int random = GetRandomInt(0, 3);
-	switch (random)
-	{
-		case 0:
-		{
-			fastMsg = "Slow down there charlie.";
-		}
-		case 1:
-		{
-			fastMsg = "Calm the hell down!";
-		}
-		case 2:
-		{
-			fastMsg = "Cool your jets buddy.";
-		}
-		case 3:
-		{
-			fastMsg = "Wheres the rush?";
-		}
-		default:
-		{
-		}
-	}
-	cmMsg(client, fastMsg);
-	return 0;
+    char fastMsg[256];
+    int random = GetRandomInt(0, 3);
+    switch (random)
+    {
+        case 0:
+        {
+            strcopy(fastMsg, sizeof(fastMsg), "Slow down there charlie.");
+            break;
+        }
+        case 1:
+        {
+            strcopy(fastMsg, sizeof(fastMsg), "Calm the hell down!");
+            break;
+        }
+        case 2:
+        {
+            strcopy(fastMsg, sizeof(fastMsg), "Cool your jets buddy.");
+            break;
+        }
+        case 3:
+        {
+            strcopy(fastMsg, sizeof(fastMsg), "Where's the rush?");
+            break;
+        }
+        default:
+        {
+            strcopy(fastMsg, sizeof(fastMsg), "Take it easy!");
+            break;
+        }
+    }
+    cmMsg(client, fastMsg);
 }
 
-lookingAt(client)
+public void lookingAt(int client)
 {
-	if (!g_iBlockPluginMsgs[client])
-	{
-		cmMsg(client, "You are not looking at anything.");
-	}
-	return 0;
+    if (!g_iBlockPluginMsgs[client])
+    {
+        cmMsg(client, "You are not looking at anything.");
+    }
 }
 
-notYours(client)
+public void notYours(int client)
 {
-	cmMsg(client, "This entity does not belong to you.");
-	return 0;
+    cmMsg(client, "This entity does not belong to you.");
 }
 
-changeBeam(client, Ent)
+public void changeBeam(int client, int ent)
 {
-	decl Handle:TraceRay;
-	decl randomSound;
-	decl Float:COrigin[3];
-	decl Float:EyeAngles[3];
-	decl Float:EyeOrigin[3];
-	decl Float:EndOrigin[3];
-	decl Float:FinalCOrigin[3];
-	GetClientAbsOrigin(client, COrigin);
-	FinalCOrigin[0] = COrigin[0];
-	FinalCOrigin[1] = COrigin[1];
-	FinalCOrigin[2] = COrigin[2] + 32;
-	GetClientEyeAngles(client, EyeAngles);
-	GetClientEyePosition(client, EyeOrigin);
-	TraceRay = TR_TraceRayFilterEx(EyeOrigin, EyeAngles, 1174421507, RayType:1, Filterg_sPlayerClassname, any:0);
-	if (TR_DidHit(TraceRay))
-	{
-		TR_GetEndPosition(EndOrigin, TraceRay);
-		TE_SetupBeamPoints(FinalCOrigin, EndOrigin, g_iPhys, g_iHalo, 0, 15, 0.1, 4.0, 4.0, 1, 0.0, physWhite, 10);
-		TE_SendToAll(0.0);
-		TE_SetupSparks(EndOrigin, g_fEntityAngles, 3, 2);
-		TE_SendToAll(0.0);
-		randomSound = GetRandomInt(0, 1);
-		switch (randomSound)
-		{
-			case 0:
-			{
-			}
-			case 1:
-			{
-			}
-			default:
-			{
-			}
-		}
-		EmitSoundToAll(g_sToolSound, Ent, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
-	}
-	CloseHandle(TraceRay);
-	return 0;
+    float clientOrigin[3];
+    GetClientAbsOrigin(client, clientOrigin);
+    clientOrigin[2] += 32.0;
+
+    float eyeAngles[3];
+    GetClientEyeAngles(client, eyeAngles);
+
+    float eyeOrigin[3];
+    GetClientEyePosition(client, eyeOrigin);
+
+    Handle traceRay = TR_TraceRayFilterEx(eyeOrigin, eyeAngles, MASK_SHOT, RayType_Infinite, Filterg_sPlayerClassname, 0);
+    if (TR_DidHit(traceRay))
+    {
+        float endOrigin[3];
+        TR_GetEndPosition(endOrigin, traceRay);
+
+        TE_SetupBeamPoints(clientOrigin, endOrigin, g_iPhys, g_iHalo, 0, 15.0, 0.1, 4.0, 4.0, 1, 0.0, physWhite, 10);
+        TE_SendToAll();
+
+        TE_SetupSparks(endOrigin, null, 3, 2);
+        TE_SendToAll();
+
+        EmitSoundToAll(g_sToolSound, ent, SNDCHAN_WEAPON, SNDLEVEL_NORMAL, SND_NOFLAGS, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+    }
+    CloseHandle(traceRay);
 }
+
 
 ReadQue(client)
 {
@@ -319,26 +299,8 @@ ReadQue(client)
 
 WriteQue(client, ent, num)
 {
-	char queString[18][256] = {
-		"m_ModelName",
-		"prop_vehicle_airboat",
-		"ls/advisor.mdl",
-		"eam.vmt",
-		"ls/citadel/weapon_disintegrate4.wav",
-		"",
-		"c",
-		"a list of prop aliases.",
-		").",
-		"sics_m_breakable",
-		"t console to view.",
-		"eramt",
-		"ady viewing a prop.",
-		"No prop found in copy queue.",
-		"_physics_override",
-		"",
-		"wn.",
-		",-1"
-	};
+	char queString[18][256];
+	
 	decl eColor[4];
 	decl Float:angRot[3];
 	decl Float:entOrgn[3];

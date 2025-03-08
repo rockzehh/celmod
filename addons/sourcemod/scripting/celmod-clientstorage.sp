@@ -55,9 +55,6 @@ public void OnPluginStart()
 public void OnClientPutInServer(int iClient)
 {
 	char sAuthID[64];
-	
-	g_kvClientPurchases[iClient] = new KeyValues("Vault");
-	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
 
@@ -76,8 +73,7 @@ public void OnClientPutInServer(int iClient)
 
 public void OnClientDisconnect(int iClient)
 {
-	g_kvClientPurchases[iClient].Close();
-	g_kvClientSettings[iClient].Close();
+	
 }
 
 //Natives:
@@ -87,6 +83,8 @@ public any Native_CheckClientPurchase(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sPurchase, sizeof(sPurchase));
+	
+	g_kvClientPurchases[iClient] = new KeyValues("Vault");
 
 	g_kvClientPurchases[iClient].ImportFromFile(g_sClientPurchases[iClient]);
 
@@ -95,6 +93,8 @@ public any Native_CheckClientPurchase(Handle hPlugin, int iNumParams)
 	bool bHasPurchase = view_as<bool>(g_kvClientPurchases[iClient].GetNum(sPurchase, 0));
 
 	g_kvClientPurchases[iClient].Rewind();
+	
+	g_kvClientPurchases[iClient].Close();
 
 	return bHasPurchase;
 }
@@ -103,6 +103,8 @@ public void Native_CreateClientPurchases(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 
+	g_kvClientPurchases[iClient] = new KeyValues("Vault");
+
 	g_kvClientPurchases[iClient].ImportFromFile(g_sClientPurchases[iClient]);
 
 	g_kvClientPurchases[iClient].JumpToKey("Purchases", true);
@@ -110,11 +112,15 @@ public void Native_CreateClientPurchases(Handle hPlugin, int iNumParams)
 	g_kvClientPurchases[iClient].Rewind();
 
 	g_kvClientPurchases[iClient].ExportToFile(g_sClientPurchases[iClient]);
+	
+	g_kvClientPurchases[iClient].Close();
 }
 
 public void Native_CreateClientSettings(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
+	
+	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	g_kvClientSettings[iClient].ImportFromFile(g_sClientSettings[iClient]);
 
@@ -123,6 +129,8 @@ public void Native_CreateClientSettings(Handle hPlugin, int iNumParams)
 	g_kvClientSettings[iClient].Rewind();
 
 	g_kvClientSettings[iClient].ExportToFile(g_sClientSettings[iClient]);
+	
+	g_kvClientSettings[iClient].Close();
 }
 
 public any Native_GetClientSettingFloat(Handle hPlugin, int iNumParams)
@@ -131,6 +139,8 @@ public any Native_GetClientSettingFloat(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sSetting, sizeof(sSetting));
+	
+	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	g_kvClientSettings[iClient].ImportFromFile(g_sClientSettings[iClient]);
 
@@ -139,6 +149,8 @@ public any Native_GetClientSettingFloat(Handle hPlugin, int iNumParams)
 	float fValue = g_kvClientSettings[iClient].GetFloat(sSetting, 0.0);
 
 	g_kvClientSettings[iClient].Rewind();
+	
+	g_kvClientSettings[iClient].Close();
 
 	return fValue;
 }
@@ -149,6 +161,8 @@ public int Native_GetClientSettingInt(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sSetting, sizeof(sSetting));
+	
+	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	g_kvClientSettings[iClient].ImportFromFile(g_sClientSettings[iClient]);
 
@@ -157,6 +171,8 @@ public int Native_GetClientSettingInt(Handle hPlugin, int iNumParams)
 	int iValue = g_kvClientSettings[iClient].GetNum(sSetting, 0);
 
 	g_kvClientSettings[iClient].Rewind();
+	
+	g_kvClientSettings[iClient].Close();
 
 	return iValue;
 }
@@ -167,6 +183,8 @@ public void Native_GetClientSettingString(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1), iMaxLength = GetNativeCell(4);
 
 	GetNativeString(2, sSetting, sizeof(sSetting));
+	
+	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	g_kvClientSettings[iClient].ImportFromFile(g_sClientSettings[iClient]);
 
@@ -175,6 +193,8 @@ public void Native_GetClientSettingString(Handle hPlugin, int iNumParams)
 	g_kvClientSettings[iClient].GetString(sSetting, sValue, iMaxLength, "none");
 
 	g_kvClientSettings[iClient].Rewind();
+	
+	g_kvClientSettings[iClient].Close();
 
 	SetNativeString(3, sValue, iMaxLength);
 }
@@ -185,6 +205,8 @@ public void Native_RemoveClientPurchase(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sPurchase, sizeof(sPurchase));
+	
+	g_kvClientPurchases[iClient] = new KeyValues("Vault");
 
 	g_kvClientPurchases[iClient].ImportFromFile(g_sClientPurchases[iClient]);
 
@@ -195,12 +217,16 @@ public void Native_RemoveClientPurchase(Handle hPlugin, int iNumParams)
 	g_kvClientPurchases[iClient].Rewind();
 
 	g_kvClientPurchases[iClient].ExportToFile(g_sClientPurchases[iClient]);
+	
+	g_kvClientPurchases[iClient].Close();
 }
 
 public void Native_SaveClientPurchase(Handle hPlugin, int iNumParams)
 {
 	char sPurchase[64];
 	int iClient = GetNativeCell(1);
+	
+	g_kvClientPurchases[iClient] = new KeyValues("Vault");
 
 	g_kvClientPurchases[iClient].ImportFromFile(g_sClientPurchases[iClient]);
 
@@ -211,6 +237,8 @@ public void Native_SaveClientPurchase(Handle hPlugin, int iNumParams)
 	g_kvClientPurchases[iClient].Rewind();
 
 	g_kvClientPurchases[iClient].ExportToFile(g_sClientPurchases[iClient]);
+	
+	g_kvClientPurchases[iClient].Close();
 }
 
 public void Native_SetClientSettingFloat(Handle hPlugin, int iNumParams)
@@ -219,6 +247,8 @@ public void Native_SetClientSettingFloat(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sSetting, sizeof(sSetting));
+	
+	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	g_kvClientSettings[iClient].ImportFromFile(g_sClientSettings[iClient]);
 
@@ -229,6 +259,8 @@ public void Native_SetClientSettingFloat(Handle hPlugin, int iNumParams)
 	g_kvClientSettings[iClient].Rewind();
 
 	g_kvClientSettings[iClient].ExportToFile(g_sClientSettings[iClient]);
+	
+	g_kvClientSettings[iClient].Close();
 }
 
 public void Native_SetClientSettingInt(Handle hPlugin, int iNumParams)
@@ -237,6 +269,8 @@ public void Native_SetClientSettingInt(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sSetting, sizeof(sSetting));
+	
+	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	g_kvClientSettings[iClient].ImportFromFile(g_sClientSettings[iClient]);
 
@@ -247,6 +281,8 @@ public void Native_SetClientSettingInt(Handle hPlugin, int iNumParams)
 	g_kvClientSettings[iClient].Rewind();
 
 	g_kvClientSettings[iClient].ExportToFile(g_sClientSettings[iClient]);
+	
+	g_kvClientSettings[iClient].Close();
 }
 
 public void Native_SetClientSettingString(Handle hPlugin, int iNumParams)
@@ -255,6 +291,8 @@ public void Native_SetClientSettingString(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 
 	GetNativeString(2, sSetting, sizeof(sSetting));
+	
+	g_kvClientSettings[iClient] = new KeyValues("Vault");
 
 	g_kvClientSettings[iClient].ImportFromFile(g_sClientSettings[iClient]);
 
@@ -265,4 +303,6 @@ public void Native_SetClientSettingString(Handle hPlugin, int iNumParams)
 	g_kvClientSettings[iClient].Rewind();
 
 	g_kvClientSettings[iClient].ExportToFile(g_sClientSettings[iClient]);
+	
+	g_kvClientSettings[iClient].Close();
 }

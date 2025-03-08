@@ -154,6 +154,7 @@ public void OnLibraryAdded(const char[] sName)
 public void OnPluginStart()
 {
 	LoadTranslations("celmod.phrases");
+	LoadTranslations("common.phrases");
 
 	char sPath[PLATFORM_MAX_PATH];
 
@@ -635,7 +636,7 @@ public Action Command_Delete(int iClient, int iArgs)
 		{
 			Cel_ClearLand(iClient);
 
-			Cel_ReplyToCommand(iClient, "Land cleared.");
+			Cel_ReplyToCommand(iClient, "%t", "LandCleared");
 
 			return Plugin_Handled;
 		}else{
@@ -728,7 +729,7 @@ public Action Command_Fly(int iClient, int iArgs)
 
 	SetEntityMoveType(iClient, g_bIsFlying[iClient] ? MOVETYPE_NOCLIP : MOVETYPE_WALK);
 
-	Cel_ReplyToCommand(iClient, "Flying has been %s.", g_bIsFlying[iClient] ? "enabled" : "disabled");
+	Cel_ReplyToCommand(iClient, "%t", "Flying", g_bIsFlying[iClient] ? "enabled" : "disabled");
 
 	return Plugin_Handled;
 }
@@ -1029,7 +1030,7 @@ public Action Command_Spawn(int iClient, int iArgs)
 
 	if (iArgs < 1)
 	{
-		Cel_ReplyToCommand(iClient, "Usage: {green}[tag]spawn{default} <prop name>");
+		Cel_ReplyToCommand(iClient, "%t", "CMD_Spawn");
 		return Plugin_Handled;
 	}
 
@@ -1433,7 +1434,7 @@ public int Native_CheckSpawnDB(Handle hPlugin, int iNumParams)
 
 	kvProps.ImportFromFile(g_sSpawnDB);
 
-	kvProps.JumpToKey("Default", false);
+	kvProps.JumpToKey("Models", false);
 
 	kvProps.GetString(sAlias, sSpawnString, iMaxLength, "null");
 
@@ -1563,7 +1564,7 @@ public int Native_GetCombinedCount(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 	
-	return (g_iPropCount[iClient] += g_iCelCount[iClient]);
+	return (g_iPropCount[iClient] + g_iCelCount[iClient]);
 }
 
 public int Native_GetCrosshairHitOrigin(Handle hPlugin, int iNumParams)

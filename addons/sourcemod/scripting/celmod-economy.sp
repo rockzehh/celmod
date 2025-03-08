@@ -55,6 +55,9 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	LoadTranslations("celmod.phrases");
+	LoadTranslations("common.phrases");
+	
 	if (g_bLate)
 	{
 		for (int i = 1; i < MaxClients; i++)
@@ -93,7 +96,7 @@ public void OnClientPutInServer(int iClient)
 
 public void OnClientDisconnect(int iClient)
 {
-	
+	Cel_SetClientSettingInt(iClient, "balance", Cel_GetClientBalance(iClient));
 }
 
 public void CMEconomy_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
@@ -115,8 +118,8 @@ public Action Command_SetBalance(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
-	GetCmdArg(1, sBalance, sizeof(sBalance));
-	GetCmdArg(2, sTarget, sizeof(sTarget));
+	GetCmdArg(1, sTarget, sizeof(sTarget));
+	GetCmdArg(2, sBalance, sizeof(sBalance));
 	
 	GetClientName(iClient, sNames[0], sizeof(sNames[]));
 	
@@ -283,11 +286,14 @@ public int Native_BuyCommand(Handle hPlugin, int iNumParams)
 
 public int Native_BuyEntity(Handle hPlugin, int iNumParams)
 {
-	char sEntityType[32];
+	char sBuyer[64], sEntityType[32], sOwner[64];
 	
 	int iBuyer = GetNativeCell(1), iOwner = GetNativeCell(2), iPrice = GetNativeCell(4), iProp = GetNativeCell(3);
 	
 	Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+	
+	GetClientName(iBuyer, sBuyer, sizeof(sBuyer));
+	GetClientName(iOwner, sOwner, sizeof(sOwner));
 	
 	Cel_SetOwner(iBuyer, iProp);
 	
@@ -297,19 +303,22 @@ public int Native_BuyEntity(Handle hPlugin, int iNumParams)
 	
 	Cel_SubFromClientBalance(iBuyer, iPrice);
 	
-	Cel_ReplyToCommand(iBuyer, "%t", "BoughtEntity", sEntityType, iOwner, iPrice);
-	Cel_ReplyToCommand(iOwner, "%t", "SoldEntity", sEntityType, iBuyer, iPrice);
+	Cel_ReplyToCommand(iBuyer, "%t", "BoughtEntity", sEntityType, sOwner, iPrice);
+	Cel_ReplyToCommand(iOwner, "%t", "SoldEntity", sEntityType, sBuyer, iPrice);
 	
 	return true;
 }
 
 public int Native_CancelSale(Handle hPlugin, int iNumParams)
 {
+	char sEntityType[32];
 	int iClient = GetNativeCell(1), iProp = GetNativeCell(2);
 	
 	g_iEntityPrice[iProp] = 0;
 	
-	Cel_ReplyToCommand(iClient, "%t", "Sale canceled.");
+	Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+	
+	Cel_ReplyToCommand(iClient, "%t", "SaleCanceled", sEntityType);
 	
 	return true;
 }
@@ -318,7 +327,7 @@ public int Native_CheckClientBalance(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1), iPrice = GetNativeCell(2);
 	
-	return (Cel_GetClientBalance(iClient) >= iPrice) ? false : true;
+	return (Cel_GetClientBalance(iClient) <= iPrice) ? false : true;
 }
 
 public int Native_CheckShopDB(Handle hPlugin, int iNumParams)
@@ -368,18 +377,19 @@ public int Native_GetClientBalanceTranslated(Handle hPlugin, int iNumParams)
 	char sBalance[64];
 	int iClient = GetNativeCell(1), iMaxLength = GetNativeCell(3);
 	
-	if (g_eEconomy[iClient].iBalance >= 1000000000000000)
-	Format(sBalance, sizeof(sBalance), "%.1fQ CL", g_eEconomy[iClient].iBalance / 1000000000000000.0);
-	else if (g_eEconomy[iClient].iBalance >= 1000000000000)
-	Format(sBalance, sizeof(sBalance), "%.1fT CL", g_eEconomy[iClient].iBalance / 1000000000000.0);
-	else if (g_eEconomy[iClient].iBalance >= 1000000000)
-	Format(sBalance, sizeof(sBalance), "%.1fB CL", g_eEconomy[iClient].iBalance / 1000000000.0);
-	else if (g_eEconomy[iClient].iBalance >= 1000000)
-	Format(sBalance, sizeof(sBalance), "%.1fM CL", g_eEconomy[iClient].iBalance / 1000000.0);
-	else if (g_eEconomy[iClient].iBalance >= 100000)
-	Format(sBalance, sizeof(sBalance), "%.1fK CL", g_eEconomy[iClient].iBalance / 1000.0);
-	else
+	if (g_eEconomy[iClient].iBalance < 100000)
 	Format(sBalance, sizeof(sBalance), "%d CL", g_eEconomy[iClient].iBalance);
+	else if (g_eEconomy[iClient].iBalance < 1000000)
+	Format(sBalance, sizeof(sBalance), "%.1fK CL", g_eEconomy[iClient].iBalance / 1000.0);
+	else if (g_eEconomy[iClient].iBalance < 1000000000)
+	Format(sBalance, sizeof(sBalance), "%.1fM CL", g_eEconomy[iClient].iBalance / 1000000.0);
+	else if (g_eEconomy[iClient].iBalance < 1000000000000)
+	Format(sBalance, sizeof(sBalance), "%.1fB CL", g_eEconomy[iClient].iBalance / 1000000000.0);
+	else if (g_eEconomy[iClient].iBalance < 1000000000000000)
+	Format(sBalance, sizeof(sBalance), "%.1fT CL", g_eEconomy[iClient].iBalance / 1000000000000.0);
+	else
+	Format(sBalance, sizeof(sBalance), "%.1fQ CL", g_eEconomy[iClient].iBalance / 1000000000000000.0);
+	
 	
 	SetNativeString(2, sBalance, iMaxLength);
 	
@@ -426,11 +436,14 @@ public int Native_SetClientBalance(Handle hPlugin, int iNumParams)
 
 public int Native_StartSale(Handle hPlugin, int iNumParams)
 {
+	char sEntityType[32];
 	int iClient = GetNativeCell(1), iEntity = GetNativeCell(2), iPrice = GetNativeCell(3);
 	
 	g_iEntityPrice[iEntity] = iPrice;
 	
-	Cel_ReplyToCommand(iClient, "%t", "StartSale", iPrice);
+	Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sEntityType, sizeof(sEntityType));
+	
+	Cel_ReplyToCommand(iClient, "%t", "StartSale", sEntityType, iPrice);
 	
 	return true;
 }

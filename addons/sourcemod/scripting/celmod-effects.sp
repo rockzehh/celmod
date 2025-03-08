@@ -294,7 +294,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -332,7 +331,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -368,7 +366,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -378,7 +375,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectType(iBase, etEffect);
 
 			SetVariantFloat(0.0);
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "StartFire" : "ExtinguishTemporary");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "ExtinguishTemporary" : "StartFire");
 
 			return iBase;
 		}
@@ -406,7 +403,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -444,7 +440,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -453,7 +448,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectType(iBase, etEffect);
 
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOff" : "TurnOn");
 
 			return iBase;
 		}
@@ -482,7 +477,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -491,7 +485,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectType(iBase, etEffect);
 
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOn" : "LightOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOff" : "LightOn");
 
 			return iBase;
 		}*/
@@ -523,7 +517,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -532,7 +525,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectType(iBase, etEffect);
 
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOff" : "TurnOn");
 
 			return iBase;
 		}

@@ -5,8 +5,11 @@
 #pragma newdecls required
 
 #define SAVESYSTEM 1
+#define SAVESYSTEM_STRING "CELSS-1-"
 
 bool g_bLate;
+
+float g_fCrosshairOrigin[MAXPLAYERS + 1][3];
 
 int g_iSaveOverride[MAXPLAYERS + 1];
 
@@ -100,13 +103,15 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 {
 	char sAuthID[64], sBuffer[PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sSaveName[96];
 	File fFile;
-	float fDelay = 0.10;
+	float fDelay = 0.05;
 	Handle hLoadTimer;
 	int iClient = GetNativeCell(1);
 	
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
 	
 	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
+	
+	Cel_GetCrosshairHitOrigin(iClient, g_fCrosshairOrigin[iClient]);
 	
 	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/saves/%s.txt", sAuthID, sSaveName);
 	
@@ -116,15 +121,20 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 	{
 		while (fFile.ReadLine(sBuffer, sizeof(sBuffer)))
 		{
-			CreateDataTimer(fDelay, Timer_LoadBuild, hLoadTimer);
-			
-			WritePackCell(hLoadTimer, iClient);
-			WritePackString(hLoadTimer, sBuffer);
-			
-			fDelay += 0.10;
+			if(!StrEqual(sBuffer, ""))
+			{
+				CreateDataTimer(fDelay, Timer_LoadBuild, hLoadTimer);
+				
+				WritePackCell(hLoadTimer, iClient);
+				WritePackString(hLoadTimer, sBuffer);
+				
+				fDelay += 0.05;
+			}
 		}
 		
-		Cel_ReplyToCommand(iClient, "%t", "SavedBuild", sSaveName);
+		Cel_ReplyToCommand(iClient, "%t", "LoadedBuild", sSaveName);
+		
+		return true;
 	}else{
 		Cel_ReplyToCommand(iClient, "%t", "SaveDoesntExist", sSaveName);
 		
@@ -140,7 +150,7 @@ public int Native_GetSaveSystemVersion(Handle hPlugin, int iNumParams)
 
 public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[64], sFile[PLATFORM_MAX_PATH], sOutput[PLATFORM_MAX_PATH], sSaveName[96];
+	char sAuthID[64], sFile[2][PLATFORM_MAX_PATH], sOutput[PLATFORM_MAX_PATH], sSaveName[96];
 	float fEnt[2][3], fLandPos[2][3], fMiddle[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4], iLand;
 	
@@ -159,9 +169,9 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	
 	Cel_GetAuthID(iClient, sAuthID, sizeof(sAuthID));
 	
-	BuildPath(Path_SM, sFile, sizeof(sFile), "data/celmod/users/%s/saves/%s.txt", sAuthID, sSaveName);
+	BuildPath(Path_SM, sFile[0], sizeof(sFile[]), "data/celmod/users/%s/saves/%s.txt", sAuthID, sSaveName);
 	
-	if (FileExists(sFile))
+	if (FileExists(sFile[0]))
 	{
 		switch(g_iSaveOverride[iClient])
 		{
@@ -177,9 +187,15 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 			
 			case 1:
 			{
-				DeleteFile(sFile);
+				//DeleteFile(sFile[0]);
 				
-				g_iSaveOverride[iClient] = 0;
+				BuildPath(Path_SM, sFile[1], sizeof(sFile[]), "data/celmod/users/%s/saves/%s_temp.txt", sAuthID, sSaveName);
+				
+				RenameFile(sFile[1], sFile[0]);
+				
+				BuildPath(Path_SM, sFile[0], sizeof(sFile[]), "data/celmod/users/%s/saves/%s.txt", sAuthID, sSaveName);
+				
+				g_iSaveOverride[iClient] = 2;
 			}
 		}
 	}
@@ -187,8 +203,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	Cel_GetMiddleOfABox(fLandPos[0], fLandPos[1], fMiddle);
 	
 	fMiddle[2] = (fLandPos[0][2]);
-	
-	g_iSaveOverride[iClient] = 0;
 	
 	for (int i = 0; i < GetMaxEntities(); i++)
 	{
@@ -243,7 +257,7 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							Cel_GetPropName(i, sBuffer[18], sizeof(sBuffer[]));
 							IntToString(Entity_GetAnimSequence(i), sBuffer[19], sizeof(sBuffer[]));
 							
-							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));					
+							ImplodeStrings(sBuffer, 20, "^", sOutput, sizeof(sOutput));
 						}
 						case ENTTYPE_DOOR:
 						{
@@ -290,7 +304,7 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 						{
 							char sBuffer[20][PLATFORM_MAX_PATH];
 							
-							IntToString(view_as<int>(Cel_GetEntityType(i)), sBuffer[0], sizeof(sBuffer[]));
+							IntToString(view_as<int>(ENTTYPE_PHYSICS), sBuffer[0], sizeof(sBuffer[]));
 							
 							Entity_GetClassName(i, sBuffer[1], sizeof(sBuffer[]));
 							Entity_GetName(i, sBuffer[2], sizeof(sBuffer[]));
@@ -454,19 +468,30 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 					}
 				}
 				
-				File fFile = OpenFile(sFile, "a+");
+				File fFile = OpenFile(sFile[0], "a+");
 				
 				if(!StrEqual(sOutput, ""))
 				{
+					Format(sOutput, sizeof(sOutput), "%s%s", SAVESYSTEM_STRING, sOutput);
+					
 					fFile.WriteLine(sOutput);
 					
-					fFile.Flush();	
+					fFile.Flush();
 				}
+				
+				Format(sOutput, sizeof(sOutput), "");
 				
 				fFile.Close();
 			}
 		}
 	}
+	
+	if(g_iSaveOverride[iClient] == 2)
+	{
+		DeleteFile(sFile[1]);
+	}
+	
+	g_iSaveOverride[iClient] = 0;
 	
 	Cel_ReplyToCommand(iClient, "%t", "SavedBuild", sSaveName);
 	
@@ -479,12 +504,18 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 	ResetPack(hPack);
 	
 	char sFileBuffer[PLATFORM_MAX_PATH];
-	float fCrosshairOrigin[3], fEnt[2][3], fOrigin[3];
+	float fEnt[2][3], fOrigin[3];
 	int iClient = ReadPackCell(hPack);
 	
 	ReadPackString(hPack, sFileBuffer, sizeof(sFileBuffer));
 	
-	Cel_GetCrosshairHitOrigin(iClient, fCrosshairOrigin);
+	if(!(StrContains(sFileBuffer, SAVESYSTEM_STRING, false) != -1))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "OutdatedSaveSystem");
+		return Plugin_Handled;
+	}
+	
+	ReplaceString(sFileBuffer, sizeof(sFileBuffer), SAVESYSTEM_STRING, "");
 	
 	EntityType etType = view_as<EntityType>(StringToInt(sFileBuffer[0]));
 	
@@ -504,9 +535,9 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			fEnt[1][1] = StringToFloat(sBuffer[16]);
 			fEnt[1][2] = StringToFloat(sBuffer[17]);
 			
-			fOrigin[0] = fEnt[1][0] + fCrosshairOrigin[0];
-			fOrigin[1] = fEnt[1][1] + fCrosshairOrigin[1];
-			fOrigin[2] = fEnt[1][2] + fCrosshairOrigin[2];
+			fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
+			fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
+			fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
 			
 			int iCycler = Cel_SpawnProp(iClient, sBuffer[18], "cycler", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[8]), StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]));
 			
@@ -535,9 +566,9 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			fEnt[1][1] = StringToFloat(sBuffer[17]);
 			fEnt[1][2] = StringToFloat(sBuffer[18]);
 			
-			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
-			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
-			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			fOrigin[0] = g_fCrosshairOrigin[iClient][0] + fEnt[1][0];
+			fOrigin[1] = g_fCrosshairOrigin[iClient][1] + fEnt[1][1];
+			fOrigin[2] = g_fCrosshairOrigin[iClient][2] + fEnt[1][2];
 			
 			int iProp = Cel_SpawnDoor(iClient, sBuffer[5], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
 			
@@ -561,9 +592,9 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			fEnt[1][1] = StringToFloat(sBuffer[17]);
 			fEnt[1][2] = StringToFloat(sBuffer[18]);
 			
-			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
-			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
-			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			fOrigin[0] = g_fCrosshairOrigin[iClient][0] + fEnt[1][0];
+			fOrigin[1] = g_fCrosshairOrigin[iClient][1] + fEnt[1][1];
+			fOrigin[2] = g_fCrosshairOrigin[iClient][2] + fEnt[1][2];
 			
 			int iProp = Cel_SpawnProp(iClient, sBuffer[19], "prop_physics_override", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
 			
@@ -588,9 +619,9 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			fEnt[1][1] = StringToFloat(sBuffer[17]);
 			fEnt[1][2] = StringToFloat(sBuffer[18]);
 			
-			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
-			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
-			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			fOrigin[0] = g_fCrosshairOrigin[iClient][0] + fEnt[1][0];
+			fOrigin[1] = g_fCrosshairOrigin[iClient][1] + fEnt[1][1];
+			fOrigin[2] = g_fCrosshairOrigin[iClient][2] + fEnt[1][2];
 			
 			int iProp = Cel_SpawnEffect(iClient, fOrigin, view_as<EffectType>(StringToInt(sBuffer[19])), view_as<bool>(StringToInt(sBuffer[20])), StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
 			
@@ -617,9 +648,9 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			fEnt[1][1] = StringToFloat(sBuffer[17]);
 			fEnt[1][2] = StringToFloat(sBuffer[18]);
 			
-			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
-			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
-			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			fOrigin[0] = g_fCrosshairOrigin[iClient][0] + fEnt[1][0];
+			fOrigin[1] = g_fCrosshairOrigin[iClient][1] + fEnt[1][1];
+			fOrigin[2] = g_fCrosshairOrigin[iClient][2] + fEnt[1][2];
 			
 			int iProp = Cel_SpawnInternet(iClient, sBuffer[19], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
 			
@@ -646,9 +677,9 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			fEnt[1][1] = StringToFloat(sBuffer[17]);
 			fEnt[1][2] = StringToFloat(sBuffer[18]);
 			
-			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
-			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
-			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			fOrigin[0] = g_fCrosshairOrigin[iClient][0] + fEnt[1][0];
+			fOrigin[1] = g_fCrosshairOrigin[iClient][1] + fEnt[1][1];
+			fOrigin[2] = g_fCrosshairOrigin[iClient][2] + fEnt[1][2];
 			
 			int iProp = Cel_SpawnProp(iClient, sBuffer[19], "prop_physics_override", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
 			
@@ -673,9 +704,9 @@ public Action Timer_LoadBuild(Handle hTimer, Handle hPack)
 			fEnt[1][1] = StringToFloat(sBuffer[17]);
 			fEnt[1][2] = StringToFloat(sBuffer[18]);
 			
-			fOrigin[0] = fCrosshairOrigin[0] + fEnt[1][0];
-			fOrigin[1] = fCrosshairOrigin[1] + fEnt[1][1];
-			fOrigin[2] = fCrosshairOrigin[2] + fEnt[1][2];
+			fOrigin[0] = g_fCrosshairOrigin[iClient][0] + fEnt[1][0];
+			fOrigin[1] = g_fCrosshairOrigin[iClient][1] + fEnt[1][1];
+			fOrigin[2] = g_fCrosshairOrigin[iClient][2] + fEnt[1][2];
 			
 			int iProp = Cel_SpawnProp(iClient, sBuffer[19], "prop_physics_override", sBuffer[3], fEnt[0], fOrigin, StringToInt(sBuffer[9]), StringToInt(sBuffer[10]), StringToInt(sBuffer[11]), StringToInt(sBuffer[12]));
 			

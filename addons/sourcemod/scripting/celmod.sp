@@ -46,6 +46,8 @@ int g_iOwner[MAXENTITIES + 1];
 int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
 int g_iPropLimit;
+int g_iStackInfoEntities[2][MAXPLAYERS + 1];
+int g_iStackInfoStatus[MAXPLAYERS + 1];
 
 RenderFx g_rfRenderFX[MAXENTITIES + 1];
 
@@ -239,6 +241,8 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("sm_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
 	RegConsoleCmd("sm_spawn", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("sm_stack", Command_StackProps, "|CelMod| Stacks props on the x, y and z axis.");
+	RegConsoleCmd("sm_stackinfo", Command_StackInfo, "|CelMod| Gets the origin difference between props for help stacking.");
 	RegConsoleCmd("sm_stand", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
 	RegConsoleCmd("sm_straight", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
 	RegConsoleCmd("sm_straighten", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
@@ -1103,6 +1107,8 @@ public Action Command_Solid(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_
+
 public Action Command_Stand(int iClient, int iArgs)
 {
 	if (Cel_GetClientAimTarget(iClient) == -1)
@@ -1658,7 +1664,7 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 		return view_as<int>(ENTTYPE_EFFECT);
 	} else if (StrContains(sClassname, "prop_cleer", false) != -1)
 	{
-		return view_as<int>(ENTTYPE_DYNAMIC);
+		return view_as<int>(ENTTYPE_CLEER);
 	} else if (StrContains(sClassname, "prop_dynamic", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_DYNAMIC);

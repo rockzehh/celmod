@@ -34,6 +34,8 @@ enum struct Land {
 	bool bModeCoop;
 	bool bModeDeathmatch;
 	bool bModeShop;
+	
+	char sLandTexture[PLATFORM_MAX_PATH];
 
 	float fLandGravity;
 	float fLandPosBottom[3];
@@ -44,6 +46,7 @@ enum struct Land {
 
 	int iLandEntity;
 	int iLandOwner;
+	int iLandSkinEntity;
 	int iLandStage;
 }
 
@@ -108,6 +111,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_land", Command_Land, "|CelMod| Creates a building zone.");
 	RegConsoleCmd("sm_landdeathmatch", Command_LandDeathmatch, "|CelMod| Changes the deathmatch setting within the land.");
 	RegConsoleCmd("sm_landgravity", Command_LandGravity, "|CelMod| Changes the gravity within the land.");
+	RegConsoleCmd("sm_landskin", Command_LandSkin, "|CelMod| Changes the skin within the land.");
 }
 
 public void OnClientPutInServer(int iClient)
@@ -120,6 +124,8 @@ public void OnClientPutInServer(int iClient)
 	g_liLand[iClient].bInDeathmatchMode = false;
 	g_liLand[iClient].bInsideLand = false;
 	g_liLand[iClient].bLandCreated = false;
+	
+	Format(g_liLand[iClient].sLandTexture, sizeof(g_liLand[iClient].sLandTexture), "celmod/landskins/s1");
 
 	g_liLand[iClient].fLandPosBottom = g_fZero;
 	g_liLand[iClient].fLandPosBottomTop = g_fZero;
@@ -130,6 +136,7 @@ public void OnClientPutInServer(int iClient)
 
 	g_liLand[iClient].iLandEntity = -1;
 	g_liLand[iClient].iLandOwner = -1;
+	g_liLand[iClient].iLandSkinEntity = -1;
 	g_liLand[iClient].iLandStage = 0;
 
 	g_iCurrentLandEntity[iClient] = -1;
@@ -159,6 +166,7 @@ public void OnClientDisconnect(int iClient)
 
 	g_liLand[iClient].iLandEntity = -1;
 	g_liLand[iClient].iLandOwner = -1;
+	g_liLand[iClient].iLandSkinEntity = -1;
 	g_liLand[iClient].iLandStage = 0;
 
 	g_iCurrentLandEntity[iClient] = -1;
@@ -271,6 +279,85 @@ public Action Command_LandGravity(int iClient, int iArgs)
 	Cel_SetLandGravity(iClient, StringToFloat(sGravity));
 
 	return Plugin_Handled;
+}
+
+public Action Command_LandSkin(int iClient, int iArgs)
+{
+	char sTexture[PLATFORM_MAX_PATH], sSkin[64];
+
+	if (iArgs < 1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_LandSkin");
+		return Plugin_Handled;
+	}
+
+	GetCmdArg(1, sSkin, sizeof(sSkin));
+
+	Format(sTexture, sizeof(sTexture), "celmod/landskins/s%s", sSkin);
+	
+	PrecacheMaterial(sTexture);
+	
+	strcopy(g_liLand[iClient].sLandTexture, sizeof(g_liLand[iClient].sLandTexture), sTexture);
+	
+	if(g_liLand[iClient].bLandCreated)
+	{
+		if(g_liLand[iClient].iLandSkinEntity != -1 && IsValidEntity(g_liLand[iClient].iLandSkinEntity))
+		{
+			AcceptEntityInput(g_liLand[iClient].iLandSkinEntity, "kill");
+			Cel_CreateLandSkin(iClient, g_liLand[iClient].fLandPosBottom, g_liLand[iClient].fLandPosBottomTop);
+			Cel_ReplyToCommand(iClient, "Updated land skin to {green}%s{default}!", sSkin);
+			return Plugin_Handled;
+		}else{
+			Cel_CreateLandSkin(iClient, g_liLand[iClient].fLandPosBottom, g_liLand[iClient].fLandPosBottomTop);
+			Cel_ReplyToCommand(iClient, "Set up land skin with skin {green}%s{default}.", sSkin);
+			return Plugin_Handled;
+		}
+	}else{
+		Cel_ReplyToCommand(iClient, "Land has not yet been created!");
+		return Plugin_Handled;
+	}
+
+	return Plugin_Handled;
+}
+
+public void Cel_CreateLandSkin(int iClient, float fMin[3], float fMax[3])
+{
+	int iBrush = CreateEntityByName("func_brush");
+	
+	DispatchKeyValue(iBrush, "spawnflags", "0");
+	DispatchKeyValue(iBrush, "StartDisabled", "0");
+	DispatchKeyValue(iBrush, "Solidity", "2");
+	DispatchKeyValue(iBrush, "disableshadows", "1");
+	DispatchKeyValue(iBrush, "disableflashlight", "1");
+	DispatchKeyValue(iBrush, "drawinfastreflection", "0");
+	DispatchKeyValue(iBrush, "origin", "0 0 0");
+	DispatchKeyValue(iBrush, "rendermode", "0");
+	DispatchKeyValue(iBrush, "renderamt", "255");
+	DispatchKeyValue(iBrush, "renderfx", "0");
+	DispatchKeyValue(iBrush, "rendercolor", "255 255 255");
+
+	DispatchKeyValue(iBrush, "material", g_liLand[iClient].sLandTexture);
+	PrecacheDecal(g_liLand[iClient].sLandTexture, true);
+	
+	DispatchSpawn(iBrush);
+	
+	ActivateEntity(iBrush);
+
+	float bmin[3], bmax[3];
+	for (int i = 0; i < 3; i++)
+	{
+		bmin[i] = fMin[i] - g_liLand[iClient].fLandPosBottomMiddle[i];
+		bmax[i] = fMax[i] - g_liLand[iClient].fLandPosBottomMiddle[i];
+	}
+
+	bmax[2] = bmin[2] + 4.0;
+
+	SetEntPropVector(iBrush, Prop_Send, "m_vecMins", bmin);
+	SetEntPropVector(iBrush, Prop_Send, "m_vecMaxs", bmax);
+	SetEntPropVector(iBrush, Prop_Send, "m_vecOrigin", g_liLand[iClient].fLandPosBottomMiddle);
+	SetEntProp(iBrush, Prop_Send, "m_nSolidType", 2);
+	
+	g_liLand[iClient].iLandSkinEntity = iBrush;
 }
 
 //Natives:

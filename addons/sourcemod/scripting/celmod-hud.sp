@@ -512,7 +512,7 @@ public Action Timer_HUD(Handle hTimer)
 					
 					iLandOwner = Cel_GetLandOwnerFromPosition(fCrosshairOrigin);
 					
-					if(iLandOwner != -1 && iLandOwner == i)
+					if(iLandOwner != -1 && iLandOwner != i)
 					{
 						Format(sHUDMessage, sizeof(sHUDMessage), "Land: %N", iLandOwner);
 						

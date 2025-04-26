@@ -1281,12 +1281,12 @@ public Action Command_StackInfo(int iClient, int iArgs)
 					
 					Cel_ReplyToCommand(iClient, "You cannot stack the same prop!");
 				}else{
-					g_iStackInfoEnt[iClient] = -1;
-					
 					g_iStackInfoStatus[iClient] = 0;
 					
 					Cel_GetEntityOrigin(g_iStackInfoEnt[iClient], fOrigin[0]);
 					Cel_GetEntityOrigin(iEntity, fOrigin[1]);
+					
+					g_iStackInfoEnt[iClient] = -1;
 					
 					fOrigin[2][0] = fOrigin[1][0] - fOrigin[0][0];
 					fOrigin[2][1] = fOrigin[1][1] - fOrigin[0][1];

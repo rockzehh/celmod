@@ -227,3 +227,15 @@ resource
 sound
 stats.txt
 steam.inf
+/logs
+/addons/sourcemod/logs
+addons/sourcemod/data/updater.txt
+addons/sourcemod/plugins/admin-sql-threaded.smx
+addons/sourcemod/plugins/admin-sql-prefetch.smx
+addons/sourcemod/plugins/mapchooser.smx
+addons/sourcemod/plugins/nominations.smx
+addons/sourcemod/plugins/randomcycle.smx
+addons/sourcemod/plugins/rockthevote.smx
+addons/sourcemod/plugins/sql-admin-manager.smx
+addons/sourcemod/plugins/swag.smx
+cfg/mapcycle.txt

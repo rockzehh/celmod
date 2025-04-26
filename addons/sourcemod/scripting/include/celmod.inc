@@ -54,6 +54,14 @@ float g_fDown[3] = { 90.0, 0.0, 0.0 };
 float g_fUp[3] = { -90.0, 0.0, 0.0 };
 float g_fZero[3] = { 0.0, 0.0, 0.0 };
 
+//Colors:
+int g_iBlue[4] =  { 0, 0, 255, 175 };
+int g_iGray[4] =  { 255, 255, 255, 300 };
+int g_iGreen[4] =  { 0, 255, 0, 175 };
+int g_iOrange[4] =  { 255, 128, 0, 175 };
+int g_iRed[4] =  { 255, 0, 0, 175 };
+int g_iWhite[4] =  { 255, 255, 255, 175 };
+
 //========== celmod.smx ==========
 
 /**

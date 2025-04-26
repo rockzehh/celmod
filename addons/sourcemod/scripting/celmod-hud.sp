@@ -4,14 +4,6 @@
 
 #pragma newdecls required
 
-#define HUDSTRING_LANDNAME "Land: %N"
-#define HUDSTRING_OWNER "Owner: %N"
-#define HUDSTRING_INTERNETURL "URL: %s"
-#define HUDSTRING_CELNAME "Cel: %s"
-#define HUDSTRING_EFFECTNAME "Effect: %s"
-#define HUDSTRING_PROPNAME "Prop: %s"
-#define HUDSTRING_NONE "Balance: %s\nSpawned: %d"
-
 ArrayList g_alCommands;
 
 bool g_bHudEnable;

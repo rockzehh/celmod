@@ -413,6 +413,8 @@ native bool Cel_IsEntity(int iEntity);
  */
 native bool Cel_IsPlayer(int iClient);
 
+native bool Cel_IsRainbow(int iEntity);
+
 /**
  * Checks if an entity is solid.
  *
@@ -459,6 +461,8 @@ native void Cel_PrintToChat(int iClient, const char[] sMessage, any ...);
  * @param ...       Additional formatting arguments.
  */
 native void Cel_PrintToChatAll(const char[] sMessage, any ...);
+
+native void Cel_SetRainbow(int iEntity, bool bRainbow);
 
 /**
  * Creates a removal beam effect on an entity.

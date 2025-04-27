@@ -9,10 +9,13 @@ bool g_bEntity[MAXENTITIES + 1];
 bool g_bMotion[MAXENTITIES + 1];
 bool g_bLate;
 bool g_bIsFading[MAXENTITIES + 1];
+bool g_bRainbow[MAXENTITIES + 1];
 bool g_bSolid[MAXENTITIES + 1];
 
 char g_sColorDB[PLATFORM_MAX_PATH];
 char g_sPropName[MAXENTITIES + 1][64];
+
+float g_fRainbowTime[MAXENTITIES + 1];
 
 int g_iColor[MAXENTITIES + 1][4];
 int g_iFadeColor[MAXENTITIES + 1][6];
@@ -42,11 +45,13 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetOwner", Native_GetOwner);
 	CreateNative("Cel_GetPropName", Native_GetPropName);
 	CreateNative("Cel_IsEntity", Native_IsEntity);
+	CreateNative("Cel_IsRainbow", Native_IsRainbow);
 	CreateNative("Cel_IsSolid", Native_IsSolid);
 	CreateNative("Cel_SetColor", Native_SetColor);
 	CreateNative("Cel_SetEntity", Native_SetEntity);
 	CreateNative("Cel_SetMotion", Native_SetMotion);
 	CreateNative("Cel_SetOwner", Native_SetOwner);
+	CreateNative("Cel_SetRainbow", Native_SetRainbow);
 	CreateNative("Cel_SetSolid", Native_SetSolid);
 	CreateNative("Cel_CheckRenderFX", Native_CheckRenderFX);
 	CreateNative("Cel_GetRenderFX", Native_GetRenderFX);
@@ -220,56 +225,75 @@ public Action Command_Color(int iClient, int iArgs)
 	{
 		GetCmdArg(2, sOption, sizeof(sOption));
 		
-		if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
+		
+		if(StrContains(sOption, "all", false) !=-1)
 		{
-			if(StrContains(sOption, "all", false) !=-1)
+			for (int i = 0; i < GetMaxEntities(); i++)
 			{
-				for (int i = 0; i < GetMaxEntities(); i++)
+				if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
 				{
-					if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
+					if(StrEqual(sColor, "rainbow", false))
+					{
+						g_bRainbow[i] = true;
+						
+						RequestFrame(Frame_Rainbow, i);
+						
+						g_bFinishedFade[i] = false;
+						g_bIsFading[i] = false;
+						
+						if (Cel_CheckEntityType(i, "effect"))
+						{
+							g_bRainbow[Cel_GetEffectAttachment(i)] = true;
+							
+							RequestFrame(Frame_Rainbow, Cel_GetEffectAttachment(i));
+							
+							g_bFinishedFade[Cel_GetEffectAttachment(i)] = false;
+							g_bIsFading[Cel_GetEffectAttachment(i)] = false;
+						}
+					}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 					{
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 						
 						Cel_GetEntityTypeName(Cel_GetEntityType(i), sEntityType, sizeof(sEntityType));
+						
+						g_bRainbow[i] = false;
 						
 						Cel_SetColor(i, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 						
 						g_bFinishedFade[i] = false;
 						g_bIsFading[i] = false;
 						
-						for (int c = -1; c < 5; c++)
-						{
-							g_iFadeColor[i][c] = 0;
-						}
-						
 						if (Cel_CheckEntityType(i, "effect"))
 						{
+							g_bRainbow[i] = false;
+							
 							Cel_SetColor(Cel_GetEffectAttachment(i), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 							
 							g_bFinishedFade[Cel_GetEffectAttachment(i)] = false;
 							g_bIsFading[Cel_GetEffectAttachment(i)] = false;
-							
-							for (int c = -1; c < 5; c++)
-							{
-								g_iFadeColor[Cel_GetEffectAttachment(i)][c] = 0;
-							}
 						}
+					}else {
+						Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor);
+						return Plugin_Handled;
 					}
 				}
-				Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor);
-			}else if(StrContains(sOption, "hud", false) !=-1)
+			}
+			Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor);
+		}else if(StrContains(sOption, "hud", false) !=-1)
+		{
+			if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 			{
 				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 				
 				Cel_SetHudColor(iClient, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 				
 				Cel_ReplyToCommand(iClient, "%t", "SetHudColor", sColor);
-			}else{
-				Cel_ReplyToCommand(iClient, "%t", "CMD_Color");
+			}else {
+				Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor);
 				return Plugin_Handled;
 			}
-		} else {
-			Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor);
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CMD_Color");
 			return Plugin_Handled;
 		}
 	}else{
@@ -283,33 +307,49 @@ public Action Command_Color(int iClient, int iArgs)
 		
 		if (Cel_CheckOwner(iClient, iProp))
 		{
-			if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
+			if(StrEqual(sColor, "rainbow", false))
+			{
+				g_bRainbow[iProp] = true;
+				
+				RequestFrame(Frame_Rainbow, iProp);
+				
+				g_bFinishedFade[iProp] = false;
+				g_bIsFading[iProp] = false;
+				
+				if (Cel_CheckEntityType(iProp, "effect"))
+				{
+					g_bRainbow[Cel_GetEffectAttachment(iProp)] = true;
+					
+					RequestFrame(Frame_Rainbow, Cel_GetEffectAttachment(iProp));
+					
+					g_bFinishedFade[Cel_GetEffectAttachment(iProp)] = false;
+					g_bIsFading[Cel_GetEffectAttachment(iProp)] = false;
+				}
+				
+				Cel_ChangeBeam(iClient, iProp);
+				
+				Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, "rainbow");
+			}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 			{
 				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 				
 				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+				
+				g_bRainbow[iProp] = false;
 				
 				Cel_SetColor(iProp, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 				
 				g_bFinishedFade[iProp] = false;
 				g_bIsFading[iProp] = false;
 				
-				for (int c = 0; c < 6; c++)
-				{
-					g_iFadeColor[iProp][c-1] = 0;
-				}
-				
 				if (Cel_CheckEntityType(iProp, "effect"))
 				{
+					g_bRainbow[iProp] = false;
+					
 					Cel_SetColor(Cel_GetEffectAttachment(iProp), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 					
 					g_bFinishedFade[Cel_GetEffectAttachment(iProp)] = false;
 					g_bIsFading[Cel_GetEffectAttachment(iProp)] = false;
-					
-					for (int c = -1; c < 5; c++)
-					{
-						g_iFadeColor[Cel_GetEffectAttachment(iProp)][c] = 0;
-					}
 				}
 				
 				Cel_ChangeBeam(iClient, iProp);
@@ -741,6 +781,24 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+//Frames:
+public void Frame_Rainbow(any iProp)
+{
+	int iColor[3];
+	
+	if (Cel_IsEntity(iProp) && IsValidEdict(iProp) && g_bRainbow[iProp])
+	{
+		iColor[0] = RoundToNearest(Cosine((GetGameTime() - g_fRainbowTime[iProp] * (1.2 * GetRandomInt(1, 45))) + iProp + 0) * 127.5 + 127.5);
+		iColor[1] = RoundToNearest(Cosine((GetGameTime() - g_fRainbowTime[iProp] * (1.2 * GetRandomInt(1, 45))) + iProp + 2) * 127.5 + 127.5);
+		iColor[2] = RoundToNearest(Cosine((GetGameTime() - g_fRainbowTime[iProp] * (1.2 * GetRandomInt(1, 45))) + iProp + 4) * 127.5 + 127.5);
+		
+		Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
+	}
+	
+	if(g_bRainbow[iProp])
+	RequestFrame(Frame_Rainbow, iProp);
+}
+
 //Natives:
 public int Native_ChangePositionRelativeToOrigin(Handle hPlugin, int iNumParams)
 {
@@ -1148,6 +1206,13 @@ public int Native_IsEntity(Handle hPlugin, int iNumParams)
 	return false;
 }
 
+public int Native_IsRainbow(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	return g_bRainbow[iEntity];
+}
+
 public int Native_IsSolid(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -1209,6 +1274,21 @@ public int Native_SetPropName(Handle hPlugin, int iNumParams)
 	GetNativeString(2, sPropName, sizeof(sPropName));
 	
 	Format(g_sPropName[iEntity], sizeof(g_sPropName), sPropName);
+	
+	return true;
+}
+
+public int Native_SetRainbow(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	bool bRainbow = view_as<bool>(GetNativeCell(2));
+	
+	g_bRainbow[iEntity] = bRainbow;
+	
+	if(g_bRainbow[iEntity])
+	{
+		g_fRainbowTime[iEntity] = GetRandomFloat(0.3, 234.0);
+	}
 	
 	return true;
 }

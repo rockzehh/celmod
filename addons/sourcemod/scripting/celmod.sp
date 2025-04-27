@@ -385,8 +385,12 @@ public Action Command_Delete(int iClient, int iArgs)
 					
 					Call_Finish();
 					
+					Cel_SetRainbow(i, false);
+					
 					if (Cel_CheckEntityType(i, "effect"))
 					{
+						Cel_SetRainbow(Cel_GetEffectAttachment(i), false);
+						
 						AcceptEntityInput(Cel_GetEffectAttachment(i), "TurnOff");
 						AcceptEntityInput(Cel_GetEffectAttachment(i), "kill");
 					}
@@ -438,8 +442,12 @@ public Action Command_Delete(int iClient, int iArgs)
 			
 			Call_Finish();
 			
+			Cel_SetRainbow(iProp, false);
+			
 			if (Cel_CheckEntityType(iProp, "effect"))
 			{
+				Cel_SetRainbow(Cel_GetEffectAttachment(iProp), false);
+				
 				AcceptEntityInput(Cel_GetEffectAttachment(iProp), "TurnOff");
 				AcceptEntityInput(Cel_GetEffectAttachment(iProp), "kill");
 			}
@@ -1279,6 +1287,8 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	
 	Cel_SetColor(iDoor, iColor[0], iColor[1], iColor[2], iColor[3]);
 	
+	Cel_SetRainbow(iDoor, false);
+	
 	Cel_SetEntity(iDoor, true);
 	
 	Cel_SetMotion(iDoor, false);
@@ -1326,6 +1336,8 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	Cel_AddToCelCount(iClient);
 	
 	Cel_SetColor(iInternet, iColor[0], iColor[1], iColor[2], iColor[3]);
+	
+	Cel_SetRainbow(iInternet, false);
 	
 	Cel_SetEntity(iInternet, true);
 	
@@ -1378,6 +1390,8 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	Cel_AddToPropCount(iClient);
 	
 	Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], iColor[3]);
+	
+	Cel_SetRainbow(iProp, false);
 	
 	Cel_SetEntity(iProp, true);
 	

@@ -101,7 +101,7 @@ public void OnPluginStart()
 	//RegConsoleCmd("sm_skin", Command_Skin, "|CelMod| Changes the skin on the prop you are looking at.");
 	RegConsoleCmd("sm_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("sm_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
-	//RegConsoleCmd("sm_stack", Command_StackProps, "|CelMod| Stacks props on the x, y and z axis.");
+	RegConsoleCmd("sm_stack", Command_Stack, "|CelMod| Stacks props on the x, y and z axis.");
 	RegConsoleCmd("sm_stackinfo", Command_StackInfo, "|CelMod| Gets the origin difference between props for help stacking.");
 	RegConsoleCmd("sm_stand", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
 	RegConsoleCmd("sm_straight", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
@@ -154,7 +154,8 @@ public Action Command_Alpha(int iClient, int iArgs)
 				if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
 				{
 					Cel_SetColor(i, -1, -1, -1, iAlpha);
-					if (Cel_CheckEntityType(i, "effect"))
+					
+					if(Cel_GetEntityType(i) == ENTTYPE_EFFECT)
 					Cel_SetColor(Cel_GetEffectAttachment(i), -1, -1, -1, iAlpha);
 				}
 			}
@@ -178,7 +179,8 @@ public Action Command_Alpha(int iClient, int iArgs)
 			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 			
 			Cel_SetColor(iProp, -1, -1, -1, iAlpha);
-			if (Cel_CheckEntityType(iProp, "effect"))
+			
+			if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
 			Cel_SetColor(Cel_GetEffectAttachment(iProp), -1, -1, -1, iAlpha);
 			
 			Cel_ChangeBeam(iClient, iProp);
@@ -220,12 +222,6 @@ public Action Command_Color(int iClient, int iArgs)
 					{
 						Cel_SetRainbow(i, true);
 						Cel_SetColorFade(i, false, 0, 0, 0, 0, 0, 0);
-						
-						if (Cel_CheckEntityType(i, "effect"))
-						{
-							Cel_SetRainbow(Cel_GetEffectAttachment(i), true);
-							Cel_SetColorFade(Cel_GetEffectAttachment(i), false, 0, 0, 0, 0, 0, 0);
-						}
 					}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 					{
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
@@ -235,7 +231,7 @@ public Action Command_Color(int iClient, int iArgs)
 						
 						Cel_SetColor(i, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 						
-						if (Cel_CheckEntityType(i, "effect"))
+						if(Cel_GetEntityType(i) == ENTTYPE_EFFECT)
 						{
 							Cel_SetRainbow(Cel_GetEffectAttachment(i), false);
 							Cel_SetColorFade(Cel_GetEffectAttachment(i), false, 0, 0, 0, 0, 0, 0);
@@ -284,12 +280,6 @@ public Action Command_Color(int iClient, int iArgs)
 				Cel_SetRainbow(iProp, true);
 				Cel_SetColorFade(iProp, false, 0, 0, 0, 0, 0, 0);
 				
-				if (Cel_CheckEntityType(iProp, "effect"))
-				{
-					Cel_SetRainbow(Cel_GetEffectAttachment(iProp), true);
-					Cel_SetColorFade(Cel_GetEffectAttachment(iProp), false, 0, 0, 0, 0, 0, 0);
-				}
-				
 				Cel_ChangeBeam(iClient, iProp);
 				
 				Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, "rainbow");
@@ -304,7 +294,7 @@ public Action Command_Color(int iClient, int iArgs)
 				
 				Cel_SetColor(iProp, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 				
-				if (Cel_CheckEntityType(iProp, "effect"))
+				if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
 				{
 					Cel_SetRainbow(Cel_GetEffectAttachment(iProp), false);
 					Cel_SetColorFade(Cel_GetEffectAttachment(iProp), false, 0, 0, 0, 0, 0, 0);
@@ -380,17 +370,9 @@ public Action Command_FadeColor(int iClient, int iArgs)
 					
 					Cel_SetRainbow(i, false);
 					Cel_SetColorFade(i, true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
-					
-					if (Cel_CheckEntityType(i, "effect"))
-					{
-						Cel_SetRainbow(Cel_GetEffectAttachment(i), false);
-						Cel_SetColorFade(Cel_GetEffectAttachment(i), true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
-					}
-					
-					Cel_ReplyToCommand(iClient, "%t", "SetAllFadingColors", sColor[0], sColor[1]);
 				}
 			}
-			Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor[0]);
+			Cel_ReplyToCommand(iClient, "%t", "SetAllFadingColors", sColor[0], sColor[1]);
 		}else{
 			Cel_ReplyToCommand(iClient, "%t", "CMD_FadeColor");
 			return Plugin_Handled;
@@ -436,12 +418,6 @@ public Action Command_FadeColor(int iClient, int iArgs)
 			Cel_SetColorFade(iProp, true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
 			
 			Cel_ChangeBeam(iClient, iProp);
-			
-			if (Cel_CheckEntityType(iProp, "effect"))
-			{
-				Cel_SetRainbow(Cel_GetEffectAttachment(iProp), false);
-				Cel_SetColorFade(Cel_GetEffectAttachment(iProp), true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
-			}
 			
 			Cel_ReplyToCommand(iClient, "%t", "SetFadingColors", sEntityType, sColor[0], sColor[1]);
 		} else {
@@ -655,10 +631,84 @@ public Action Command_Solid(int iClient, int iArgs)
 
 public Action Command_Stack(int iClient, int iArgs)
 {
-	char sArgs[4][32];
+	char sArgs[4][32], sEntity[4][64], sEntityType[32];
+	float fAngles[3], fFinalOrigin[3], fOrigin[3];
+	int iColor[4], iCount = 0;
+	
 	if (iArgs < 4)
 	{
 		Cel_ReplyToCommand(iClient, "Usage: {green}[tag]stack{default} <amount> <x> <y> <z>");
+		return Plugin_Handled;
+	}
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sArgs[0], sizeof(sArgs[]));
+	GetCmdArg(2, sArgs[1], sizeof(sArgs[]));
+	GetCmdArg(3, sArgs[2], sizeof(sArgs[]));
+	GetCmdArg(4, sArgs[3], sizeof(sArgs[]));
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+		
+		if(Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "dynamic"))
+		{
+			Entity_GetClassName(iProp, sEntity[0], sizeof(sEntity[]));
+			Entity_GetName(iProp, sEntity[1], sizeof(sEntity[]));
+			Entity_GetModel(iProp, sEntity[2], sizeof(sEntity[]));
+			
+			Cel_GetPropName(iProp, sEntity[3], sizeof(sEntity[3]));
+			
+			Entity_GetRenderColor(iProp, iColor);
+			
+			Cel_GetEntityAngles(iProp, fAngles);
+			
+			Cel_GetEntityOrigin(iProp, fOrigin);
+			
+			for(int i = 0; i < StringToInt(sArgs[0]); i++)
+			{
+				if (!Cel_CheckPropCount(iClient))
+				{
+					Cel_ReplyToCommand(iClient, "%t", "MaxPropLimit", Cel_GetPropCount(iClient));
+					return Plugin_Handled;
+				}
+				
+				fFinalOrigin[0] = fOrigin[0] += StringToFloat(sArgs[1]);
+				fFinalOrigin[1] = fOrigin[1] += StringToFloat(sArgs[2]);
+				fFinalOrigin[2] = fOrigin[2] += StringToFloat(sArgs[3]);
+				
+				int iNewProp = Cel_SpawnProp(iClient, sEntity[3], "prop_physics_override", sEntity[2], fAngles, fFinalOrigin, iColor[0], iColor[1], iColor[2], iColor[3]);
+				
+				Entity_SetClassName(iNewProp, sEntity[0]);
+				Entity_SetName(iNewProp, sEntity[1]);
+				
+				Entity_SetSpawnFlags(iNewProp, Entity_GetSpawnFlags(iProp));
+				Entity_SetSkin(iNewProp, Entity_GetSkin(iProp));
+				Cel_SetMotion(iNewProp, Cel_GetMotion(iProp));
+				Cel_SetSolid(iNewProp, Cel_IsSolid(iProp));
+				
+				Cel_SetRenderFX(iNewProp, Cel_GetRenderFX(iProp));
+				
+				Cel_SetColorFade(iNewProp, Cel_IsFading(iProp), g_iFadeColor[iProp][0], g_iFadeColor[iProp][1], g_iFadeColor[iProp][2], g_iFadeColor[iProp][3], g_iFadeColor[iProp][4], g_iFadeColor[iProp][5]);
+				Cel_SetRainbow(iNewProp, Cel_IsRainbow(iProp));
+				
+				iCount++;
+			}
+			
+			Cel_ReplyToCommand(iClient, "Stacked {green}%i{default} %s.", iCount, sEntityType);
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
+			return Plugin_Handled;
+		}
+	} else {
+		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
 	}
 	
@@ -680,7 +730,7 @@ public Action Command_StackInfo(int iClient, int iArgs)
 				
 				g_iStackInfoStatus[iClient] = 1;
 				
-				Cel_ReplyToCommand(iClient, "Selected first prop for stacking info, type {green}!stackinfo{default} on another prop to get the stacking info!");
+				Cel_ReplyToCommand(iClient, "Selected first prop for stacking info, type {green}!stackinfo{default} on another prop to get the stacking info.");
 			}else{
 				g_iStackInfoEnt[iClient] = -1;
 				
@@ -798,6 +848,11 @@ public void Frame_FadeColor(any iProp)
 		iColor[2] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][2] + fColorFade * g_iFadeColor[iProp][5]);
 		
 		Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
+		
+		if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
+		{
+			Cel_SetColor(Cel_GetEffectAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
+		}
 	}
 	
 	if(g_bIsFading[iProp])
@@ -817,6 +872,11 @@ public void Frame_Rainbow(any iProp)
 		iColor[2] = RoundToFloor((Cosine(fTime - 2*(2.0 * M_PI / 3.0)) + 1.0) * 127.5);
 		
 		Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
+		
+		if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
+		{
+			Cel_SetColor(Cel_GetEffectAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
+		}
 	}
 	
 	if(g_bRainbow[iProp])
@@ -1257,7 +1317,7 @@ public int Native_SetColor(Handle hPlugin, int iNumParams)
 	int iR = GetNativeCell(2), iG = GetNativeCell(3), iB = GetNativeCell(4), iA = GetNativeCell(5);
 	
 	SetEntityRenderColor(iEntity, iR == -1 ? g_iColor[iEntity][0] : iR, iG == -1 ? g_iColor[iEntity][1] : iG, iB == -1 ? g_iColor[iEntity][2] : iB, iA == -1 ? g_iColor[iEntity][3] : iA);
-	SetEntityRenderMode(iEntity, RENDER_TRANSALPHA);
+	SetEntityRenderMode(iEntity, RENDER_TRANSALPHAADD);
 	
 	g_iColor[iEntity][0] = iR == -1 ? g_iColor[iEntity][0] : iR, g_iColor[iEntity][1] = iG == -1 ? g_iColor[iEntity][1] : iG, g_iColor[iEntity][2] = iB == -1 ? g_iColor[iEntity][2] : iB, g_iColor[iEntity][3] = iA == -1 ? g_iColor[iEntity][3] : iA;
 	

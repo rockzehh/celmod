@@ -105,7 +105,7 @@ public int Native_GetEffectAttachment(Handle hPlugin, int iNumParams)
 {
 	int iEffect = GetNativeCell(1);
 	
-	return EntRefToEntIndex(g_iEffectEntity[iEffect]);
+	return g_iEffectEntity[iEffect];
 }
 
 public int Native_GetEffectType(Handle hPlugin, int iNumParams)
@@ -136,9 +136,9 @@ public int Native_GetEffectTypeFromName(Handle hPlugin, int iNumParams)
 	} else if (StrContains("smokestack", sEffectName, false) != -1)
 	{
 		return view_as<int>(EFFECT_SMOKESTACK);
-	/*} else if (StrContains("spotlight", sEffectName, false) != -1)
+	} else if (StrContains("spotlight", sEffectName, false) != -1)
 	{
-		return view_as<int>(EFFECT_SPOTLIGHT);*/
+		return view_as<int>(EFFECT_SPOTLIGHT);
 	} else if (StrContains("steam", sEffectName, false) != -1)
 	{
 		return view_as<int>(EFFECT_STEAM);
@@ -175,10 +175,10 @@ public int Native_GetEffectTypeName(Handle hPlugin, int iNumParams)
 		{
 			Format(sEffectName, sizeof(sEffectName), "smokestack");
 		}
-		/*case EFFECT_SPOTLIGHT:
+		case EFFECT_SPOTLIGHT:
 		{
 			Format(sEffectName, sizeof(sEffectName), "spotlight");
-		}*/
+		}
 		case EFFECT_STEAM:
 		{
 			Format(sEffectName, sizeof(sEffectName), "steam");
@@ -215,7 +215,7 @@ public int Native_SetEffectAttachment(Handle hPlugin, int iNumParams)
 {
 	int iAttachment = GetNativeCell(2), iEffect = GetNativeCell(1);
 	
-	g_iEffectEntity[iEffect] = EntIndexToEntRef(iAttachment);
+	g_iEffectEntity[iEffect] = iAttachment;
 	
 	return true;
 }
@@ -475,7 +475,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			return iBase;
 		}
-		/*case EFFECT_SPOTLIGHT:
+		case EFFECT_SPOTLIGHT:
 		{
 			iEffect = CreateEntityByName("point_spotlight");
 
@@ -499,10 +499,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectAttachment(iBase, iEffect);
 
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-				Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
+			Cel_SetColor(iEffect, iColor[0], iColor[1], iColor[2], iColor[3]);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
@@ -515,7 +512,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOff" : "LightOn");
 
 			return iBase;
-		}*/
+		}
 		case EFFECT_STEAM:
 		{
 			iEffect = CreateEntityByName("env_steam");

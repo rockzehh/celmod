@@ -187,11 +187,7 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 			
 			case 1:
 			{
-				//DeleteFile(sFile[0]);
-				
-				BuildPath(Path_SM, sFile[1], sizeof(sFile[]), "data/celmod/users/%s/saves/%s_temp.txt", sAuthID, sSaveName);
-				
-				RenameFile(sFile[1], sFile[0]);
+				DeleteFile(sFile[0]);
 				
 				BuildPath(Path_SM, sFile[0], sizeof(sFile[]), "data/celmod/users/%s/saves/%s.txt", sAuthID, sSaveName);
 				

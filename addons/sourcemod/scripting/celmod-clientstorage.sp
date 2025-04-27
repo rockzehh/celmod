@@ -90,7 +90,7 @@ public any Native_CheckClientPurchase(Handle hPlugin, int iNumParams)
 
 	g_kvClientPurchases[iClient].JumpToKey("Purchases");
 
-	bool bHasPurchase = view_as<bool>(g_kvClientPurchases[iClient].GetNum(sPurchase, 0));
+	bool bHasPurchase = view_as<bool>(g_kvClientPurchases[iClient].GetNum(sPurchase, -1));
 
 	g_kvClientPurchases[iClient].Rewind();
 	
@@ -112,7 +112,7 @@ public any Native_CheckClientSetting(Handle hPlugin, int iNumParams)
 
 	g_kvClientSettings[iClient].JumpToKey("Settings");
 
-	bool bHasSetting = view_as<bool>(g_kvClientSettings[iClient].GetNum(sSetting, 0));
+	bool bHasSetting = view_as<bool>(g_kvClientSettings[iClient].GetNum(sSetting, -1));
 
 	g_kvClientSettings[iClient].Rewind();
 	
@@ -190,7 +190,7 @@ public int Native_GetClientSettingInt(Handle hPlugin, int iNumParams)
 
 	g_kvClientSettings[iClient].JumpToKey("Settings", true);
 
-	int iValue = g_kvClientSettings[iClient].GetNum(sSetting, 0);
+	int iValue = g_kvClientSettings[iClient].GetNum(sSetting, -1);
 
 	g_kvClientSettings[iClient].Rewind();
 	

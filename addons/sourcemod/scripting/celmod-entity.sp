@@ -69,7 +69,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-LoadTranslations("celmod.phrases");
+	LoadTranslations("celmod.phrases");
 	LoadTranslations("common.phrases");
 	
 	if (g_bLate)
@@ -294,9 +294,9 @@ public Action Command_Color(int iClient, int iArgs)
 				g_bFinishedFade[iProp] = false;
 				g_bIsFading[iProp] = false;
 				
-				for (int c = -1; c < 5; c++)
+				for (int c = 0; c < 6; c++)
 				{
-					g_iFadeColor[iProp][c] = 0;
+					g_iFadeColor[iProp][c-1] = 0;
 				}
 				
 				if (Cel_CheckEntityType(iProp, "effect"))
@@ -486,8 +486,8 @@ public Action Command_RenderFX(int iClient, int iArgs)
 
 public Action Command_Rotate(int iClient, int iArgs)
 {
-	char sX[32], sY[32], sZ[32];
-	float fAngles[3], fOrigin[3], fPropAngles[3];
+	char sTemp[16];
+	float fAddAngles[3], fAngles[3], fOrigin[3], fPropAngles[3];
 	
 	if (iArgs < 3)
 	{
@@ -495,9 +495,12 @@ public Action Command_Rotate(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
-	GetCmdArg(1, sX, sizeof(sX));
-	GetCmdArg(2, sY, sizeof(sY));
-	GetCmdArg(3, sZ, sizeof(sZ));
+	for (int i = 0; i < 3; i++)
+	{
+		GetCmdArg(i, sTemp, sizeof(sTemp));
+		
+		fAddAngles[i-1] = StringToFloat(sTemp);
+	}
 	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
@@ -512,9 +515,9 @@ public Action Command_Rotate(int iClient, int iArgs)
 		Cel_GetEntityOrigin(iProp, fOrigin);
 		Cel_GetEntityAngles(iProp, fPropAngles);
 		
-		fAngles[0] = fPropAngles[0] += StringToFloat(sX);
-		fAngles[1] = fPropAngles[1] += StringToFloat(sY);
-		fAngles[2] = fPropAngles[2] += StringToFloat(sZ);
+		fAngles[0] = fPropAngles[0] += fAddAngles[0];
+		fAngles[1] = fPropAngles[1] += fAddAngles[1];
+		fAngles[2] = fPropAngles[2] += fAddAngles[2];
 		
 		if (Cel_CheckEntityType(iProp, "door"))
 		{
@@ -538,8 +541,8 @@ public Action Command_Rotate(int iClient, int iArgs)
 
 public Action Command_SMove(int iClient, int iArgs)
 {
-	char sX[32], sY[32], sZ[32];
-	float fOrigin[3], fPropOrigin[3];
+	char sTemp[16];
+	float fAddOrigin[3];
 	
 	if (iArgs < 3)
 	{
@@ -547,9 +550,12 @@ public Action Command_SMove(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
-	GetCmdArg(1, sX, sizeof(sX));
-	GetCmdArg(2, sY, sizeof(sY));
-	GetCmdArg(3, sZ, sizeof(sZ));
+	for (int i = 0; i < 3; i++)
+	{
+		GetCmdArg(i, sTemp, sizeof(sTemp));
+		
+		fAddOrigin[i-1] = StringToFloat(sTemp);
+	}
 	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
@@ -561,13 +567,7 @@ public Action Command_SMove(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityOrigin(iProp, fPropOrigin);
-		
-		fOrigin[0] = fPropOrigin[0] += StringToFloat(sX);
-		fOrigin[1] = fPropOrigin[1] += StringToFloat(sY);
-		fOrigin[2] = fPropOrigin[2] += StringToFloat(sZ);
-		
-		TeleportEntity(iProp, fOrigin, NULL_VECTOR, NULL_VECTOR);
+		Cel_ChangePositionRelativeToOrigin(iProp, fAddOrigin);
 	} else {
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
@@ -638,7 +638,7 @@ public Action Command_StackInfo(int iClient, int iArgs)
 				
 				g_iStackInfoStatus[iClient] = 1;
 				
-				Cel_ReplyToCommand(iClient, "Selected first prop for stacking info, type {green}!stack{default} on another prop to get the stacking info!");
+				Cel_ReplyToCommand(iClient, "Selected first prop for stacking info, type {green}!stackinfo{default} on another prop to get the stacking info!");
 			}else{
 				g_iStackInfoEnt[iClient] = -1;
 				
@@ -669,7 +669,7 @@ public Action Command_StackInfo(int iClient, int iArgs)
 					fOrigin[2][1] = fOrigin[1][1] - fOrigin[0][1];
 					fOrigin[2][2] = fOrigin[1][2] - fOrigin[0][2];
 					
-					Cel_ReplyToCommand(iClient, "Stack Information: X = %f.f, Y = %f.f, Z = %f.f");
+					Cel_ReplyToCommand(iClient, "Stack Information:\nX = {green}%f{default}\nY = {green}%f{default}\nZ = {green}%f{default}", fOrigin[2][0], fOrigin[2][1], fOrigin[2][2]);
 				}
 			}else{
 				g_iStackInfoEnt[iClient] = -1;
@@ -744,6 +744,17 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 //Natives:
 public int Native_ChangePositionRelativeToOrigin(Handle hPlugin, int iNumParams)
 {
+	float fAddOrigin[3], fFinalOrigin[3], fOrigin[3];
+	
+	int iEntity = GetNativeCell(1);
+	
+	GetNativeArray(2, fAddOrigin, 3);
+	
+	fFinalOrigin[0] = fOrigin[0] += fAddOrigin[0];
+	fFinalOrigin[1] = fOrigin[1] += fAddOrigin[1];
+	fFinalOrigin[2] = fOrigin[2] += fAddOrigin[2];
+	
+	TeleportEntity(iEntity, fFinalOrigin, NULL_VECTOR, NULL_VECTOR);
 	
 	return true;
 }

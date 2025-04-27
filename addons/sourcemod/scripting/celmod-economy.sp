@@ -91,7 +91,12 @@ public void OnPluginStart()
 
 public void OnClientPutInServer(int iClient)
 {
-	Cel_SetClientBalance(iClient, Cel_GetClientSettingInt(iClient, "balance"));
+	if(Cel_GetClientSettingInt(iClient, "balance") != -1)
+	{
+		Cel_SetClientBalance(iClient, Cel_GetClientSettingInt(iClient, "balance"));
+	}else{
+		Cel_SetClientBalance(iClient, 8500);
+	}
 }
 
 public void OnClientDisconnect(int iClient)
@@ -430,6 +435,8 @@ public int Native_SetClientBalance(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1), iBalance = GetNativeCell(2);
 	
 	g_eEconomy[iClient].iBalance = iBalance;
+	
+	Cel_SetClientSettingInt(iClient, "balance", iBalance);
 	
 	return true;
 }

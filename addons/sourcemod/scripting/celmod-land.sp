@@ -217,6 +217,12 @@ public Action Command_Land(int iClient, int iArgs)
 	{
 		case 0:
 		{
+			if(Cel_IsClientCrosshairInLand(iClient))
+			{
+				Cel_ReplyToCommand(iClient, "%t", "CantStartLandInLand");
+				return Plugin_Handled;
+			}
+			
 			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fLandPosBottom);
 			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fLandPosStarting);
 
@@ -230,6 +236,12 @@ public Action Command_Land(int iClient, int iArgs)
 
 		case 1:
 		{
+			if(Cel_IsClientCrosshairInLand(iClient))
+			{
+				Cel_ReplyToCommand(iClient, "%t", "CantEndLandInLand");
+				return Plugin_Handled;
+			}
+			
 			g_liLand[iClient].bLandGettingTopPos = false;
 			g_liLand[iClient].bLandCreated = true;
 
@@ -316,8 +328,6 @@ public Action Command_LandSkin(int iClient, int iArgs)
 		Cel_ReplyToCommand(iClient, "Land has not yet been created!");
 		return Plugin_Handled;
 	}
-
-	return Plugin_Handled;
 }
 
 public void Cel_CreateLandSkin(int iClient, float fMin[3], float fMax[3])
@@ -724,7 +734,7 @@ public int Native_IsClientCrosshairInLand(Handle hPlugin, int iNumParams)
 
 			fOrigin[2] += 1.0;
 
-			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop) && g_liLand[i].bLandCreated)
 			{
 				return true;
 			}

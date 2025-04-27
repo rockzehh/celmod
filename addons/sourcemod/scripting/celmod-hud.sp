@@ -37,6 +37,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	LoadTranslations("celmod.phrases");
+	
 	g_cvHudEnable = CreateConVar("cm_show_hud", "1", "Shows/hides the hud for all players.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	g_cvHudEnable.AddChangeHook(CMHud_OnConVarChanged);
@@ -46,7 +48,7 @@ public void OnPluginStart()
 	AddCommandListener(Handle_Chat, "say");
 	AddCommandListener(Handle_Chat, "say_team");
 	
-	//RegConsoleCmd("sm_switch", Command_Switch, "|CelMod| Switches the side the hud is on the screen.");
+	RegConsoleCmd("sm_switch", Command_Switch, "|CelMod| Switches the side the hud is on the screen.");
 }
 
 public void OnMapStart()
@@ -69,10 +71,17 @@ public void OnMapEnd()
 
 public void OnClientPutInServer(int iClient)
 {
-	/**if(Cel_GetClientSettingInt(iClient, "hud-pos-left") == 0)
+	if(Cel_GetClientSettingInt(iClient, "hud-pos-left") != -1)
 	{
-		Cel_SetClientSettingInt(iClient, "hud-pos-left", )
-	}*/
+		g_bHudLeft[iClient] = view_as<bool>(Cel_GetClientSettingInt(iClient, "hud-pos-left"));
+	}else{
+		Cel_SetClientSettingInt(iClient, "hud-pos-left", 0);
+	}
+}
+
+public void OnClientDisconnect(int iClient)
+{
+	Cel_SetClientSettingInt(iClient, "hud-pos-left", view_as<int>(g_bHudLeft[iClient]));
 }
 
 public void CMHud_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
@@ -87,12 +96,12 @@ public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 {
 	char sRealCommand[MAX_MESSAGE_LENGTH];
 	
-	if (IsChatTrigger())
+	GetCmdArgString(sRealCommand, sizeof(sRealCommand));
+	
+	StripQuotes(sRealCommand);
+	
+	if (sRealCommand[0] == '!')
 	{
-		GetCmdArgString(sRealCommand, sizeof(sRealCommand));
-		
-		StripQuotes(sRealCommand);
-		
 		g_alCommands.PushString(sRealCommand);
 		
 		if(g_alCommands.Length >= 6)
@@ -104,6 +113,17 @@ public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 	}
 	
 	return Plugin_Continue;
+}
+
+public Action Command_Switch(int iClient, int iArgs)
+{
+	g_bHudLeft[iClient] = !g_bHudLeft[iClient];
+	
+	Cel_SetClientSettingInt(iClient, "hud-pos-left", view_as<int>(g_bHudLeft[iClient]));
+	
+	Cel_ReplyToCommand(iClient, "%t", "SwitchedHUD", g_bHudLeft[iClient] ? "left" : "right");
+	
+	return Plugin_Handled;
 }
 
 //Natives:
@@ -509,6 +529,12 @@ public Action Timer_HUD(Handle hTimer)
 						Format(sHUDMessage, sizeof(sHUDMessage), "Land: %N", iLandOwner);
 						
 						Cel_GetHudColor(iLandOwner, iHUDColor);
+					}else{
+						Cel_GetClientBalanceTranslated(i, sBalance, sizeof(sBalance));
+						
+						Format(sHUDMessage, sizeof(sHUDMessage), "Balance: %s\nSpawned: %d", sBalance, Cel_GetCombinedCount(i));
+						
+						Cel_GetHudColor(i, iHUDColor);
 					}
 				}else{
 					Cel_GetClientBalanceTranslated(i, sBalance, sizeof(sBalance));
@@ -518,7 +544,7 @@ public Action Timer_HUD(Handle hTimer)
 					Cel_GetHudColor(i, iHUDColor);
 				}
 				
-				Cel_SendHudMessage(i, 1, 2.010, -0.110, iHUDColor[0], iHUDColor[1], iHUDColor[2], iHUDColor[3], 0, 0.6, 0.01, 0.2, 0.01, sHUDMessage);
+				Cel_SendHudMessage(i, 1, g_bHudLeft[i] ? -2.010 : 2.010, -0.110, iHUDColor[0], iHUDColor[1], iHUDColor[2], iHUDColor[3], 0, 0.6, 0.01, 0.2, 0.01, sHUDMessage);
 			}
 		}
 	}

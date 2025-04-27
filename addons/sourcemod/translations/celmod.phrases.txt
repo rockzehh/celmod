@@ -106,6 +106,22 @@
 		"en"			"Set {green}{1}{default}'s balance to {green}{2}{default} CL."
 	}
 	
+	"CantEndLandInLand"
+	{
+		"en"			"You cannot finish your land inside another players land!"
+	}
+	
+	"CantStartLandInLand"
+	{
+		"en"			"You cannot finish your land inside another players land!"
+	}
+	
+	"SwitchedHUD"
+	{
+		"#format"		"{1:s}"
+		"en"			"Switched HUD to the {green}{1}{default} side."
+	}
+	
 	"GetBalance"
 	{
 		"#format"		"{1:i}"

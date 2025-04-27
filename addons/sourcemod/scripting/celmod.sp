@@ -1288,6 +1288,7 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	Cel_SetColor(iDoor, iColor[0], iColor[1], iColor[2], iColor[3]);
 	
 	Cel_SetRainbow(iDoor, false);
+	Cel_SetColorFade(iDoor, false, 0, 0, 0, 0, 0, 0);
 	
 	Cel_SetEntity(iDoor, true);
 	
@@ -1338,6 +1339,7 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	Cel_SetColor(iInternet, iColor[0], iColor[1], iColor[2], iColor[3]);
 	
 	Cel_SetRainbow(iInternet, false);
+	Cel_SetColorFade(iInternet, false, 0, 0, 0, 0, 0, 0);
 	
 	Cel_SetEntity(iInternet, true);
 	
@@ -1392,6 +1394,7 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], iColor[3]);
 	
 	Cel_SetRainbow(iProp, false);
+	Cel_SetColorFade(iProp, false, 0, 0, 0, 0, 0, 0);
 	
 	Cel_SetEntity(iProp, true);
 	

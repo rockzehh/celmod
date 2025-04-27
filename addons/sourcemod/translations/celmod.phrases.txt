@@ -15,6 +15,11 @@
 		"en"			"Usage: {green}[tag]door{default} <skin number>"
 	}
 	
+	"CMD_FadeColor"
+	{
+		"en"			"Usage: {green}[tag]fadecolor{default} <color name> <color name> <all>"
+	}
+	
 	"CMD_LoadBuild"
 	{
 		"en"			"Usage: {green}[tag]load{default} <buildname>"
@@ -53,6 +58,18 @@
 	"CantFindTarget"
 	{
 		"en"			"Cannot find specified target."
+	}
+	
+	"SetFadingColors"
+	{
+		"#format"		"{1:s},{2:s},{3:s}"
+		"en"			"Fading {1} between {green}{2}{default} & {green}{3}{default}."
+	}
+	
+	"SetAllFadingColors"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Fading all props between {green}{1}{default} & {green}{2}{default}."
 	}
 	
 	"SavedBuild"

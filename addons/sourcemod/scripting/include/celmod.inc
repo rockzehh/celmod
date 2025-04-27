@@ -405,6 +405,8 @@ native char Cel_GetRenderFXName(RenderFx rfRenderFX, char[] sRenderFX, int iMaxL
  */
 native bool Cel_IsEntity(int iEntity);
 
+native bool Cel_IsFading(int iEntity);
+
 /**
  * Checks if a client is a valid player.
  *
@@ -513,6 +515,8 @@ native void Cel_SetCelLimit(int iLimit);
  * @param iA       The alpha component (0-255).
  */
 native void Cel_SetColor(int iEntity, int iR, int iG, int iB, int iA);
+
+native void Cel_SetColorFade(int iEntity, bool bFade, int iR1, int iG1, int iB1, int iR2, int iG2, int iB2);
 
 /**
  * Sets an entity's existence state.

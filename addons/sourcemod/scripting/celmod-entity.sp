@@ -4,7 +4,9 @@
 
 #pragma newdecls required
 
-bool g_bFinishedFade[MAXENTITIES + 1];
+const float M_PI = 3.14159265358979323846;
+const float PERIOD = 2.5;
+
 bool g_bEntity[MAXENTITIES + 1];
 bool g_bMotion[MAXENTITIES + 1];
 bool g_bLate;
@@ -15,6 +17,7 @@ bool g_bSolid[MAXENTITIES + 1];
 char g_sColorDB[PLATFORM_MAX_PATH];
 char g_sPropName[MAXENTITIES + 1][64];
 
+float g_fFadeTime[MAXENTITIES + 1];
 float g_fRainbowTime[MAXENTITIES + 1];
 
 int g_iColor[MAXENTITIES + 1][4];
@@ -45,9 +48,11 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetOwner", Native_GetOwner);
 	CreateNative("Cel_GetPropName", Native_GetPropName);
 	CreateNative("Cel_IsEntity", Native_IsEntity);
+	CreateNative("Cel_IsFading", Native_IsFading);
 	CreateNative("Cel_IsRainbow", Native_IsRainbow);
 	CreateNative("Cel_IsSolid", Native_IsSolid);
 	CreateNative("Cel_SetColor", Native_SetColor);
+	CreateNative("Cel_SetColorFade", Native_SetColorFade);
 	CreateNative("Cel_SetEntity", Native_SetEntity);
 	CreateNative("Cel_SetMotion", Native_SetMotion);
 	CreateNative("Cel_SetOwner", Native_SetOwner);
@@ -63,12 +68,12 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	return APLRes_Success;
 }
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
-	name = "|CelMod| Entity Manipulator", 
-	author = CEL_AUTHOR, 
-	description = "Handles all the entity manipulation commands.", 
-	version = CEL_VERSION, 
+	name = "|CelMod| Entity Manipulator",
+	author = CEL_AUTHOR,
+	description = "Handles all the entity manipulation commands.",
+	version = CEL_VERSION,
 	url = CEL_URL
 };
 
@@ -76,17 +81,6 @@ public void OnPluginStart()
 {
 	LoadTranslations("celmod.phrases");
 	LoadTranslations("common.phrases");
-	
-	if (g_bLate)
-	{
-		for (int i = 1; i < MaxClients; i++)
-		{
-			if (IsClientAuthorized(i))
-			{
-				OnClientPutInServer(i);
-			}
-		}
-	}
 	
 	BuildPath(Path_SM, g_sColorDB, sizeof(g_sColorDB), "data/celmod/colors.txt");
 	if (!FileExists(g_sColorDB))
@@ -114,16 +108,6 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_straighten", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
 	RegConsoleCmd("sm_unfreeze", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
 	RegConsoleCmd("sm_unfreezeit", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
-	
-}
-
-public void OnClientPutInServer(int iClient)
-{
-	
-}
-
-public void OnClientDisconnect(int iClient)
-{
 	
 }
 
@@ -234,43 +218,29 @@ public Action Command_Color(int iClient, int iArgs)
 				{
 					if(StrEqual(sColor, "rainbow", false))
 					{
-						g_bRainbow[i] = true;
-						
-						RequestFrame(Frame_Rainbow, i);
-						
-						g_bFinishedFade[i] = false;
-						g_bIsFading[i] = false;
+						Cel_SetRainbow(i, true);
+						Cel_SetColorFade(i, false, 0, 0, 0, 0, 0, 0);
 						
 						if (Cel_CheckEntityType(i, "effect"))
 						{
-							g_bRainbow[Cel_GetEffectAttachment(i)] = true;
-							
-							RequestFrame(Frame_Rainbow, Cel_GetEffectAttachment(i));
-							
-							g_bFinishedFade[Cel_GetEffectAttachment(i)] = false;
-							g_bIsFading[Cel_GetEffectAttachment(i)] = false;
+							Cel_SetRainbow(Cel_GetEffectAttachment(i), true);
+							Cel_SetColorFade(Cel_GetEffectAttachment(i), false, 0, 0, 0, 0, 0, 0);
 						}
 					}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 					{
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 						
-						Cel_GetEntityTypeName(Cel_GetEntityType(i), sEntityType, sizeof(sEntityType));
-						
-						g_bRainbow[i] = false;
+						Cel_SetRainbow(i, false);
+						Cel_SetColorFade(i, false, 0, 0, 0, 0, 0, 0);
 						
 						Cel_SetColor(i, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 						
-						g_bFinishedFade[i] = false;
-						g_bIsFading[i] = false;
-						
 						if (Cel_CheckEntityType(i, "effect"))
 						{
-							g_bRainbow[i] = false;
+							Cel_SetRainbow(Cel_GetEffectAttachment(i), false);
+							Cel_SetColorFade(Cel_GetEffectAttachment(i), false, 0, 0, 0, 0, 0, 0);
 							
 							Cel_SetColor(Cel_GetEffectAttachment(i), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-							
-							g_bFinishedFade[Cel_GetEffectAttachment(i)] = false;
-							g_bIsFading[Cel_GetEffectAttachment(i)] = false;
 						}
 					}else {
 						Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor);
@@ -309,21 +279,15 @@ public Action Command_Color(int iClient, int iArgs)
 		{
 			if(StrEqual(sColor, "rainbow", false))
 			{
-				g_bRainbow[iProp] = true;
+				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 				
-				RequestFrame(Frame_Rainbow, iProp);
-				
-				g_bFinishedFade[iProp] = false;
-				g_bIsFading[iProp] = false;
+				Cel_SetRainbow(iProp, true);
+				Cel_SetColorFade(iProp, false, 0, 0, 0, 0, 0, 0);
 				
 				if (Cel_CheckEntityType(iProp, "effect"))
 				{
-					g_bRainbow[Cel_GetEffectAttachment(iProp)] = true;
-					
-					RequestFrame(Frame_Rainbow, Cel_GetEffectAttachment(iProp));
-					
-					g_bFinishedFade[Cel_GetEffectAttachment(iProp)] = false;
-					g_bIsFading[Cel_GetEffectAttachment(iProp)] = false;
+					Cel_SetRainbow(Cel_GetEffectAttachment(iProp), true);
+					Cel_SetColorFade(Cel_GetEffectAttachment(iProp), false, 0, 0, 0, 0, 0, 0);
 				}
 				
 				Cel_ChangeBeam(iClient, iProp);
@@ -335,21 +299,17 @@ public Action Command_Color(int iClient, int iArgs)
 				
 				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 				
-				g_bRainbow[iProp] = false;
+				Cel_SetRainbow(iProp, false);
+				Cel_SetColorFade(iProp, false, 0, 0, 0, 0, 0, 0);
 				
 				Cel_SetColor(iProp, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 				
-				g_bFinishedFade[iProp] = false;
-				g_bIsFading[iProp] = false;
-				
 				if (Cel_CheckEntityType(iProp, "effect"))
 				{
-					g_bRainbow[iProp] = false;
+					Cel_SetRainbow(Cel_GetEffectAttachment(iProp), false);
+					Cel_SetColorFade(Cel_GetEffectAttachment(iProp), false, 0, 0, 0, 0, 0, 0);
 					
 					Cel_SetColor(Cel_GetEffectAttachment(iProp), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-					
-					g_bFinishedFade[Cel_GetEffectAttachment(iProp)] = false;
-					g_bIsFading[Cel_GetEffectAttachment(iProp)] = false;
 				}
 				
 				Cel_ChangeBeam(iClient, iProp);
@@ -373,8 +333,9 @@ public Action Command_Color(int iClient, int iArgs)
 public Action Command_FadeColor(int iClient, int iArgs)
 {
 	char sColor[2][64], sColorBuffer[3][6], sColorString[16], sEntityType[32], sOption[32];
+	int iColor[6];
 	
-	if (iArgs < 1)
+	if (iArgs < 2)
 	{
 		Cel_ReplyToCommand(iClient, "%t", "CMD_FadeColor");
 		return Plugin_Handled;
@@ -387,31 +348,51 @@ public Action Command_FadeColor(int iClient, int iArgs)
 	{
 		GetCmdArg(3, sOption, sizeof(sOption));
 		
-		if (Cel_CheckColorDB(sColor[0], sColorString, sizeof(sColorString)))
+		if(StrContains(sOption, "all", false) !=-1)
 		{
-			if(StrContains(sOption, "all", false) !=-1)
+			for (int i = 0; i < GetMaxEntities(); i++)
 			{
-				for (int i = 0; i < GetMaxEntities(); i++)
+				if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
 				{
-					if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEdict(i))
+					if (Cel_CheckColorDB(sColor[0], sColorString, sizeof(sColorString)))
 					{
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 						
-						Cel_GetEntityTypeName(Cel_GetEntityType(i), sEntityType, sizeof(sEntityType));
-						
-						Cel_SetColor(i, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-						
-						if (Cel_CheckEntityType(i, "effect"))
-						Cel_SetColor(Cel_GetEffectAttachment(i), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
+						iColor[0] = StringToInt(sColorBuffer[0]),
+						iColor[1] = StringToInt(sColorBuffer[1]),
+						iColor[2] = StringToInt(sColorBuffer[2]);
+					} else {
+						Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor[0]);
+						return Plugin_Handled;
 					}
+					
+					if (Cel_CheckColorDB(sColor[1], sColorString, sizeof(sColorString)))
+					{
+						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
+						
+						iColor[3] = StringToInt(sColorBuffer[0]),
+						iColor[4] = StringToInt(sColorBuffer[1]),
+						iColor[5] = StringToInt(sColorBuffer[2]);
+					} else {
+						Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor[1]);
+						return Plugin_Handled;
+					}
+					
+					Cel_SetRainbow(i, false);
+					Cel_SetColorFade(i, true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
+					
+					if (Cel_CheckEntityType(i, "effect"))
+					{
+						Cel_SetRainbow(Cel_GetEffectAttachment(i), false);
+						Cel_SetColorFade(Cel_GetEffectAttachment(i), true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
+					}
+					
+					Cel_ReplyToCommand(iClient, "%t", "SetAllFadingColors", sColor[0], sColor[1]);
 				}
-				Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor[0]);
-			}else{
-				Cel_ReplyToCommand(iClient, "%t", "CMD_Color");
-				return Plugin_Handled;
 			}
-		} else {
-			Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor[0]);
+			Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor[0]);
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CMD_FadeColor");
 			return Plugin_Handled;
 		}
 	}else{
@@ -425,23 +406,44 @@ public Action Command_FadeColor(int iClient, int iArgs)
 		
 		if (Cel_CheckOwner(iClient, iProp))
 		{
+			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+			
+			if (Cel_CheckColorDB(sColor[0], sColorString, sizeof(sColorString)))
+			{
+				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
+				
+				iColor[0] = StringToInt(sColorBuffer[0]),
+				iColor[1] = StringToInt(sColorBuffer[1]),
+				iColor[2] = StringToInt(sColorBuffer[2]);
+			} else {
+				Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor[0]);
+				return Plugin_Handled;
+			}
+			
 			if (Cel_CheckColorDB(sColor[1], sColorString, sizeof(sColorString)))
 			{
 				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 				
-				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-				
-				Cel_SetColor(iProp, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-				if (Cel_CheckEntityType(iProp, "effect"))
-				Cel_SetColor(Cel_GetEffectAttachment(iProp), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-				
-				Cel_ChangeBeam(iClient, iProp);
-				
-				Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, sColor[1]);
+				iColor[3] = StringToInt(sColorBuffer[0]),
+				iColor[4] = StringToInt(sColorBuffer[1]),
+				iColor[5] = StringToInt(sColorBuffer[2]);
 			} else {
 				Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor[1]);
 				return Plugin_Handled;
 			}
+			
+			Cel_SetRainbow(iProp, false);
+			Cel_SetColorFade(iProp, true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
+			
+			Cel_ChangeBeam(iClient, iProp);
+			
+			if (Cel_CheckEntityType(iProp, "effect"))
+			{
+				Cel_SetRainbow(Cel_GetEffectAttachment(iProp), false);
+				Cel_SetColorFade(Cel_GetEffectAttachment(iProp), true, iColor[0], iColor[1], iColor[2], iColor[3], iColor[4], iColor[5]);
+			}
+			
+			Cel_ReplyToCommand(iClient, "%t", "SetFadingColors", sEntityType, sColor[0], sColor[1]);
 		} else {
 			Cel_NotYours(iClient, iProp);
 			return Plugin_Handled;
@@ -782,15 +784,37 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 }
 
 //Frames:
+public void Frame_FadeColor(any iProp)
+{
+	int iColor[3];
+	
+	if (Cel_IsEntity(iProp) && IsValidEdict(iProp) && g_bIsFading[iProp])
+	{
+		float fAge  = GetGameTime() - g_fFadeTime[iProp];
+		float fColorFade = ((fAge % PERIOD) <= (PERIOD * 0.5)) ? ((fAge % PERIOD) / (PERIOD * 0.5)) : (1.0 - ((fAge % PERIOD) - (PERIOD * 0.5)) / (PERIOD * 0.5));
+		
+		iColor[0] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][0] + fColorFade * g_iFadeColor[iProp][3]);
+		iColor[1] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][1] + fColorFade * g_iFadeColor[iProp][4]);
+		iColor[2] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][2] + fColorFade * g_iFadeColor[iProp][5]);
+		
+		Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
+	}
+	
+	if(g_bIsFading[iProp])
+	RequestFrame(Frame_FadeColor, iProp);
+}
+
 public void Frame_Rainbow(any iProp)
 {
 	int iColor[3];
 	
 	if (Cel_IsEntity(iProp) && IsValidEdict(iProp) && g_bRainbow[iProp])
 	{
-		iColor[0] = RoundToNearest(Cosine((GetGameTime() - g_fRainbowTime[iProp] * (1.2 * GetRandomInt(1, 45))) + iProp + 0) * 127.5 + 127.5);
-		iColor[1] = RoundToNearest(Cosine((GetGameTime() - g_fRainbowTime[iProp] * (1.2 * GetRandomInt(1, 45))) + iProp + 2) * 127.5 + 127.5);
-		iColor[2] = RoundToNearest(Cosine((GetGameTime() - g_fRainbowTime[iProp] * (1.2 * GetRandomInt(1, 45))) + iProp + 4) * 127.5 + 127.5);
+		float fTime = (GetGameTime() - g_fRainbowTime[iProp]) * ((2.0 * M_PI) / PERIOD);
+		
+		iColor[0] = RoundToFloor((Cosine(fTime) + 1.0) * 127.5);
+		iColor[1] = RoundToFloor((Cosine(fTime - (2.0 * M_PI / 3.0)) + 1.0) * 127.5);
+		iColor[2] = RoundToFloor((Cosine(fTime - 2*(2.0 * M_PI / 3.0)) + 1.0) * 127.5);
 		
 		Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
 	}
@@ -1206,6 +1230,13 @@ public int Native_IsEntity(Handle hPlugin, int iNumParams)
 	return false;
 }
 
+public int Native_IsFading(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	return g_bIsFading[iEntity];
+}
+
 public int Native_IsRainbow(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -1229,6 +1260,41 @@ public int Native_SetColor(Handle hPlugin, int iNumParams)
 	SetEntityRenderMode(iEntity, RENDER_TRANSALPHA);
 	
 	g_iColor[iEntity][0] = iR == -1 ? g_iColor[iEntity][0] : iR, g_iColor[iEntity][1] = iG == -1 ? g_iColor[iEntity][1] : iG, g_iColor[iEntity][2] = iB == -1 ? g_iColor[iEntity][2] : iB, g_iColor[iEntity][3] = iA == -1 ? g_iColor[iEntity][3] : iA;
+	
+	return true;
+}
+
+public int Native_SetColorFade(Handle hPlugin, int iNumParams)
+{
+	bool bFade = view_as<bool>(GetNativeCell(2));
+	int iEntity = GetNativeCell(1);
+	
+	if(bFade)
+	{
+		g_iFadeColor[iEntity][0] = GetNativeCell(3);
+		g_iFadeColor[iEntity][1] = GetNativeCell(4);
+		g_iFadeColor[iEntity][2] = GetNativeCell(5);
+		g_iFadeColor[iEntity][3] = GetNativeCell(6);
+		g_iFadeColor[iEntity][4] = GetNativeCell(7);
+		g_iFadeColor[iEntity][5] = GetNativeCell(8);
+		
+		g_bIsFading[iEntity] = true;
+		
+		g_fFadeTime[iEntity] = GetGameTime();
+		
+		RequestFrame(Frame_FadeColor, iEntity);
+	}else{
+		g_iFadeColor[iEntity][0] = 0;
+		g_iFadeColor[iEntity][1] = 0;
+		g_iFadeColor[iEntity][2] = 0;
+		g_iFadeColor[iEntity][3] = 0;
+		g_iFadeColor[iEntity][4] = 0;
+		g_iFadeColor[iEntity][5] = 0;
+		
+		g_bIsFading[iEntity] = false;
+		
+		g_fFadeTime[iEntity] = 0.0;
+	}
 	
 	return true;
 }
@@ -1287,8 +1353,10 @@ public int Native_SetRainbow(Handle hPlugin, int iNumParams)
 	
 	if(g_bRainbow[iEntity])
 	{
-		g_fRainbowTime[iEntity] = GetRandomFloat(0.3, 234.0);
+		g_fRainbowTime[iEntity] = GetGameTime();
 	}
+	
+	RequestFrame(Frame_Rainbow, iEntity);
 	
 	return true;
 }

@@ -1,8 +1,8 @@
 @font-face {
-    font-family: Pu;
-    font-style: normal;
-    font-weight: normal;
-    src: url('https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/docs/fonts/Raleway-Regular.ttf');;
+	font-family: Pu;
+	font-style: normal;
+	font-weight: normal;
+	src: url('https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/docs/fonts/Raleway-Regular.ttf');;
 }
 a {
 	text-decoration: none;
@@ -30,7 +30,7 @@ a:hover {
 	color: #F20;
 }
 .blk {
-    color: #000;
+	color: #000;
 }
 .big {
 	font-size: 1.5em;
@@ -42,38 +42,38 @@ a:hover {
 	margin-left: 1em;
 }
 #listview {
-	text-align: center;
-	margin-left: 51px;
-	margin-right: 51px;
-	height: 20px;
-	font-size: 24;
-	font-weight: bold;
+text-align: center;
+margin-left: 51px;
+margin-right: 51px;
+height: 20px;
+font-size: 24;
+font-weight: bold;
 }
 #listview a:hover {
-    transition: background 0.5s;
-    background: rgba(255, 255, 200, 0.2);
+transition: background 0.5s;
+background: rgba(255, 255, 200, 0.2);
 }
 #listimg {
-	height: 30px;
-	width: 30px;
-	vertical-align:middle;
-	border: 1px solid black;
+height: 30px;
+width: 30px;
+vertical-align:middle;
+border: 1px solid black;
 }
 #main {
-    margin-left: auto;
-    margin-right: auto;
-    background-image: url(https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/docs/images/cmtextbg.png);
-    width: 675px;
-    height: 100%;
-    border: 1px solid black;
-    text-align: center;
-    word-wrap: break-word;
+margin-left: auto;
+margin-right: auto;
+background-image: url(https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/docs/images/cmtextbg.png);
+width: 675px;
+height: 100%;
+border: 1px solid black;
+text-align: center;
+word-wrap: break-word;
 }
 #content {
-    margin-left:auto;
-    margin-right:auto;
-    width: 550px;
+margin-left:auto;
+margin-right:auto;
+width: 550px;
 }
 body {
-    font-family: Pu;
+font-family: Pu;
 }

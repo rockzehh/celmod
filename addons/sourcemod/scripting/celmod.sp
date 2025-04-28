@@ -182,7 +182,7 @@ public void OnPluginStart()
 	
 	CreateConVar("celmod", "1", "Notifies the server that the plugin is running.");
 	g_cvCelLimit = CreateConVar("cm_max_player_cels", "20", "Maxiumum number of cel entities a client is allowed.");
-	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://github.com/rockzehh/celmod", "Default internet cel URL.");
+	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://celmod.rockzehh.net", "Default internet cel URL.");
 	g_cvDownloadPath = CreateConVar("cm_download_list_path", "data/celmod/downloads.txt", "Path for the download list for clients.");
 	g_cvPropLimit = CreateConVar("cm_max_player_props", "130", "Maxiumum number of props a player is allowed to spawn.");
 	g_cvOverlayPath = CreateConVar("cm_overlay_material_path", "celmod/cm_overlay3.vmt", "Default CelMod overlay path.");

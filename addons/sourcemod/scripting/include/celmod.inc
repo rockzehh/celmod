@@ -43,7 +43,7 @@ enum EffectType
 
 #define CEL_AUTHOR "rockzehh"
 #define CEL_URL "https://github.com/rockzehh/celmod"
-#define CEL_VERSION "2.0.0"
+#define CEL_VERSION "2.1.0"
 #define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd"
 
 #define MAXENTITIES 2048

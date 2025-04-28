@@ -1186,3 +1186,13 @@ cfg/sourcemod/funcommands.cfg
 cfg/sourcemod/funvotes.cfg
 *.cache
 *.lst
+*.dll
+*.bat
+*.bpproj
+/addons/sourcemod/data/celmod/users
+*.dat
+/addons/sourcemod/plugins/disabled
+/maps
+/materials
+/models
+/sound

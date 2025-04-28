@@ -5,3 +5,9 @@
 		 - Added more command options for !alpha (all), !color (all, hud) and !delete (all, land).
 	 - 08/11/24: Added command !renderfx to change the RenderFX on entities.
 		 - Added command history HUD and the ablitiy to spawn a prop without the !spawn command. Ex. !blastdoor3, /blastdoor3
+
+	2025:
+	 - 04/24/25: Added !balance, !buy, !sell, !setbalance to the server.
+		 - More economy features are being worked on. !landskin has been added but is currently broken.
+	 - 04/26/25: Added !emitter as an alias for !effect. Added !switch to switch the side of the screen the HUD is on.
+		 - Added !stack and !stackinfo for easier building.

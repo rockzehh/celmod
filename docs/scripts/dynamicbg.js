@@ -23,7 +23,7 @@ var r = -1;
 if(document.title.indexOf('A Living Project') > -1) {
     for(var i = 0; i < 7; i++) {
         imgs[i] = document.createElement('img');
-        imgs[i].setAttribute('src', './images/bg/map'+(i+1)+'.png');
+        imgs[i].setAttribute('src', 'https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/docs/images/bg/map'+(i+1)+'.png');
         imgs[i].setAttribute('width', w);
         imgs[i].setAttribute('height', h);
         document.body.appendChild(imgs[i]);

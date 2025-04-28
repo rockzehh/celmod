@@ -8,11 +8,13 @@ char g_sColorListURL[PLATFORM_MAX_PATH];
 char g_sCommandListURL[PLATFORM_MAX_PATH];
 char g_sEffectListURL[PLATFORM_MAX_PATH];
 char g_sPropListURL[PLATFORM_MAX_PATH];
+char g_sUpdateListURL[PLATFORM_MAX_PATH];
 
 ConVar g_cvColorListURL;
 ConVar g_cvCommandListURL;
 ConVar g_cvEffectListURL;
 ConVar g_cvPropListURL;
+ConVar g_cvUpdateListURL;
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
@@ -38,20 +40,23 @@ public void OnPluginStart()
 {
 	LoadTranslations("celmod.phrases");
 
-	g_cvColorListURL = CreateConVar("cm_color_list_url", "https://rockzehh.github.io/celmod/color.html", "URL for the color list command.");
-	g_cvCommandListURL = CreateConVar("cm_command_list_url", "https://rockzehh.github.io/celmod/commandlist.html", "URL for the command list command.");
-	g_cvEffectListURL = CreateConVar("cm_effect_list_url", "https://rockzehh.github.io/celmod/effects.html", "URL for the effect list command.");
-	g_cvPropListURL = CreateConVar("cm_prop_list_url", "https://rockzehh.github.io/celmod/proplist.html", "URL for the prop list command.");
+	g_cvColorListURL = CreateConVar("cm_color_list_url", "https://celmod.rockzehh.net/colors.html", "URL for the color list command.");
+	g_cvCommandListURL = CreateConVar("cm_command_list_url", "https://celmod.rockzehh.net/cmds.html", "URL for the command list command.");
+	g_cvEffectListURL = CreateConVar("cm_effect_list_url", "https://celmod.rockzehh.net/effects.html", "URL for the effect list command.");
+	g_cvPropListURL = CreateConVar("cm_prop_list_url", "https://celmod.rockzehh.net/props.html", "URL for the prop list command.");
+	g_cvUpdateListURL = CreateConVar("cm_update_list_url", "https://celmod.rockzehh.net/updates.html", "URL for the update list command.");
 
 	g_cvColorListURL.AddChangeHook(CMHelp_OnConVarChanged);
 	g_cvCommandListURL.AddChangeHook(CMHelp_OnConVarChanged);
 	g_cvEffectListURL.AddChangeHook(CMHelp_OnConVarChanged);
 	g_cvPropListURL.AddChangeHook(CMHelp_OnConVarChanged);
+	g_cvUpdateListURL.AddChangeHook(CMHelp_OnConVarChanged);
 
 	g_cvColorListURL.GetString(g_sColorListURL, sizeof(g_sColorListURL));
 	g_cvCommandListURL.GetString(g_sCommandListURL, sizeof(g_sCommandListURL));
 	g_cvEffectListURL.GetString(g_sEffectListURL, sizeof(g_sEffectListURL));
 	g_cvPropListURL.GetString(g_sPropListURL, sizeof(g_sPropListURL));
+	g_cvUpdateListURL.GetString(g_sUpdateListURL, sizeof(g_sUpdateListURL));
 
 	RegConsoleCmd("sm_colorlist", Command_ColorList, "|CelMod| Displays the color list.");
 	RegConsoleCmd("sm_colors", Command_ColorList, "|CelMod| Displays the color list.");
@@ -62,6 +67,8 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_effects", Command_EffectList, "|CelMod| Displays the effect list.");
 	RegConsoleCmd("sm_proplist", Command_PropList, "|CelMod| Displays the prop list.");
 	RegConsoleCmd("sm_props", Command_PropList, "|CelMod| Displays the prop list.");
+	RegConsoleCmd("sm_updatelist", Command_UpdateList, "|CelMod| Displays the update list.");
+	RegConsoleCmd("sm_updates", Command_UpdateList, "|CelMod| Displays the update list.");
 
 	RegServerCmd("cm_exportcolorlist", Command_ExportColorList, "CelMod-Server: Exports the color list into a text or html file in 'data/celmod/exports'.");
 	RegServerCmd("cm_exportcommandlist", Command_ExportCommandList, "CelMod-Server: Exports the command list into a text or html file in 'data/celmod/exports'.");
@@ -85,6 +92,9 @@ public void CMHelp_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, cons
 	} else if (cvConVar == g_cvPropListURL) {
 		g_cvPropListURL.GetString(g_sPropListURL, sizeof(g_sPropListURL));
 		PrintToServer("|CelMod| Prop list url updated to %s.", sNewValue);
+	} else if (cvConVar == g_cvUpdateListURL) {
+		g_cvPropListURL.GetString(g_sUpdateListURL, sizeof(g_sUpdateListURL));
+		PrintToServer("|CelMod| Update list url updated to %s.", sNewValue);
 	}
 }
 
@@ -170,6 +180,19 @@ public Action Command_PropList(int iClient, int iArgs)
 	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
 
 	Cel_ReplyToCommand(iClient, "%t", "DisplayPropList");
+
+	return Plugin_Handled;
+}
+
+public Action Command_UpdateList(int iClient, int iArgs)
+{
+	char sURL[PLATFORM_MAX_PATH];
+
+	Cel_CheckInputURL(g_sUpdateListURL, sURL, sizeof(sURL));
+
+	Cel_OpenMOTDOnClient(iClient, true, "Cel's Web Viewer", sURL, MOTDPANEL_TYPE_URL);
+
+	Cel_ReplyToCommand(iClient, "%t", "DisplayUpdateList");
 
 	return Plugin_Handled;
 }
@@ -401,7 +424,7 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 
 	kvProps.ImportFromFile(sPath);
 
-	kvProps.JumpToKey("Default", false);
+	kvProps.JumpToKey("Models", false);
 
 	if (!kvProps.GotoFirstSubKey(false))
 	{

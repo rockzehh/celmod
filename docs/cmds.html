@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <meta charset="utf-8">
+<head>
 <meta name="viewport" content="width=device-width">
 
 <title>|CelMod| - Command List</title>
@@ -16,148 +17,68 @@
 <p>Click on a category below:</p>
 <p><b><a href="javascript:toggleList(1);" style="text-decoration:none;"><span class="h">Say Commands</span></a></b></p>
 <div id="say1">
-<p><a>!&lt;prop name&gt; &lt;spawn condition&gt; Ex: <span class="h">!blastdoor3</span></a><br>
+<p><a>!&lt;prop name&gt; Ex: <span class="h">!blastdoor3</span></a><br>
   ---  <a href="./props.html"><b>Props List</b></a><br>
-  <a>!land &lt;<span class="h">#clear</span> to remove&gt;</a><br>
+  <a>!land &lt;<span class="h">clear</span> to remove&gt;</a><br>
   <a>!save &lt;build&gt;</a><br>
   <a>!load &lt;build&gt;</a><br>
-  <a>!clear &lt;build&gt;</a><br>
-  <a>!copy</a><br>
-  <a>!paste</a><br>
   <a>!freeze</a><br>
   <a>!unfreeze</a><br>
-  <a>!r &lt;degrees&gt;</a><br>
   <a>!del</a><br>
-  <a>!delall</a><br>
+  <a>!del all</a><br>
   <a>!undo</a><br>
-  <a>+move</a><br>
-  <a>+grab</a><br>
-  <a>+copy</a><br>
-  <a>!copy</a><br>
-  <a>!paste</a><br>
   <a>!stand</a><br>
   <a>!smove</a><br>
-  <a>!moveto</a><br>
-  <a>!weld</a><br>
-  <a>!release</a><br>
-  <a>!mass &lt;amount&gt;</a><br>
-  <a>!color &lt;color&gt; (<span class="h">#all</span> to color all objects)</a><br>
-  <a>!paint &lt;color&gt; (<span class="h">#all</span> to color all objects)</a><br>
-  <a>!fadecolor &lt;color1&gt; &lt;color2&gt; (<span class="h">#all</span> to color all objects)</a><br>
-  <a>!palette</a><br>
+  <a>!color &lt;color&gt; (<span class="h">all</span> to color all objects)</a><br>
+  <a>!paint &lt;color&gt; (<span class="h">all</span> to color all objects)</a><br>
+  <a>!fadecolor &lt;color1&gt; &lt;color2&gt; (<span class="h">all</span> to color all objects)</a><br>
     ---  <a href="colors.html"><b>Colors List</b></a><br>
   <a>!amt &lt;transparency value&gt;</a><br>
-  <a>!skin &lt;skin number&gt;</a><br>
-  <a>!door &lt;door skin&gt; [pushbar]</a><br>
-  <a>!text &lt;message&gt;</a><br>
-  <a>!owner</a></p>
+  <a>!door &lt;door skin&gt;</a><br>
   </div>
 <p><b><a href="javascript:toggleList(2);" style="text-decoration:none;"><span class="h">Bank Say Commands</span></a></b></p>
 <div id="say2">
-<p><a>!bank ("<span class="h">remove</span>" to remove from bank/"<span class="h">add</span>" to add something to bank)</a><br>
-  <a>!buy Optinal:&lt;object&gt;</a><br>
-  <a>!sell &lt;price&gt; <i>Optional:</i> &lt;build name&gt;</a><br>
-  <a>!give &lt;player&gt;</a><br>
-  <a>!trade &lt;player&gt;</a><br>
-  <a>!cl &lt;amount&gt;</a><br>
+<p><a>!buy Optional:&lt;object&gt;</a><br>
+  <a>!sell &lt;price&gt;</a><br>
   <a>!balance</a></p>
   </div>
 <p><b><a href="javascript:toggleList(3);" style="text-decoration:none;"><span class="h">Cel Say Commands</span></a></b></p>
 <div id="say3">
-<p><a>!light <i>Optional:</i> &lt;distance&gt;</a><br>
-  <a>!fire</a><br>
-  <a>!teleport</a><br>
-  <a>!turret</a><br>
-  <a>!camera</a><br>
-  <a>!pod</a><br>
-  <a>!message</a><br>
-  <a>!sound &lt;sound name&gt; <i>Optional:</i> &lt;speed&gt;</a><br>
-  <a>!music &lt;music name&gt; <i>Optional:</i> &lt;volume&gt; &lt;loop&gt; &lt;speed&gt;</a><br>
-  <a>!ladder &lt;1 or 2&gt;</a><br>
-  <a>!effect &lt;effect name&gt; <i>Optional:</i> &lt;loop&gt;</a><br>
+<p><a>!effect &lt;effect name&gt;</a><br>
   <a>!internet</a><br>
   <a>!seturl &lt;url&gt;</a><br></p>
   </div>
-<p><b><a href="javascript:toggleList(4);" style="text-decoration:none;"><span class="h">Control Cels</span></a></b></p>
+<p><b><a href="javascript:toggleList(4);" style="text-decoration:none;"><span class="h">Extra Prop Say Commands</span></a></b></p>
 <div id="say4">
-<p><a>!button &lt;switch, open, lock, break&gt;</a><br>
-   <a>!trigger &lt;switch, open, lock, break&gt;</a><br>
-   <a>!link &lt;"<span class="h">create</span>" if making the link&gt;</a></p>
-   </div>
-<p><b><a href="javascript:toggleList(5);" style="text-decoration:none;"><span class="h">Bit Say Commands</span></a></b></p>
-<div id="say5">
-<p><a>!wep &lt;gravgun, stunstick, crowbar, pistol, magnum, smg, ar2, shotgun,<br>
-crossbow, grenade, rpg, slam&gt;</a><br>
-  <a>!ammo &lt;pistol, magnum, smg, ar2, shotgun, crossbow, rpg, auto&gt;</a><br>
-  <a>!ammocrate &lt;smg, ar2, rpg, grenade, cball&gt;</a><br>
-  <a>!charger &lt;health or suit&gt;</a><br>
-  <a>!spawnpoint</a></p>
-  </div>
-<p><b><a href="javascript:toggleList(6);" style="text-decoration:none;"><span class="h">Extra Prop Say Commands</span></a></b></p>
-<div id="say6">
-<p><a>!solid &lt;on of off&gt;</a><br>
-  <a>!god &lt;on or off&gt;</a><br>
-  <a>!stack &lt;x&gt; &lt;y&gt; &lt;z&gt;</a><br>
+<p><a>!solid</a><br>
+  <a>!stack &lt;amount&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt;</a><br>
   <a>!stackinfo</a><br>
   <a>!axis</a><br>
-  <a>!flip &lt;degrees&gt;</a><br>
-  <a>!roll &lt;degrees&gt;</a><br>
-  <a>!turn &lt;degrees&gt;</a><br>
-  <a>!drop</a><br>
-  <a>!lock</a><br>
-  <a>!unlock</a><br>
-  <a>!replace &lt;prop name&gt;</a><br>
-  <a>!model &lt;model alias&gt;</a><br>
-  <a>!anim &lt;name&gt; (<span class="h">#clear</span> to delete)</a><br>
-  <a>!view &lt;name&gt; (<span class="h">#loop</span> to loop animation)</a><br></p>
   </div>
-<p><b><a href="javascript:toggleList(7);" style="text-decoration:none;"><span class="h">Land Say Commands</span></a></b></p>
-<div id="say7">
-<p><a>!noclip</a><br>
-  <a>!coop</a><br>
-  <a>!dm</a><br>
-  <a>!weps</a><br>
-  <a>!gravity</a><br>
-  <a>!stopcopy</a><br>
-  <a>!dj</a><br>
-  <a>!addteam &lt;player&gt;</a><br>
-  <a>!delteam &lt;player&gt;</a><br>
-  <a>!landslay &lt;player&gt; (<span class="h">#all</span> if everyone inside land)</a><br>
-  <a>!landban &lt;player&gt;</a><br>
-  <a>!landkick &lt;player&gt;</a><br>
-  <a>!landunban &lt;player&gt;</a><br>
-  <a>!block &lt;player&gt;</a><br>
-  <a>!unblock &lt;player&gt;</a><br>
-  <a>!hide &lt;player&gt;</a><br>
-  <a>!show &lt;player&gt;</a><br>
-  <a>!landcolor &lt;color&gt;</a><br>
+<p><b><a href="javascript:toggleList(5);" style="text-decoration:none;"><span class="h">Land Say Commands</span></a></b></p>
+<div id="say5">
+<p><a>!landdeathmatch</a><br>
+  <a>!landgravity</a><br>
   <a>!landskin &lt;number&gt;</a><br>
-  <a>!cland</a><br></p>
   </div>
-  <p><b><a href="javascript:toggleList(8);" style="text-decoration:none;"><span class="h">Extra Say Commands</span></a></b></p>
-  <div id="say8">
-  <p><a>!dispute</a><br>
-  <a>!switch</a><br>
-  <a>!tacticlvl</a><br>
-  <a>!tacticxp</a><br>
-  <a>!thirdperson</a><br>
-  <a>!firstperson</a><br>
+  <p><b><a href="javascript:toggleList(6);" style="text-decoration:none;"><span class="h">Extra Say Commands</span></a></b></p>
+  <div id="say6">
+  <p><a>!switch</a><br>
   <a>!nokill</a><br>
-  <a>!nomenu</a><br>
-  <a>!showmsgs</a><br></p>
   </div>
   <p>All console commands are the same as the say commands<br>
-  except with a "<b>v_</b>" instead of "<b>!</b>"<br>
+  except with a "<b>sm_</b>" instead of "<b>!</b>"<br>
   <br>
-  Main Exceptions: <b>!del = v_remove</b><br>
-  <b>!flip|!r|!roll = v_rotate &lt;flip&gt; &lt;r&gt; &lt;roll&gt;</b><br>
-  <b>!paint|!color = v_color &lt;r&gt; &lt;g&gt; &lt;b&gt;</b><br></p>
+  Main Exceptions: <b>!del = sm_remove</b><br>
+  <b>!flip|!r|!roll = sm_rotate &lt;flip&gt; &lt;r&gt; &lt;roll&gt;</b><br>
+  <b>!paint|!color = sm_color &lt;r&gt; &lt;g&gt; &lt;b&gt;</b><br></p>
   </div>
   </div>
   <script type="text/javascript" src="./scripts/footer.js"></script>
   <script type="text/javascript" src="./scripts/dynamicbg.js"></script>
 </body>
-</html><script language="javascript">
+</html>
+<script language="javascript">
 <!--script
 var main = document.getElementById('main');
 var links = document.getElementsByTagName('a');
@@ -176,7 +97,7 @@ for(var i = 3; i < links.length; i++)
 		links[i].innerHTML = '<b><span class="h">'+cmd+'</span></b>'+end;
 	}
 }
-for(var j = 1; j <= 8; j++)
+for(var j = 1; j <= 6; j++)
 {
 	var row = document.getElementById('say'+j);
 	row.style.display = 'none';
@@ -188,7 +109,7 @@ for(var j = 1; j <= 8; j++)
 }
 function toggleList(num)
 {
-	for(var j = 1; j <= 8; j++)
+	for(var j = 1; j <= 6; j++)
 	{
 		if(j != num)
 		{

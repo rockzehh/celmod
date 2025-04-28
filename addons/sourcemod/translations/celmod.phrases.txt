@@ -466,6 +466,11 @@
 		"en"			"Displaying prop list."
 	}
 	
+	"DisplayUpdateList"
+	{
+		"en"			"Displaying update list."
+	}
+	
 	"OutdatedSaveSystem"
 	{
 		"en"			"This build was saved under an outdated save system, this build cannot be loaded!"

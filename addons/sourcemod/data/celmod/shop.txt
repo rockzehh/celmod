@@ -1,0 +1,16 @@
+"Shop"
+{
+	"Commands"
+	{
+		"combineprops"	"100000|combine props"
+		"gravity"	"10000|!landgravity"
+		"weld"	"20000|!weld"
+		"light"	"30000|!light"
+		"text"	"50000|!text"
+		"anim"	"50000|!anim"
+		"turret"	"200000|!turret"
+		"landcolor"	"200000|!landcolor"
+		"internet"	"200000|!internet"
+		"seturl"	"500000|!seturl"
+	}
+}

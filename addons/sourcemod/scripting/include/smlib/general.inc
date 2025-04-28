@@ -119,7 +119,7 @@ stock bool IsParticleSystemPrecached(const char[] particleSystem)
  * @param str			String to find.
  * @return				String index if found, INVALID_STRING_INDEX otherwise.
  */
-stock int FindStringIndexByTableName(const char[] table, const char[] str)
+/*stock int FindStringIndexByTableName(const char[] table, const char[] str)
 {
 	int tableIndex = INVALID_STRING_TABLE;
 	if ((tableIndex = FindStringTable("ParticleEffectNames")) == INVALID_STRING_TABLE) {
@@ -127,7 +127,7 @@ stock int FindStringIndexByTableName(const char[] table, const char[] str)
 	}
 
 	return FindStringIndex2(tableIndex, str);
-}
+}*/
 
 /*
  * Rewrite of FindStringIndex, because in my tests

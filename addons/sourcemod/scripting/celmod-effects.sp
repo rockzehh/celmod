@@ -28,13 +28,13 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	return APLRes_Success;
 }
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
-	name = "|CelMod| Effects", 
-	author = CEL_AUTHOR, 
-	description = "Creates a effect effect.", 
-	version = CEL_VERSION, 
-	url = "https://github.com/rockzehh/celmod"
+	name = "|CelMod| Effects",
+	author = CEL_AUTHOR,
+	description = "Creates a effect emitter.",
+	version = CEL_VERSION,
+	url = CEL_URL
 };
 
 public void OnPluginStart()
@@ -44,6 +44,7 @@ public void OnPluginStart()
 	g_hOnEffectSpawn = CreateGlobalForward("Cel_OnEffectSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 	
 	RegConsoleCmd("sm_effect", Command_Effect, "|CelMod| Spawns a working effect cel.");
+	RegConsoleCmd("sm_emitter", Command_Effect, "|CelMod| Spawns a working effect cel.");
 }
 
 //Plugin Commands:
@@ -104,7 +105,7 @@ public int Native_GetEffectAttachment(Handle hPlugin, int iNumParams)
 {
 	int iEffect = GetNativeCell(1);
 	
-	return EntRefToEntIndex(g_iEffectEntity[iEffect]);
+	return g_iEffectEntity[iEffect];
 }
 
 public int Native_GetEffectType(Handle hPlugin, int iNumParams)
@@ -135,9 +136,9 @@ public int Native_GetEffectTypeFromName(Handle hPlugin, int iNumParams)
 	} else if (StrContains("smokestack", sEffectName, false) != -1)
 	{
 		return view_as<int>(EFFECT_SMOKESTACK);
-	/*} else if (StrContains("spotlight", sEffectName, false) != -1)
+	} else if (StrContains("spotlight", sEffectName, false) != -1)
 	{
-		return view_as<int>(EFFECT_SPOTLIGHT);*/
+		return view_as<int>(EFFECT_SPOTLIGHT);
 	} else if (StrContains("steam", sEffectName, false) != -1)
 	{
 		return view_as<int>(EFFECT_STEAM);
@@ -174,10 +175,10 @@ public int Native_GetEffectTypeName(Handle hPlugin, int iNumParams)
 		{
 			Format(sEffectName, sizeof(sEffectName), "smokestack");
 		}
-		/*case EFFECT_SPOTLIGHT:
+		case EFFECT_SPOTLIGHT:
 		{
 			Format(sEffectName, sizeof(sEffectName), "spotlight");
-		}*/
+		}
 		case EFFECT_STEAM:
 		{
 			Format(sEffectName, sizeof(sEffectName), "steam");
@@ -214,7 +215,7 @@ public int Native_SetEffectAttachment(Handle hPlugin, int iNumParams)
 {
 	int iAttachment = GetNativeCell(2), iEffect = GetNativeCell(1);
 	
-	g_iEffectEntity[iEffect] = EntIndexToEntRef(iAttachment);
+	g_iEffectEntity[iEffect] = iAttachment;
 	
 	return true;
 }
@@ -264,6 +265,8 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	
 	Cel_AddToCelCount(iClient);
 	Cel_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
+	Cel_SetRainbow(iBase, false);
+	Cel_SetColorFade(iBase, false, 0, 0, 0, 0, 0, 0);
 	Cel_SetEntity(iBase, true);
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
@@ -294,7 +297,10 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 			
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
+			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
+			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -311,34 +317,37 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 		/*case EFFECT_EXPLOSION:
 		{
 			iEffect = CreateEntityByName("env_explosion");
-			
+
 			fAngles[0] = 0.0, fAngles[1] = 0.0, fAngles[2] = 0.0;
-			
+
 			fFinalOrigin = fOrigin;
 			fFinalOrigin[2] += 8.0;
-			
+
 			DispatchKeyValue(iEffect, "fireballsprite", "sprites/zerogxplode.spr");
 			DispatchKeyValue(iEffect, "iMagnitude", "25");
 			DispatchKeyValue(iEffect, "rendermode", "5");
 			DispatchKeyValue(iEffect, "spawnflags", "16386");
-			
+
 			DispatchSpawn(iEffect);
-			
+
 			TeleportEntity(iEffect, fFinalOrigin, fAngles, NULL_VECTOR);
-			
+
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
-			
+
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
+
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
+				Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
+			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
+
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
-			
+
 			Cel_SetEffectType(iBase, etEffect);
-			
+
 			return iBase;
 		}*/
 		case EFFECT_FIRE:
@@ -368,7 +377,10 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 			
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
+			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
+			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -378,7 +390,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectType(iBase, etEffect);
 			
 			SetVariantFloat(0.0);
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "StartFire" : "ExtinguishTemporary");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "ExtinguishTemporary" : "StartFire");
 			
 			return iBase;
 		}
@@ -406,7 +418,10 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 			
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
+			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
+			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -444,7 +459,10 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 			
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
+			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
+			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -453,48 +471,48 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			Cel_SetEffectType(iBase, etEffect);
 			
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOff" : "TurnOn");
 			
 			return iBase;
 		}
-		/*case EFFECT_SPOTLIGHT:
+		case EFFECT_SPOTLIGHT:
 		{
 			iEffect = CreateEntityByName("point_spotlight");
-			
+
 			fAngles[0] = -90.0, fAngles[1] = 0.0, fAngles[2] = 0.0;
-			
+
 			fFinalOrigin = fOrigin;
 			fFinalOrigin[2] += 12.0;
-			
+
 			DispatchKeyValue(iEffect, "disablereceiveshadows", "1");
 			DispatchKeyValue(iEffect, "HDRColorScale", "1.0");
 			DispatchKeyValue(iEffect, "spawnflags", "2");
 			DispatchKeyValue(iEffect, "spotlightlength", "50");
 			DispatchKeyValue(iEffect, "spotlightwidth", "10");
-			
+
 			DispatchSpawn(iEffect);
-			
+
 			TeleportEntity(iEffect, fFinalOrigin, fAngles, NULL_VECTOR);
-			
+
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
-			
+
 			Cel_SetEffectAttachment(iBase, iEffect);
+
+			Cel_SetColor(iEffect, iColor[0], iColor[1], iColor[2], iColor[3]);
 			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
+
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
-			
+
 			Cel_SetEffectActive(iBase, bActivate);
-			
+
 			Cel_SetEffectType(iBase, etEffect);
-			
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOn" : "LightOff");
-			
+
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOff" : "LightOn");
+
 			return iBase;
-		}*/
+		}
 		case EFFECT_STEAM:
 		{
 			iEffect = CreateEntityByName("env_steam");
@@ -523,7 +541,10 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetEffectAttachment(iBase, iEffect);
 			
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			Cel_SetEntity(Cel_GetEffectAttachment(iBase), true);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
+			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
+			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
 			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
@@ -532,7 +553,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			Cel_SetEffectType(iBase, etEffect);
 			
-			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOn" : "TurnOff");
+			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "TurnOff" : "TurnOn");
 			
 			return iBase;
 		}

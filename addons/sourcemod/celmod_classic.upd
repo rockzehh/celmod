@@ -1,0 +1,43 @@
+"Updater"
+{
+	"Information"
+	{
+		"Version"
+		{
+			"Latest"		"2.0.0"
+			"Previously"	"1.0.1.1"
+		}
+
+		"Notes"	"Went through and updated celmod-lands to fix missed small bugs and clean up some functions."
+		"Notes" "Added descriptions to all the natives. Was generated with AI so may be a little messy."
+		"Notes" "Created celmod-clientstorage to hold functions with client settings/purchases/bank storage."
+		"Notes" "Started working on the economy aspect of CelMod."
+	}
+
+	"Files"
+	{
+		"Plugin"	"Path_SM/data/celmod/colors.txt"
+		"Plugin"	"Path_SM/data/celmod/shop.txt"
+		"Plugin"	"Path_SM/data/celmod/sounds.txt"
+		"Plugin"	"Path_SM/data/celmod/spawns.txt"
+		"Plugin"	"Path_SM/plugins/funcommands.smx"
+		"Plugin"	"Path_SM/plugins/celmod.smx"
+		"Plugin"	"Path_SM/plugins/celmod-clientstorage.smx"
+		"Plugin"	"Path_SM/plugins/celmod-effects.smx"
+		"Plugin"	"Path_SM/plugins/celmod-help.smx"
+		"Plugin"	"Path_SM/plugins/celmod-hud.smx"
+		"Plugin"	"Path_SM/plugins/celmod-land.smx"
+		"Plugin"	"Path_SM/scripting/celmod.inc"
+
+		"Source"	"Path_SM/scripting/funcommands.sp"
+		"Source"	"Path_SM/scripting/celmod.sp"
+		"Source"	"Path_SM/scripting/celmod-clientstorage.sp"
+		"Source"	"Path_SM/scripting/celmod-effects.sp"
+		"Source"	"Path_SM/scripting/celmod-help.sp"
+		"Source"	"Path_SM/scripting/celmod-hud.sp"
+		"Source"	"Path_SM/scripting/celmod-land.sp"
+		"Source"	"Path_SM/scripting/funcommands/ice.sp"
+		"Source"	"Path_SM/scripting/include/celmod.inc"
+		"Source"	"Path_SM/scripting/include/morecolors.inc"
+	}
+}

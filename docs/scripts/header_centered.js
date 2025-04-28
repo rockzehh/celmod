@@ -5,6 +5,6 @@ favicon.setAttribute('href', 'https://raw.githubusercontent.com/rockzehh/celmod/
 document.body.appendChild(favicon);
 
 var logo = document.createElement('a');
-logo.setAttribute('href', 'http://celmod.rockzehh.net/');
+logo.setAttribute('href', './');
 document.body.appendChild(logo);
 logo.innerHTML = '<div id="logo" style="text-align: center; margin-left: auto; margin-right: auto;"><img src="https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/docs/images/logo.png" style="border: solid 1px #000;"></img></div>';

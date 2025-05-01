@@ -1200,6 +1200,7 @@ public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType u
 	char sURL[PLATFORM_MAX_PATH];
 
 	Cel_GetInternetURL(iEntity, sURL, sizeof(sURL));
+	
 	Cel_OpenMOTDOnClient(iActivator, true, "|CelMod| Viewer", sURL, MOTDPANEL_TYPE_URL);
 }
 

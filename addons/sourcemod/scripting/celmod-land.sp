@@ -317,15 +317,15 @@ public Action Command_LandSkin(int iClient, int iArgs)
 		{
 			AcceptEntityInput(g_liLand[iClient].iLandSkinEntity, "kill");
 			Cel_CreateLandSkin(iClient, g_liLand[iClient].fLandPosBottom, g_liLand[iClient].fLandPosBottomTop);
-			Cel_ReplyToCommand(iClient, "Updated land skin to {green}%s{default}!", sSkin);
+			Cel_ReplyToCommand(iClient, "%t", "UpdatedLandSkin", sSkin);
 			return Plugin_Handled;
 		}else{
 			Cel_CreateLandSkin(iClient, g_liLand[iClient].fLandPosBottom, g_liLand[iClient].fLandPosBottomTop);
-			Cel_ReplyToCommand(iClient, "Set up land skin with skin {green}%s{default}.", sSkin);
+			Cel_ReplyToCommand(iClient, "%t", "SetLandSkin", sSkin);
 			return Plugin_Handled;
 		}
 	}else{
-		Cel_ReplyToCommand(iClient, "Land has not yet been created!");
+		Cel_ReplyToCommand(iClient, "%t", "LandNotStarted");
 		return Plugin_Handled;
 	}
 }
@@ -885,11 +885,15 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 	if (iActivator < 1 || iActivator > MaxClients || !IsClientInGame(iActivator) || !IsPlayerAlive(iActivator))
 	return;
 	
+	char sName[64];
+	
 	int iOwner = g_iLandEntOwner[iCaller];
+	
+	GetClientName(iOwner, sName, sizeof(sName));
 	
 	if(!g_liLand[iActivator].bInsideLand)
 	{
-		Cel_PrintToChat(iActivator, "You have entered {green}%N{default}'s land.", iOwner);
+		Cel_PrintToChat(iActivator, "%t", "EnteredLand", sName);
 	}
 
 	g_liLand[iActivator].bInsideLand = true;
@@ -905,7 +909,7 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 
 		g_liLand[iActivator].bInDeathmatchMode = true;
 
-		Cel_PrintToChat(iActivator, "This land has {red}deathmatch{default} mode enabled!");
+		Cel_PrintToChat(iActivator, "%t", "LandMode_Deathmatch");
 	}
 }
 

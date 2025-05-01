@@ -273,6 +273,8 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	Cel_SetSolid(iBase, true);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
+	SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
+	
 	switch (etEffect)
 	{
 		case EFFECT_CORE:
@@ -302,8 +304,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectActive(iBase, bActivate);
 			
@@ -344,8 +344,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
-
 			Cel_SetEffectType(iBase, etEffect);
 
 			return iBase;
@@ -382,8 +380,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectActive(iBase, bActivate);
 			
@@ -424,8 +420,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
-			
 			Cel_SetEffectType(iBase, etEffect);
 			
 			return iBase;
@@ -465,8 +459,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
-			
 			Cel_SetEffectActive(iBase, bActivate);
 			
 			Cel_SetEffectType(iBase, etEffect);
@@ -502,8 +494,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetColor(iEffect, iColor[0], iColor[1], iColor[2], iColor[3]);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 
 			Cel_SetEffectActive(iBase, bActivate);
 
@@ -546,8 +536,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectActive(iBase, bActivate);
 			

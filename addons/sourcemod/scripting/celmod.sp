@@ -1353,7 +1353,7 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	
 	Cel_SetRenderFX(iInternet, RENDERFX_NONE);
 	
-	SDKHook(iInternet, SDKHook_UsePost, Hook_InternetUse);
+	SDKHook(iInternet, SDKHook_Use, Hook_InternetUse);
 	
 	return iInternet;
 }

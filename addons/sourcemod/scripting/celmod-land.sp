@@ -34,7 +34,7 @@ enum struct Land {
 	bool bModeCoop;
 	bool bModeDeathmatch;
 	bool bModeShop;
-	
+
 	char sLandTexture[PLATFORM_MAX_PATH];
 
 	float fLandGravity;
@@ -108,6 +108,8 @@ public void OnPluginStart()
 
 	g_fMaxLandSize = g_cvMaxLandSize.FloatValue;
 
+	AutoExecConfig(true, "celmod.land");
+
 	RegConsoleCmd("sm_land", Command_Land, "|CelMod| Creates a building zone.");
 	RegConsoleCmd("sm_landdeathmatch", Command_LandDeathmatch, "|CelMod| Changes the deathmatch setting within the land.");
 	RegConsoleCmd("sm_landgravity", Command_LandGravity, "|CelMod| Changes the gravity within the land.");
@@ -124,7 +126,7 @@ public void OnClientPutInServer(int iClient)
 	g_liLand[iClient].bInDeathmatchMode = false;
 	g_liLand[iClient].bInsideLand = false;
 	g_liLand[iClient].bLandCreated = false;
-	
+
 	Format(g_liLand[iClient].sLandTexture, sizeof(g_liLand[iClient].sLandTexture), "celmod/landskins/s1");
 
 	g_liLand[iClient].fLandPosBottom = g_fZero;
@@ -222,7 +224,7 @@ public Action Command_Land(int iClient, int iArgs)
 				Cel_ReplyToCommand(iClient, "%t", "CantStartLandInLand");
 				return Plugin_Handled;
 			}
-			
+
 			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fLandPosBottom);
 			Cel_GetCrosshairHitOrigin(iClient, g_liLand[iClient].fLandPosStarting);
 
@@ -241,7 +243,7 @@ public Action Command_Land(int iClient, int iArgs)
 				Cel_ReplyToCommand(iClient, "%t", "CantEndLandInLand");
 				return Plugin_Handled;
 			}
-			
+
 			g_liLand[iClient].bLandGettingTopPos = false;
 			g_liLand[iClient].bLandCreated = true;
 
@@ -306,11 +308,11 @@ public Action Command_LandSkin(int iClient, int iArgs)
 	GetCmdArg(1, sSkin, sizeof(sSkin));
 
 	Format(sTexture, sizeof(sTexture), "celmod/landskins/s%s", sSkin);
-	
+
 	PrecacheMaterial(sTexture);
-	
+
 	strcopy(g_liLand[iClient].sLandTexture, sizeof(g_liLand[iClient].sLandTexture), sTexture);
-	
+
 	if(g_liLand[iClient].bLandCreated)
 	{
 		if(g_liLand[iClient].iLandSkinEntity != -1 && IsValidEntity(g_liLand[iClient].iLandSkinEntity))
@@ -333,7 +335,7 @@ public Action Command_LandSkin(int iClient, int iArgs)
 public void Cel_CreateLandSkin(int iClient, float fMin[3], float fMax[3])
 {
 	int iBrush = CreateEntityByName("func_brush");
-	
+
 	DispatchKeyValue(iBrush, "spawnflags", "0");
 	DispatchKeyValue(iBrush, "StartDisabled", "0");
 	DispatchKeyValue(iBrush, "Solidity", "2");
@@ -348,9 +350,9 @@ public void Cel_CreateLandSkin(int iClient, float fMin[3], float fMax[3])
 
 	DispatchKeyValue(iBrush, "material", g_liLand[iClient].sLandTexture);
 	PrecacheDecal(g_liLand[iClient].sLandTexture, true);
-	
+
 	DispatchSpawn(iBrush);
-	
+
 	ActivateEntity(iBrush);
 
 	float bmin[3], bmax[3];
@@ -366,7 +368,7 @@ public void Cel_CreateLandSkin(int iClient, float fMin[3], float fMax[3])
 	SetEntPropVector(iBrush, Prop_Send, "m_vecMaxs", bmax);
 	SetEntPropVector(iBrush, Prop_Send, "m_vecOrigin", g_liLand[iClient].fLandPosBottomMiddle);
 	SetEntProp(iBrush, Prop_Send, "m_nSolidType", 2);
-	
+
 	g_liLand[iClient].iLandSkinEntity = iBrush;
 }
 
@@ -431,7 +433,7 @@ public int Native_CreateLand(Handle hPlugin, int iNumParams)
 
 	HookSingleEntityOutput(iEnt, "OnStartTouch", EntOut_LandOnStartTouch);
 	HookSingleEntityOutput(iEnt, "OnEndTouch", EntOut_LandOnEndTouch);
-	
+
 	g_iLandEntOwner[iEnt] = iClient;
 	g_liLand[iClient].iLandEntity = iEnt;
 	g_liLand[iClient].iLandOwner = iClient;
@@ -629,9 +631,9 @@ public int Native_GetLandOwner(Handle hPlugin, int iNumParams)
 public int Native_GetLandOwnerFromPosition(Handle hPlugin, int iNumParams)
 {
 	float fOrigin[3];
-	
+
 	GetNativeArray(1, fOrigin, 3);
-	
+
 	for (int i = 1; i < MaxClients; i++)
 	{
 		if (IsClientAuthorized(i))
@@ -642,7 +644,7 @@ public int Native_GetLandOwnerFromPosition(Handle hPlugin, int iNumParams)
 			}
 		}
 	}
-	
+
 	return -1;
 }
 
@@ -884,13 +886,13 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 {
 	if (iActivator < 1 || iActivator > MaxClients || !IsClientInGame(iActivator) || !IsPlayerAlive(iActivator))
 	return;
-	
+
 	char sName[64];
-	
+
 	int iOwner = g_iLandEntOwner[iCaller];
-	
+
 	GetClientName(iOwner, sName, sizeof(sName));
-	
+
 	if(!g_liLand[iActivator].bInsideLand)
 	{
 		Cel_PrintToChat(iActivator, "%t", "EnteredLand", sName);

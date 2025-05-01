@@ -45,6 +45,7 @@ enum EffectType
 #define CEL_URL "https://github.com/rockzehh/celmod"
 #define CEL_VERSION "2.1.0"
 #define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd"
+#define UPDATE_BETA_URL "https://raw.githubusercontent.com/rockzehh/celmod/beta/addons/sourcemod/celmod_update.upd"
 
 #define MAXENTITIES 2048
 #define PLAYER_CROWBAR_ATTACK_RADIUS 2.0
@@ -193,6 +194,8 @@ native bool Cel_CheckRenderFX(const int iEntity, const char[] sType);
  */
 native bool Cel_CheckSpawnDB(const char[] sAlias, char[] sSpawnString, int iMaxLength);
 
+native void Cel_CopyProp(int iClient, int iProp);
+
 /**
  * Dissolves an entity in the game world.
  *
@@ -297,6 +300,8 @@ native EntityType Cel_GetEntityTypeFromName(const char[] sEntityType);
  * @return              The entity type name as a string.
  */
 native char Cel_GetEntityTypeName(EntityType etEntityType, char[] sEntityType, int iMaxLength);
+
+native void Cel_GetFadeColor(int iEntity, iFadeFrom[3], iFadeTo[3]);
 
 /**
  * Retrieves the material used for halos.
@@ -439,6 +444,8 @@ native void Cel_NotLooking(int iClient);
  * @param iEntity  The entity index.
  */
 native void Cel_NotYours(int iClient, int iEntity);
+
+native int Cel_PasteProp(int iClient, float fAngles[3], float fOrigin[3]);
 
 /**
  * Plays a chat message sound for a client.
@@ -674,7 +681,7 @@ native void Cel_SubFromPropCount(int iClient);
  */
 stock void Cel_GetEntityAngles(int iEntity, float fAngles[3])
 {
-    GetEntPropVector(iEntity, Prop_Data, "m_angAbsRotation", fAngles);
+	GetEntPropVector(iEntity, Prop_Data, "m_angAbsRotation", fAngles);
 }
 
 /**
@@ -685,7 +692,7 @@ stock void Cel_GetEntityAngles(int iEntity, float fAngles[3])
  */
 stock void Cel_GetEntityOrigin(int iEntity, float fOrigin[3])
 {
-    GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", fOrigin);
+	GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", fOrigin);
 }
 
 //========== celmod-effects.smx ==========
@@ -1200,7 +1207,7 @@ public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType u
 	char sURL[PLATFORM_MAX_PATH];
 
 	Cel_GetInternetURL(iEntity, sURL, sizeof(sURL));
-	
+
 	Cel_OpenMOTDOnClient(iActivator, true, "|CelMod| Viewer", sURL, MOTDPANEL_TYPE_URL);
 }
 

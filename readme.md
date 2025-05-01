@@ -4,7 +4,7 @@
 
 Latest release is *2.0.0*, current working version is *2.1.0*.
 
-Built against SourceMod *1.12.0-git7196* and Metamod: Source *2.0.0-git1345*.
+Built against SourceMod *1.12.0-git7198* and Metamod: Source *1.12.0-git1219*.
 
 This plugin uses [Updater](https://github.com/rockzehh/updater) to update its files, and is required.
 This plugin uses [More Colors](https://forums.alliedmods.net/showthread.php?t=185016) for the text color. It is required if you want to recompile the plugin.

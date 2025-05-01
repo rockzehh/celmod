@@ -7,7 +7,7 @@
 			"Latest"		"2.1.0"
 			"Previously"	"2.0.0"
 		}
-		
+
 		"Notes"	"Added +grab, +copy, !skin, !copy and !paste."
 	}
 
@@ -27,7 +27,8 @@
 		"Plugin"	"Path_SM/plugins/celmod-help.smx"
 		"Plugin"	"Path_SM/plugins/celmod-hud.smx"
 		"Plugin"	"Path_SM/plugins/celmod-land.smx"
-		"Plugin"	"Path_SM/scripting/celmod.inc"
+		"Plugin"	"Path_SM/scripting/include/celmod.inc"
+		"Source"	"Path_SM/scripting/include/updater.inc"
 		"Plugin"	"Path_SM/translations/celmod.phrases.txt"
 
 		"Source"	"Path_SM/scripting/funcommands.sp"
@@ -43,6 +44,7 @@
 		"Source"	"Path_SM/scripting/funcommands/ice.sp"
 		"Source"	"Path_SM/scripting/include/celmod.inc"
 		"Source"	"Path_SM/scripting/include/morecolors.inc"
+		"Source"	"Path_SM/scripting/include/updater.inc"
 		"Source"	"Path_SM/translations/celmod.phrases.txt"
 	}
 }

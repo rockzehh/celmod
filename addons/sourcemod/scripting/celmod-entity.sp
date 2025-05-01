@@ -1515,11 +1515,7 @@ public int Native_SetColorFade(Handle hPlugin, int iNumParams)
 		
 		g_fFadeTime[iEntity] = GetGameTime();
 		
-<<<<<<< Updated upstream
-		Cel_SetRainbow(iEntity, false);
-=======
 		g_bRainbow[iEntity] = false;
->>>>>>> Stashed changes
 		
 		RequestFrame(Frame_FadeColor, iEntity);
 	}else{
@@ -1532,8 +1528,6 @@ public int Native_SetColorFade(Handle hPlugin, int iNumParams)
 		
 		g_fFadeTime[iEntity] = 0.0;
 	}
-	
-	g_bIsFading[iEntity] = bFade;
 	
 	return true;
 }
@@ -1588,25 +1582,17 @@ public int Native_SetRainbow(Handle hPlugin, int iNumParams)
 	int iEntity = GetNativeCell(1);
 	bool bRainbow = view_as<bool>(GetNativeCell(2));
 	
-	if(bRainbow)
+	g_bRainbow[iEntity] = bRainbow;
+	
+	if(g_bRainbow[iEntity])
 	{
 		g_fRainbowTime[iEntity] = GetGameTime();
-		
-<<<<<<< Updated upstream
-		Cel_SetColorFade(iEntity, false, 0, 0, 0, 0, 0, 0);
+
+		g_bIsFading[iEntity] = false;
 		
 		RequestFrame(Frame_Rainbow, iEntity);
 	}
 	
-=======
-		g_bIsFading[iEntity] = false;
-	}
-	
-	g_bRainbow[iEntity] = bRainbow;
-	
-	RequestFrame(Frame_Rainbow, iEntity);
-	
->>>>>>> Stashed changes
 	return true;
 }
 

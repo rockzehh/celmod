@@ -266,7 +266,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	Cel_AddToCelCount(iClient);
 	Cel_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
 	Cel_SetRainbow(iBase, false);
-	Cel_SetColorFade(iBase, false, 0, 0, 0, 0, 0, 0);
 	Cel_SetEntity(iBase, true);
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
@@ -298,10 +297,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
 			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
@@ -336,11 +331,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 
 			Cel_SetEffectAttachment(iBase, iEffect);
-
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-				Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
@@ -373,11 +363,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
@@ -412,11 +397,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
@@ -455,7 +435,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
 			
 			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			
@@ -491,7 +470,9 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectAttachment(iBase, iEffect);
 
-			Cel_SetColor(iEffect, iColor[0], iColor[1], iColor[2], iColor[3]);
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
@@ -529,11 +510,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
 			
 			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 			

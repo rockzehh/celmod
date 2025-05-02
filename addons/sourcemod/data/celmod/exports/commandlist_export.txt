@@ -1,3 +1,7 @@
++copy - Client - Starts copying and grabing the prop you are looking at.
++grab - Client - Starts grabing the prop you are looking at.
+-copy - Client - Stops copying and grabing the prop you are looking at.
+-grab - Client - Stops grabing the prop you are looking at.
 cm_exportcolorlist - Server - Exports the color list into a text or html file in 'data/celmod/exports'.
 cm_exportcommandlist - Server - Exports the command list into a text or html file in 'data/celmod/exports'.
 cm_exportproplist - Server - Exports the prop list into a text or html file in 'data/celmod/exports'.
@@ -12,6 +16,7 @@ sm_colorlist - Client - Displays the color list.
 sm_colors - Client - Displays the color list.
 sm_commandlist - Client - Displays the command list.
 sm_commands - Client - Displays the command list.
+sm_copy - Client - Copies the prop you are looking at into your copy buffer.
 sm_del - Client - Removes the prop you are looking at.
 sm_delete - Client - Removes the prop you are looking at.
 sm_door - Client - Spawns a working door cel.
@@ -34,6 +39,7 @@ sm_marker - Client - Creates a marker to the player showing every axis.
 sm_nokill - Client - Enables/disables godmode on the player.
 sm_p - Client - Spawns a prop by name.
 sm_paint - Client - Colors the prop you are looking at.
+sm_paste - Client - Pastes the prop in your copy buffer where you are looking at.
 sm_pmove - Client - Moves the prop you are looking at on it's origin.
 sm_proplist - Client - Displays the prop list.
 sm_props - Client - Displays the prop list.
@@ -46,6 +52,7 @@ sm_sell - Client - Sells the entity you are looking at.
 sm_setbalance - Admin - Sets the balance of the client you are specifing.
 sm_setowner - Admin - Sets the owner of the prop you are looking at.
 sm_seturl - Client - Sets the url of the internet cel you are looking at.
+sm_skin - Client - Changes the skin on the prop you are looking at.
 sm_smove - Client - Moves the prop you are looking at on it's origin.
 sm_solid - Client - Enables/disables solidicity on the prop you are looking at.
 sm_spawn - Client - Spawns a prop by name.

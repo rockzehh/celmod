@@ -1162,6 +1162,73 @@ native void Cel_StartSale(int iClient, int iEntity, int iPrice);
 
 native void Cel_SubFromClientBalance(int iClient, int iBalance);
 
+//Stocks
+stock void HSVtoRGB(float fH, float fS, float fV, int iRGB[3])
+{
+	fH -= 360.0 * RoundToFloor(fH / 360.0);
+	
+	int iSeg = RoundToFloor(fH / 60.0) % 6;
+	float fFrac = (fH / 60.0) - iSeg;
+	
+	float fP = fV * (1.0 - fS);
+	float fQ = fV * (1.0 - fFrac * fS);
+	float fT = fV * (1.0 - (1.0 - fFrac) * fS);
+	
+	float fR, fG, fB;
+	
+	switch (iSeg)
+	{
+		case 0: { fR = fV; fG = fT; fB = fP; }
+		case 1: { fR = fQ; fG = fV; fB = fP; }
+		case 2: { fR = fP; fG = fV; fB = fT; }
+		case 3: { fR = fP; fG = fQ; fB = fV; }
+		case 4: { fR = fT; fG = fP; fB = fV; }
+		default:{ fR = fV; fG = fP; fB = fQ; }
+	}
+	
+	iRGB[0] = RoundToFloor(fR * 255.0);
+	iRGB[1] = RoundToFloor(fG * 255.0);
+	iRGB[2] = RoundToFloor(fB * 255.0);
+}
+
+stock void RGBtoHSV(int iR8, int iG8, int iB8, float &fH, float &fS, float &fV)
+{
+	float fR = iR8 / 255.0;
+	float fG = iG8 / 255.0;
+	float fB = iB8 / 255.0;
+	
+	float fCMax = fR;
+	if (fG > fCMax) fCMax = fG;
+	if (fB > fCMax) fCMax = fB;
+	
+	float fCMin = fR;
+	if (fG < fCMin) fCMin = fG;
+	if (fB < fCMin) fCMin = fB;
+	
+	float fDelta = fCMax - fCMin;
+	
+	if (fDelta == 0.0)
+	{
+		fH = 0.0;
+	}
+	else if (fCMax == fR)
+	{
+		fH = 60.0 * ((fG - fB) / fDelta);
+		if (fH < 0.0) fH += 360.0;
+	}
+	else if (fCMax == fG)
+	{
+		fH = 60.0 * (((fB - fR) / fDelta) + 2.0);
+	}
+	else
+	{
+		fH = 60.0 * (((fR - fG) / fDelta) + 4.0);
+	}
+	
+	fS = (fCMax == 0.0) ? 0.0 : (fDelta / fCMax);
+	fV = fCMax;
+}
+
 //Hooks:
 public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
 {
@@ -1198,16 +1265,16 @@ public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utT
 			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "TurnOn" : "TurnOff");
 		}
 	}
-
+	
 	Cel_SetEffectActive(iEntity, !Cel_IsEffectActive(iEntity));
 }
 
 public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
 {
 	char sURL[PLATFORM_MAX_PATH];
-
+	
 	Cel_GetInternetURL(iEntity, sURL, sizeof(sURL));
-
+	
 	Cel_OpenMOTDOnClient(iActivator, true, "|CelMod| Viewer", sURL, MOTDPANEL_TYPE_URL);
 }
 
@@ -1215,17 +1282,17 @@ public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType u
 public Action Timer_DelayRemove(Handle hTimer, any iRef)
 {
 	int iEntity = EntRefToEntIndex(iRef);
-
+	
 	AcceptEntityInput(iEntity, "kill");
-
+	
 	return Plugin_Continue;
 }
 
 public Action Timer_DisRemove(Handle hTimer, any iRef)
 {
 	int iEntity = EntRefToEntIndex(iRef);
-
+	
 	Cel_DissolveEntity(iEntity);
-
+	
 	return Plugin_Continue;
 }

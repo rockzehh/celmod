@@ -10,6 +10,7 @@
 #pragma newdecls required
 
 bool g_bBetaBranchUpdates;
+bool g_bEntity[MAXENTITIES + 1];
 bool g_bLate;
 bool g_bIsFlying[MAXPLAYERS + 1];
 bool g_bNoKill[MAXPLAYERS + 1];
@@ -37,6 +38,7 @@ int g_iBeam;
 int g_iCelCount[MAXPLAYERS + 1];
 int g_iCelLimit;
 int g_iHalo;
+int g_iOwner[MAXENTITIES + 1];
 int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
 int g_iPropLimit;
@@ -47,6 +49,9 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_AddToPropCount", Native_AddToPropCount);
 	CreateNative("Cel_ChangeBeam", Native_ChangeBeam);
 	CreateNative("Cel_CheckCelCount", Native_CheckCelCount);
+	CreateNative("Cel_CheckEntityCatagory", Native_CheckEntityCatagory);
+	CreateNative("Cel_CheckEntityType", Native_CheckEntityType);
+	CreateNative("Cel_CheckOwner", Native_CheckOwner);
 	CreateNative("Cel_CheckPropCount", Native_CheckPropCount);
 	CreateNative("Cel_CheckSpawnDB", Native_CheckSpawnDB);
 	CreateNative("Cel_DownloadClientFiles", Native_DownloadClientFiles);
@@ -54,14 +59,22 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetBeamMaterial", Native_GetBeamMaterial);
 	CreateNative("Cel_GetCelCount", Native_GetCelCount);
 	CreateNative("Cel_GetCelLimit", Native_GetCelLimit);
+	CreateNative("Cel_GetClientAimTarget", Native_GetClientAimTarget);
 	CreateNative("Cel_GetCombinedCount", Native_GetCombinedCount);
 	CreateNative("Cel_GetCrosshairHitOrigin", Native_GetCrosshairHitOrigin);
+	CreateNative("Cel_GetEntityCatagory", Native_GetEntityCatagory);
+	CreateNative("Cel_GetEntityCatagoryName", Native_GetEntityCatagoryName);
+	CreateNative("Cel_GetEntityType", Native_GetEntityType);
+	CreateNative("Cel_GetEntityTypeFromName", Native_GetEntityTypeFromName);
+	CreateNative("Cel_GetEntityTypeName", Native_GetEntityTypeName);
 	CreateNative("Cel_GetHaloMaterial", Native_GetHaloMaterial);
 	CreateNative("Cel_GetInternetURL", Native_GetInternetURL);
 	CreateNative("Cel_GetNoKill", Native_GetNoKill);
+	CreateNative("Cel_GetOwner", Native_GetOwner);
 	CreateNative("Cel_GetPhysicsMaterial", Native_GetPhysicsMaterial);
 	CreateNative("Cel_GetPropCount", Native_GetPropCount);
 	CreateNative("Cel_GetPropLimit", Native_GetPropLimit);
+	CreateNative("Cel_IsEntity", Native_IsEntity);
 	CreateNative("Cel_IsPlayer", Native_IsPlayer);
 	CreateNative("Cel_NotLooking", Native_NotLooking);
 	CreateNative("Cel_NotYours", Native_NotYours);
@@ -73,8 +86,10 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SetAuthID", Native_SetAuthID);
 	CreateNative("Cel_SetCelCount", Native_SetCelCount);
 	CreateNative("Cel_SetCelLimit", Native_SetCelLimit);
+	CreateNative("Cel_SetEntity", Native_SetEntity);
 	CreateNative("Cel_SetInternetURL", Native_SetInternetURL);
 	CreateNative("Cel_SetNoKill", Native_SetNoKill);
+	CreateNative("Cel_SetOwner", Native_SetOwner);
 	CreateNative("Cel_SetPlayer", Native_SetPlayer);
 	CreateNative("Cel_SetPropCount", Native_SetPropCount);
 	CreateNative("Cel_SetPropLimit", Native_SetPropLimit);
@@ -893,6 +908,32 @@ public int Native_CheckCelCount(Handle hPlugin, int iNumParams)
 	return (Cel_GetCelCount(iClient) >= Cel_GetCelLimit()) ? false : true;
 }
 
+public int Native_CheckEntityCatagory(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+
+	return (Cel_GetEntityCatagory(iEntity) == view_as<EntityCatagory>(GetNativeCell(2))) ? true : false;
+}
+
+public int Native_CheckEntityType(Handle hPlugin, int iNumParams)
+{
+	char sPropCheck[PLATFORM_MAX_PATH];
+
+	int iEntity = GetNativeCell(1);
+
+	GetNativeString(2, sPropCheck, sizeof(sPropCheck));
+
+	return (Cel_GetEntityType(iEntity) == Cel_GetEntityTypeFromName(sPropCheck)) ? true : false;
+}
+
+public int Native_CheckOwner(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	int iEntity = GetNativeCell(2);
+
+	return (Cel_GetOwner(iEntity) == iClient && Cel_IsEntity(iEntity)) ? true : false;
+}
+
 public int Native_CheckPropCount(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
@@ -995,6 +1036,20 @@ public int Native_GetCelLimit(Handle hPlugin, int iNumParams)
 	return g_iCelLimit;
 }
 
+public int Native_GetClientAimTarget(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+
+	if (GetClientAimTarget(iClient, false) == -1)
+	{
+		return -1;
+	}
+
+	int iTarget = GetClientAimTarget(iClient, false);
+
+	return (Cel_IsEntity(iTarget)) ? iTarget : -1;
+}
+
 public int Native_GetCombinedCount(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
@@ -1025,6 +1080,171 @@ public int Native_GetCrosshairHitOrigin(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+
+	EntityType etEntityType = Cel_GetEntityType(iEntity);
+
+	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER)
+	{
+		return view_as<int>(ENTCATAGORY_CEL);
+	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
+	{
+		return view_as<int>(ENTCATAGORY_PROP);
+	} else {
+		return view_as<int>(ENTCATAGORY_UNKNOWN);
+	}
+}
+
+public int Native_GetEntityCatagoryName(Handle hPlugin, int iNumParams)
+{
+	char sEntityCatagory[PLATFORM_MAX_PATH];
+	int iMaxLength = GetNativeCell(3);
+
+	switch (view_as<EntityCatagory>(GetNativeCell(1)))
+	{
+		case ENTCATAGORY_CEL:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "cel entity");
+		}
+		case ENTCATAGORY_PROP:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "prop entity");
+		}
+		case ENTCATAGORY_UNKNOWN:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "unknown entity");
+		}
+	}
+
+	SetNativeString(2, sEntityCatagory, iMaxLength);
+
+	return true;
+}
+
+public int Native_GetEntityType(Handle hPlugin, int iNumParams)
+{
+	char sClassname[64];
+
+	int iEntity = GetNativeCell(1);
+
+	GetEntityClassname(iEntity, sClassname, sizeof(sClassname));
+
+	if (StrEqual(sClassname, "cycler", false))
+	{
+		return view_as<int>(ENTTYPE_CYCLER);
+	} else if (StrEqual(sClassname, "cel_door", false))
+	{
+		return view_as<int>(ENTTYPE_DOOR);
+	} else if (StrEqual(sClassname, "cel_internet", false))
+	{
+		return view_as<int>(ENTTYPE_INTERNET);
+	} else if (StrEqual(sClassname, "cel_light", false))
+	{
+		return view_as<int>(ENTTYPE_LIGHT);
+	} else if (StrContains(sClassname, "effect_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_EFFECT);
+	} else if (StrContains(sClassname, "prop_cleer", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_CLEER);
+	} else if (StrContains(sClassname, "prop_dynamic", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_DYNAMIC);
+	} else if (StrContains(sClassname, "prop_physics", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_PHYSICS);
+	} else {
+		return view_as<int>(ENTTYPE_UNKNOWN);
+	}
+}
+
+public int Native_GetEntityTypeFromName(Handle hPlugin, int iNumParams)
+{
+	char sEntityType[PLATFORM_MAX_PATH];
+
+	GetNativeString(1, sEntityType, sizeof(sEntityType));
+
+	if (StrEqual(sEntityType, "cleer", false))
+	{
+		return view_as<int>(ENTTYPE_CLEER);
+	} else if (StrEqual(sEntityType, "cycler", false))
+	{
+		return view_as<int>(ENTTYPE_CYCLER);
+	} else if (StrEqual(sEntityType, "door", false))
+	{
+		return view_as<int>(ENTTYPE_DOOR);
+	} else if (StrEqual(sEntityType, "dynamic", false))
+	{
+		return view_as<int>(ENTTYPE_DYNAMIC);
+	} else if (StrEqual(sEntityType, "effect", false))
+	{
+		return view_as<int>(ENTTYPE_EFFECT);
+	} else if (StrEqual(sEntityType, "internet", false))
+	{
+		return view_as<int>(ENTTYPE_INTERNET);
+	} else if (StrEqual(sEntityType, "light", false))
+	{
+		return view_as<int>(ENTTYPE_LIGHT);
+	} else if (StrEqual(sEntityType, "physics", false))
+	{
+		return view_as<int>(ENTTYPE_PHYSICS);
+	} else {
+		return view_as<int>(ENTTYPE_UNKNOWN);
+	}
+}
+
+public int Native_GetEntityTypeName(Handle hPlugin, int iNumParams)
+{
+	char sEntityType[PLATFORM_MAX_PATH];
+	int iMaxLength = GetNativeCell(3);
+
+	switch (view_as<EntityType>(GetNativeCell(1)))
+	{
+		case ENTTYPE_CYCLER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "cycler prop");
+		}
+		case ENTTYPE_CLEER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "cleer deposit box");
+		}
+		case ENTTYPE_DOOR:
+		{
+			Format(sEntityType, sizeof(sEntityType), "door cel");
+		}
+		case ENTTYPE_DYNAMIC:
+		{
+			Format(sEntityType, sizeof(sEntityType), "dynamic prop");
+		}
+		case ENTTYPE_EFFECT:
+		{
+			Format(sEntityType, sizeof(sEntityType), "effect cel");
+		}
+		case ENTTYPE_INTERNET:
+		{
+			Format(sEntityType, sizeof(sEntityType), "internet cel");
+		}
+		case ENTTYPE_LIGHT:
+		{
+			Format(sEntityType, sizeof(sEntityType), "light cel");
+		}
+		case ENTTYPE_PHYSICS:
+		{
+			Format(sEntityType, sizeof(sEntityType), "physics prop");
+		}
+		case ENTTYPE_UNKNOWN:
+		{
+			Format(sEntityType, sizeof(sEntityType), "unknown prop type");
+		}
+	}
+
+	SetNativeString(2, sEntityType, iMaxLength);
+
+	return true;
+}
+
 public int Native_GetHaloMaterial(Handle hPlugin, int iNumParams)
 {
 	return g_iHalo;
@@ -1046,6 +1266,13 @@ public int Native_GetNoKill(Handle hPlugin, int iNumParams)
 	return g_bNoKill[iClient];
 }
 
+public int Native_GetOwner(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+
+	return GetClientFromSerial(g_iOwner[iEntity]);
+}
+
 public int Native_GetPhysicsMaterial(Handle hPlugin, int iNumParams)
 {
 	return g_iPhys;
@@ -1061,6 +1288,18 @@ public int Native_GetPropCount(Handle hPlugin, int iNumParams)
 public int Native_GetPropLimit(Handle hPlugin, int iNumParams)
 {
 	return g_iPropLimit;
+}
+
+public int Native_IsEntity(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+
+	if(IsValidEntity(iEntity) && iEntity != -1)
+	{
+		return g_bEntity[iEntity];
+	}
+
+	return false;
 }
 
 public int Native_IsPlayer(Handle hPlugin, int iNumParams)
@@ -1208,6 +1447,16 @@ public int Native_SetCelLimit(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_SetEntity(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	bool bEntity = view_as<bool>(GetNativeCell(2));
+
+	g_bEntity[iEntity] = bEntity;
+
+	return true;
+}
+
 public int Native_SetInternetURL(Handle hPlugin, int iNumParams)
 {
 	char sURL[PLATFORM_MAX_PATH];
@@ -1229,6 +1478,16 @@ public int Native_SetNoKill(Handle hPlugin, int iNumParams)
 	bNoKill ? SetEntProp(iClient, Prop_Data, "m_takedamage", 0, 1) : SetEntProp(iClient, Prop_Data, "m_takedamage", 2, 1);
 
 	g_bNoKill[iClient] = bNoKill;
+
+	return true;
+}
+
+public int Native_SetOwner(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	int iEntity = GetNativeCell(2);
+
+	g_iOwner[iEntity] = GetClientSerial(iClient);
 
 	return true;
 }

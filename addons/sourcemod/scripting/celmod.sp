@@ -117,7 +117,7 @@ public void OnLibraryAdded(const char[] sName)
 {
 	if (StrEqual(sName, "updater"))
 	{
-		Updater_AddPlugin(UPDATE_URL);
+		Updater_AddPlugin(g_bBetaBranchUpdates ? UPDATE_BETA_URL : UPDATE_URL);
 	}
 }
 

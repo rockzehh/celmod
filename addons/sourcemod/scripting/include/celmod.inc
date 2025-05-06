@@ -92,6 +92,8 @@ forward void Cel_OnEntityRemove(int iEntity, int iOwner, bool bCel);
  */
 forward void Cel_OnPropSpawn(int iProp, int iOwner, EntityType etEntityType);
 
+native void Cel_AddToBlacklist(char[] sAlias);
+
 /**
  * Increments the Cel entity count for a client.
  *
@@ -121,6 +123,8 @@ native void Cel_ChangeBeam(int iClient, int iEntity);
  * @param fAddOrigin    The float array containing the X, Y, and Z offset values.
  */
 native void Cel_ChangePositionRelativeToOrigin(int iEntity, const float fAddOrigin[3]);
+
+native bool Cel_CheckBlacklistDB(const char[] sAlias);
 
 /**
  * Checks if a client has reached their Cel entity limit.
@@ -375,6 +379,8 @@ native int Cel_GetPropLimit();
  * @return            The prop name as a string.
  */
 native char Cel_GetPropName(int iEntity, const char[] sPropName, int iMaxLength);
+
+native void Cel_RemoveFromBlacklist(char[] sAlias);
 
 /**
  * Retrieves the render effect applied to an entity.

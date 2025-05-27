@@ -11,3 +11,6 @@
 		 - More economy features are being worked on. !landskin has been added but is currently broken.
 	 - 04/26/25: Added !emitter as an alias for !effect. Added !switch to switch the side of the screen the HUD is on.
 		 - Added !stack and !stackinfo for easier building.
+	 - 05/01/25: Added +grab, +copy, !skin, !copy and !paste.
+		 - Update rainbow and sm_fadecolor to use HSV to RGB for a better and more consistant color.
+	 - 05/08/25: Added a blacklist to blacklist props without altering the prop list.

@@ -60,17 +60,17 @@ public void OnPluginStart()
 	
 	AutoExecConfig(true, "celmod.help");
 	
-	RegConsoleCmd("sm_colorlist", Command_ColorList, "|CelMod| Displays the color list.");
-	RegConsoleCmd("sm_colors", Command_ColorList, "|CelMod| Displays the color list.");
-	RegConsoleCmd("sm_cmds", Command_CommandList, "|CelMod| Displays the command list.");
-	RegConsoleCmd("sm_commandlist", Command_CommandList, "|CelMod| Displays the command list.");
-	RegConsoleCmd("sm_commands", Command_CommandList, "|CelMod| Displays the command list.");
-	RegConsoleCmd("sm_effectlist", Command_EffectList, "|CelMod| Displays the effect list.");
-	RegConsoleCmd("sm_effects", Command_EffectList, "|CelMod| Displays the effect list.");
-	RegConsoleCmd("sm_proplist", Command_PropList, "|CelMod| Displays the prop list.");
-	RegConsoleCmd("sm_props", Command_PropList, "|CelMod| Displays the prop list.");
-	RegConsoleCmd("sm_updatelist", Command_UpdateList, "|CelMod| Displays the update list.");
-	RegConsoleCmd("sm_updates", Command_UpdateList, "|CelMod| Displays the update list.");
+	RegConsoleCmd("v_colorlist", Command_ColorList, "|CelMod| Displays the color list.");
+	RegConsoleCmd("v_colors", Command_ColorList, "|CelMod| Displays the color list.");
+	RegConsoleCmd("v_cmds", Command_CommandList, "|CelMod| Displays the command list.");
+	RegConsoleCmd("v_commandlist", Command_CommandList, "|CelMod| Displays the command list.");
+	RegConsoleCmd("v_commands", Command_CommandList, "|CelMod| Displays the command list.");
+	RegConsoleCmd("v_effectlist", Command_EffectList, "|CelMod| Displays the effect list.");
+	RegConsoleCmd("v_effects", Command_EffectList, "|CelMod| Displays the effect list.");
+	RegConsoleCmd("v_proplist", Command_PropList, "|CelMod| Displays the prop list.");
+	RegConsoleCmd("v_props", Command_PropList, "|CelMod| Displays the prop list.");
+	RegConsoleCmd("v_updatelist", Command_UpdateList, "|CelMod| Displays the update list.");
+	RegConsoleCmd("v_updates", Command_UpdateList, "|CelMod| Displays the update list.");
 	
 	RegServerCmd("cm_exportcolorlist", Command_ExportColorList, "CelMod-Server: Exports the color list into a text or html file in 'data/celmod/exports'.");
 	RegServerCmd("cm_exportcommandlist", Command_ExportCommandList, "CelMod-Server: Exports the command list into a text or html file in 'data/celmod/exports'.");

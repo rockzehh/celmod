@@ -101,28 +101,28 @@ public void OnPluginStart()
 	RegConsoleCmd("+grab", Command_StartGrab, "|CelMod| Starts grabing the prop you are looking at.");
 	RegConsoleCmd("-copy", Command_StopCopy, "|CelMod| Stops copying and grabing the prop you are looking at.");
 	RegConsoleCmd("-grab", Command_StopGrab, "|CelMod| Stops grabing the prop you are looking at.");
-	RegConsoleCmd("sm_alpha", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
-	RegConsoleCmd("sm_amt", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
-	RegConsoleCmd("sm_color", Command_Color, "|CelMod| Colors the prop you are looking at.");
-	RegConsoleCmd("sm_copy", Command_CopyProp, "|CelMod| Copies the prop you are looking at into your copy buffer.");
-	RegConsoleCmd("sm_fadecolor", Command_FadeColor, "|CelMod| Fades the prop you are looking at between two colors.");
-	RegConsoleCmd("sm_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
-	RegConsoleCmd("sm_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
-	RegConsoleCmd("sm_paint", Command_Color, "|CelMod| Colors the prop you are looking at.");
-	RegConsoleCmd("sm_paste", Command_PasteProp, "|CelMod| Pastes the prop in your copy buffer where you are looking at.");
-	RegConsoleCmd("sm_pmove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
-	RegConsoleCmd("sm_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on the prop you are looking at.");
-	RegConsoleCmd("sm_rotate", Command_Rotate, "|CelMod| Rotates the prop you are looking at.");
-	RegConsoleCmd("sm_skin", Command_Skin, "|CelMod| Changes the skin on the prop you are looking at.");
-	RegConsoleCmd("sm_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
-	RegConsoleCmd("sm_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
-	RegConsoleCmd("sm_stack", Command_Stack, "|CelMod| Stacks props on the x, y and z axis.");
-	RegConsoleCmd("sm_stackinfo", Command_StackInfo, "|CelMod| Gets the origin difference between props for help stacking.");
-	RegConsoleCmd("sm_stand", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
-	RegConsoleCmd("sm_straight", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
-	RegConsoleCmd("sm_straighten", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
-	RegConsoleCmd("sm_unfreeze", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
-	RegConsoleCmd("sm_unfreezeit", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
+	RegConsoleCmd("v_alpha", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
+	RegConsoleCmd("v_amt", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
+	RegConsoleCmd("v_color", Command_Color, "|CelMod| Colors the prop you are looking at.");
+	RegConsoleCmd("v_copy", Command_CopyProp, "|CelMod| Copies the prop you are looking at into your copy buffer.");
+	RegConsoleCmd("v_fadecolor", Command_FadeColor, "|CelMod| Fades the prop you are looking at between two colors.");
+	RegConsoleCmd("v_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
+	RegConsoleCmd("v_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
+	RegConsoleCmd("v_paint", Command_Color, "|CelMod| Colors the prop you are looking at.");
+	RegConsoleCmd("v_paste", Command_PasteProp, "|CelMod| Pastes the prop in your copy buffer where you are looking at.");
+	RegConsoleCmd("v_pmove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
+	RegConsoleCmd("v_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on the prop you are looking at.");
+	RegConsoleCmd("v_rotate", Command_Rotate, "|CelMod| Rotates the prop you are looking at.");
+	RegConsoleCmd("v_skin", Command_Skin, "|CelMod| Changes the skin on the prop you are looking at.");
+	RegConsoleCmd("v_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
+	RegConsoleCmd("v_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
+	RegConsoleCmd("v_stack", Command_Stack, "|CelMod| Stacks props on the x, y and z axis.");
+	RegConsoleCmd("v_stackinfo", Command_StackInfo, "|CelMod| Gets the origin difference between props for help stacking.");
+	RegConsoleCmd("v_stand", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
+	RegConsoleCmd("v_straight", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
+	RegConsoleCmd("v_straighten", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
+	RegConsoleCmd("v_unfreeze", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
+	RegConsoleCmd("v_unfreezeit", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
 }
 
 public void OnClientPutInServer(int iClient)
@@ -193,7 +193,7 @@ public Action Command_Alpha(int iClient, int iArgs)
 	{
 		GetCmdArg(2, sOption, sizeof(sOption));
 		
-		if(StrContains(sOption, "all", false) !=-1)
+		if(StrContains(sOption, "#all", false) !=-1)
 		{
 			for (int i = 0; i < GetMaxEntities(); i++)
 			{
@@ -257,7 +257,7 @@ public Action Command_Color(int iClient, int iArgs)
 	{
 		GetCmdArg(2, sOption, sizeof(sOption));
 		
-		if(StrContains(sOption, "all", false) !=-1)
+		if(StrContains(sOption, "#all", false) !=-1)
 		{
 			for (int i = 0; i < GetMaxEntities(); i++)
 			{
@@ -290,7 +290,7 @@ public Action Command_Color(int iClient, int iArgs)
 				}
 			}
 			Cel_ReplyToCommand(iClient, "%t", "SetAllColor", sColor);
-		}else if(StrContains(sOption, "hud", false) !=-1)
+		}else if(StrContains(sOption, "#hud", false) !=-1)
 		{
 			if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 			{
@@ -420,7 +420,7 @@ public Action Command_FadeColor(int iClient, int iArgs)
 	{
 		GetCmdArg(3, sOption, sizeof(sOption));
 		
-		if(StrContains(sOption, "all", false) !=-1)
+		if(StrContains(sOption, "#all", false) !=-1)
 		{
 			for (int i = 0; i < GetMaxEntities(); i++)
 			{
@@ -1376,6 +1376,8 @@ public int Native_GetFadeColor(Handle hPlugin, int iNumParams)
 	
 	SetNativeArray(2, iColor[0], 3);
 	SetNativeArray(3, iColor[1], 3);
+	
+	return true;
 }
 
 public int Native_GetMotion(Handle hPlugin, int iNumParams)

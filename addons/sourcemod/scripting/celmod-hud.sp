@@ -50,7 +50,7 @@ public void OnPluginStart()
 	AddCommandListener(Handle_Chat, "say");
 	AddCommandListener(Handle_Chat, "say_team");
 
-	RegConsoleCmd("sm_switch", Command_Switch, "|CelMod| Switches the side the hud is on the screen.");
+	RegConsoleCmd("v_switch", Command_Switch, "|CelMod| Switches the side the hud is on the screen.");
 }
 
 public void OnMapStart()

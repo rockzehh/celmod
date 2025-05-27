@@ -408,6 +408,8 @@ native RenderFx Cel_GetRenderFXFromName(const char[] sRenderFXName);
  */
 native char Cel_GetRenderFXName(RenderFx rfRenderFX, char[] sRenderFX, int iMaxLength);
 
+native bool Cel_IsCelCommand(char sCommandString[MAX_MESSAGE_LENGTH]);
+
 /**
  * Checks if an entity is valid.
  *

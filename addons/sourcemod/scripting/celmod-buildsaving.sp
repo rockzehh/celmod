@@ -42,8 +42,8 @@ public void OnPluginStart()
 		}
 	}
 	
-	RegConsoleCmd("sm_load", Command_LoadBuild, "|CelMod| Loads entities from a save file.");
-	RegConsoleCmd("sm_save", Command_SaveBuild, "|CelMod| Saves all server entities that are in your land.");
+	RegConsoleCmd("v_load", Command_LoadBuild, "|CelMod| Loads entities from a save file.");
+	RegConsoleCmd("v_save", Command_SaveBuild, "|CelMod| Saves all server entities that are in your land.");
 }
 
 public void OnClientPutInServer(int iClient)

@@ -110,10 +110,10 @@ public void OnPluginStart()
 
 	AutoExecConfig(true, "celmod.land");
 
-	RegConsoleCmd("sm_land", Command_Land, "|CelMod| Creates a building zone.");
-	RegConsoleCmd("sm_landdeathmatch", Command_LandDeathmatch, "|CelMod| Changes the deathmatch setting within the land.");
-	RegConsoleCmd("sm_landgravity", Command_LandGravity, "|CelMod| Changes the gravity within the land.");
-	RegConsoleCmd("sm_landskin", Command_LandSkin, "|CelMod| Changes the skin within the land.");
+	RegConsoleCmd("v_land", Command_Land, "|CelMod| Creates a building zone.");
+	RegConsoleCmd("v_landdeathmatch", Command_LandDeathmatch, "|CelMod| Changes the deathmatch setting within the land.");
+	RegConsoleCmd("v_landgravity", Command_LandGravity, "|CelMod| Changes the gravity within the land.");
+	RegConsoleCmd("v_landskin", Command_LandSkin, "|CelMod| Changes the skin within the land.");
 }
 
 public void OnClientPutInServer(int iClient)

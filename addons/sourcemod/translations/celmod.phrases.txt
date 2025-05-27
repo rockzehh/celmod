@@ -24,7 +24,7 @@
 	
 	"CMD_Alpha"
 	{
-		"en"			"Usage: {green}[tag]alpha{default} <transparency value> <all>"
+		"en"			"Usage: {green}[tag]alpha{default} <transparency value> <#all>"
 	}
 	
 	"CMD_Blacklist"
@@ -34,7 +34,7 @@
 	
 	"CMD_Color"
 	{
-		"en"			"Usage: {green}[tag]color{default} <color name> <all|hud>"
+		"en"			"Usage: {green}[tag]color{default} <color name> <#all|#hud>"
 	}
 	
 	"CMD_Door"
@@ -49,7 +49,7 @@
 	
 	"CMD_FadeColor"
 	{
-		"en"			"Usage: {green}[tag]fadecolor{default} <color name> <color name> <all>"
+		"en"			"Usage: {green}[tag]fadecolor{default} <color name> <color name> <#all>"
 	}
 	
 	"CMD_LandGravity"
@@ -64,7 +64,7 @@
 	
 	"CMD_Remove"
 	{
-		"en"			"Usage: {green}[tag]delete{default} <all|land>"
+		"en"			"Usage: {green}[tag]delete{default} <#all|#land>"
 	}
 	
 	"CMD_RenderFX"

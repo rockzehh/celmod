@@ -10,6 +10,8 @@
 		
 		"Notes"	"Added +grab, +copy, !skin, !copy and !paste."
 		"Notes" "Update rainbow and sm_fadecolor to use HSV to RGB for a better and more consistant color."
+		"Notes"	"Added a blacklist to blacklist props without altering the prop list."
+		"Notes" "Updated all commands from sm_ to v_."
 	}
 	
 	"Files"

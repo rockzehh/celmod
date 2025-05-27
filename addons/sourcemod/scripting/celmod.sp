@@ -44,6 +44,10 @@ int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
 int g_iPropLimit;
 
+ReplySource g_rsOldReplySrc[MAXPLAYERS + 1];
+
+StringMap g_smCelCommands;
+
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_AddToBlacklist", Native_AddToBlacklist);
@@ -77,6 +81,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetPhysicsMaterial", Native_GetPhysicsMaterial);
 	CreateNative("Cel_GetPropCount", Native_GetPropCount);
 	CreateNative("Cel_GetPropLimit", Native_GetPropLimit);
+	CreateNative("Cel_IsCelCommand", Native_IsCelCommand);
 	CreateNative("Cel_IsEntity", Native_IsEntity);
 	CreateNative("Cel_IsPlayer", Native_IsPlayer);
 	CreateNative("Cel_NotLooking", Native_NotLooking);
@@ -182,25 +187,25 @@ public void OnPluginStart()
 	
 	RegConsoleCmd("dev_getpos", Dev_GetPos, "");
 	
-	RegAdminCmd("sm_blacklist", Command_Blacklist, ADMFLAG_SLAY, "|CelMod| Adds a prop to the spawn blacklist.");
-	RegAdminCmd("sm_setowner", Command_SetOwner, ADMFLAG_SLAY, "|CelMod| Sets the owner of the prop you are looking at.");
+	RegAdminCmd("v_blacklist", Command_Blacklist, ADMFLAG_SLAY, "|CelMod| Adds/removes a prop from the spawn blacklist.");
+	RegAdminCmd("v_setowner", Command_SetOwner, ADMFLAG_SLAY, "|CelMod| Sets the owner of the prop you are looking at.");
 	
-	RegConsoleCmd("sm_axis", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
-	RegConsoleCmd("sm_del", Command_Delete, "|CelMod| Removes the prop you are looking at.");
-	RegConsoleCmd("sm_delete", Command_Delete, "|CelMod| Removes the prop you are looking at.");
-	RegConsoleCmd("sm_door", Command_Door, "|CelMod| Spawns a working door cel.");
-	RegConsoleCmd("sm_fly", Command_Fly, "|CelMod| Enables/disables noclip on the player.");
-	RegConsoleCmd("sm_internet", Command_Internet, "|CelMod| Creates a working internet cel.");
-	//RegConsoleCmd("sm_ladder", Command_Ladder, "|CelMod| Creates a working ladder cel.");
-	//RegConsoleCmd("sm_light", Command_Light, "|CelMod| Creates a working light cel.");
-	RegConsoleCmd("sm_mark", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
-	RegConsoleCmd("sm_marker", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
-	RegConsoleCmd("sm_nokill", Command_NoKill, "|CelMod| Enables/disables godmode on the player.");
-	RegConsoleCmd("sm_p", Command_Spawn, "|CelMod| Spawns a prop by name.");
-	RegConsoleCmd("sm_remove", Command_Delete, "|CelMod| Removes the prop you are looking at.");
-	RegConsoleCmd("sm_s", Command_Spawn, "|CelMod| Spawns a prop by name.");
-	RegConsoleCmd("sm_seturl", Command_SetURL, "|CelMod| Sets the url of the internet cel you are looking at.");
-	RegConsoleCmd("sm_spawn", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("v_axis", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
+	RegConsoleCmd("v_del", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("v_delete", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("v_door", Command_Door, "|CelMod| Spawns a working door cel.");
+	RegConsoleCmd("v_fly", Command_Fly, "|CelMod| Enables/disables noclip on the player.");
+	RegConsoleCmd("v_internet", Command_Internet, "|CelMod| Creates a working internet cel.");
+	//RegConsoleCmd("v_ladder", Command_Ladder, "|CelMod| Creates a working ladder cel.");
+	//RegConsoleCmd("v_light", Command_Light, "|CelMod| Creates a working light cel.");
+	RegConsoleCmd("v_mark", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
+	RegConsoleCmd("v_marker", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
+	RegConsoleCmd("v_nokill", Command_NoKill, "|CelMod| Enables/disables godmode on the player.");
+	RegConsoleCmd("v_p", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("v_remove", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("v_s", Command_Spawn, "|CelMod| Spawns a prop by name.");
+	RegConsoleCmd("v_seturl", Command_SetURL, "|CelMod| Sets the url of the internet cel you are looking at.");
+	RegConsoleCmd("v_spawn", Command_Spawn, "|CelMod| Spawns a prop by name.");
 	
 	CreateConVar("celmod", "1", "Notifies the server that the plugin is running.");
 	g_cvBetaBranchUpdates = CreateConVar("cm_use_beta_branch", "1", "Chooses which branch to use for updates. Only changed at startup.");
@@ -232,6 +237,11 @@ public void OnPluginStart()
 	}
 	
 	SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") - FCVAR_CHEAT);
+}
+
+public void OnPluginEnd()
+{
+	delete g_smCelCommands;
 }
 
 public void OnClientAuthorized(int iClient, const char[] sAuthID)
@@ -314,6 +324,8 @@ public void OnMapStart()
 	g_iPhys = PrecacheModel("materials/sprites/physbeam.vmt", true);
 	
 	Cel_DownloadClientFiles();
+	
+	Cel_PopulateCelCommands();
 }
 
 public void OnMapEnd()
@@ -402,7 +414,7 @@ public Action Command_Blacklist(int iClient, int iArgs)
 	GetCmdArg(1, sOption, sizeof(sOption));
 	GetCmdArg(2, sProp, sizeof(sProp));
 	
-	if(StrEqual(sOption, "add", false))
+	if(StrEqual(sOption, "#add", false))
 	{
 		if(Cel_CheckBlacklistDB(sProp))
 		{
@@ -415,7 +427,7 @@ public Action Command_Blacklist(int iClient, int iArgs)
 		Cel_ReplyToCommand(iClient, "%t", "AddToBlacklist", sProp);
 		
 		return Plugin_Handled;
-	}else if(StrEqual(sOption, "remove", false))
+	}else if(StrEqual(sOption, "#remove", false))
 	{
 		if(!Cel_CheckBlacklistDB(sProp))
 		{
@@ -443,7 +455,7 @@ public Action Command_Delete(int iClient, int iArgs)
 	
 	if (iArgs == 1)
 	{
-		if(StrContains(sOption, "all", false) !=-1)
+		if(StrContains(sOption, "#all", false) !=-1)
 		{
 			for (int i = 0; i < GetMaxEntities(); i++)
 			{
@@ -486,7 +498,7 @@ public Action Command_Delete(int iClient, int iArgs)
 			iRemoveCount = 0;
 			
 			return Plugin_Handled;
-		}else if(StrContains(sOption, "land", false) !=-1)
+		}else if(StrContains(sOption, "#land", false) !=-1)
 		{
 			Cel_ClearLand(iClient);
 			
@@ -773,8 +785,12 @@ public Action Command_Spawn(int iClient, int iArgs)
 
 public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 {
-	char sPropAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
+	char sCommandString[MAX_MESSAGE_LENGTH], sPropAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
 	float fAngles[3], fOrigin[3];
+	
+	GetCmdArgString(sCommandString, sizeof(sCommandString));
+	
+	StripQuotes(sCommandString);
 	
 	GetCmdArg(1, sPropAlias, sizeof(sPropAlias));
 	
@@ -812,8 +828,22 @@ public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 		Cel_ReplyToCommand(iClient, "%t", "SpawnProp", sPropAlias);
 		
 		return Plugin_Handled;
-	} else if (IsChatTrigger())
-	{
+	} else if (sCommandString[0] == '!' || sCommandString[0] == '/') {
+		ReplaceString(sCommandString, sizeof(sCommandString), (sCommandString[0] == '!') ? "!" : "/", "v_");
+		
+		if(Cel_IsCelCommand(sCommandString))
+		{
+			g_rsOldReplySrc[iClient] = GetCmdReplySource();
+			
+			SetCmdReplySource(SM_REPLY_TO_CHAT);
+			
+			FakeClientCommand(iClient, sCommandString);
+			
+			SetCmdReplySource(g_rsOldReplySrc[iClient]);
+		}
+		
+		return Plugin_Handled;
+	}else if (IsChatTrigger()) {
 		return Plugin_Handled;
 	}
 	
@@ -1400,6 +1430,20 @@ public int Native_GetPropLimit(Handle hPlugin, int iNumParams)
 	return g_iPropLimit;
 }
 
+public int Native_IsCelCommand(Handle hPlugin, int iNumParams)
+{
+	char sCommand[MAX_MESSAGE_LENGTH], sCommandSplit[2][MAX_MESSAGE_LENGTH];
+	int iValue;
+	
+	GetNativeString(1, sCommand, sizeof(sCommand));
+	
+	ExplodeString(sCommand, " ", sCommandSplit, 2, sizeof(sCommandSplit[]), false);
+	
+	CStrToLower(sCommandSplit[0]);
+	
+	return g_smCelCommands.GetValue(sCommandSplit[0], iValue);
+}
+
 public int Native_IsEntity(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -1536,7 +1580,7 @@ public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
 	
 	FormatNativeString(0, 2, 3, sizeof(sBuffer), iWritten, sBuffer);
 	
-	ReplaceString(sBuffer, sizeof(sBuffer), "[tag]", GetCmdReplySource() == SM_REPLY_TO_CONSOLE ? "sm_" : "!", true);
+	ReplaceString(sBuffer, sizeof(sBuffer), "[tag]", GetCmdReplySource() == SM_REPLY_TO_CONSOLE ? "v_" : "!", true);
 	
 	if (GetCmdReplySource() == SM_REPLY_TO_CONSOLE)
 	{
@@ -1849,4 +1893,25 @@ public int Native_SubFromPropCount(Handle hPlugin, int iNumParams)
 public bool Cel_FilterPlayer(int iEntity, int iContentsMask)
 {
 	return iEntity > MaxClients;
+}
+
+stock void Cel_PopulateCelCommands()
+{
+	char sCMD[2][MAX_MESSAGE_LENGTH];
+	Handle hCommandIter = GetCommandIterator();
+	int iFlags;
+	
+	g_smCelCommands = new StringMap();
+	
+	while (ReadCommandIterator(hCommandIter, sCMD[0], sizeof(sCMD[]), iFlags, sCMD[1], sizeof(sCMD[])))
+	{
+		if (StrContains(sCMD[1], "|CelMod|", true) != -1)
+		{
+			g_smCelCommands.SetValue(sCMD[0], 1);
+			
+			PrintToServer(sCMD[0]);
+		}
+	}
+	
+	CloseHandle(hCommandIter);
 }

@@ -83,12 +83,12 @@ public void OnPluginStart()
 
 	AutoExecConfig(true, "celmod.economy");
 
-	RegAdminCmd("sm_setbalance", Command_SetBalance, ADMFLAG_SLAY, "|CelMod| Sets the balance of the client you are specifing.");
-	RegConsoleCmd("sm_balance", Command_Balance, "|CelMod| Gets the players current balance.");
-	RegConsoleCmd("sm_buy", Command_Buy, "|CelMod| Purchases the current entity you are looking at or command you specified.");
-	//RegConsoleCmd("sm_give", Command_Give, "|CelMod| Gives the entity you are looking at to another client.");
-	RegConsoleCmd("sm_sell", Command_Sell, "|CelMod| Sells the entity you are looking at.");
-	//RegConsoleCmd("sm_cl", Command_CleerBox, "|CelMod| Creates a box containing cleers that you can deposit/withdraw from.");
+	RegAdminCmd("v_setbalance", Command_SetBalance, ADMFLAG_SLAY, "|CelMod| Sets the balance of the client you are specifing.");
+	RegConsoleCmd("v_balance", Command_Balance, "|CelMod| Gets the players current balance.");
+	RegConsoleCmd("v_buy", Command_Buy, "|CelMod| Purchases the current entity you are looking at or command you specified.");
+	//RegConsoleCmd("v_give", Command_Give, "|CelMod| Gives the entity you are looking at to another client.");
+	RegConsoleCmd("v_sell", Command_Sell, "|CelMod| Sells the entity you are looking at.");
+	//RegConsoleCmd("v_cl", Command_CleerBox, "|CelMod| Creates a box containing cleers that you can deposit/withdraw from.");
 }
 
 public void OnClientPutInServer(int iClient)

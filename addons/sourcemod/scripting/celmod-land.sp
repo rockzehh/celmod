@@ -359,6 +359,7 @@ public int Native_CreateLand(Handle hPlugin, int iNumParams)
 	SetEntProp(iEnt, Prop_Send, "m_fEffects", iEffects);
 	
 	HookSingleEntityOutput(iEnt, "OnStartTouch", EntOut_LandOnStartTouch);
+	HookSingleEntityOutput(iEnt, "OnTrigger", EntOut_LandOnTrigger);
 	HookSingleEntityOutput(iEnt, "OnEndTouch", EntOut_LandOnEndTouch);
 	
 	g_iLandEntOwner[iEnt] = iClient;
@@ -846,16 +847,43 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 	
 	Cel_SetCurrentLandEntity(iActivator, g_liLand[iOwner].iLandEntity);
 	Cel_SetCurrentLandOwner(iActivator, g_liLand[iOwner].iLandOwner);
+}
+
+public void EntOut_LandOnTrigger(const char[] sOutput, int iCaller, int iActivator, float fDelay)
+{
+	if (iActivator < 1 || iActivator > MaxClients || !IsClientInGame(iActivator) || !IsPlayerAlive(iActivator))
+	return;
 	
-	SetEntityGravity(iActivator, Cel_GetLandGravity(iOwner));
+	int iOwner = g_iLandEntOwner[iCaller];
 	
-	if(g_liLand[iOwner].bModeDeathmatch)
+	if(g_liLand[iActivator].bInsideLand)
 	{
-		SetEntProp(iActivator, Prop_Data, "m_takedamage", 2, 1);
+		SetEntityGravity(iActivator, Cel_GetLandGravity(iOwner));
 		
-		g_liLand[iActivator].bInDeathmatchMode = true;
+		if(g_liLand[iOwner].bModeDeathmatch && !g_liLand[iActivator].bInDeathmatchMode)
+		{
+			SetEntProp(iActivator, Prop_Data, "m_takedamage", 2, 1);
+			
+			g_liLand[iActivator].bInDeathmatchMode = true;
+			
+			Cel_PrintToChat(iActivator, "%t", "LandMode_Deathmatch");
+		}
 		
-		Cel_PrintToChat(iActivator, "%t", "LandMode_Deathmatch");
+		//Update land modes.
+		if(!g_liLand[iOwner].bModeCoop && g_liLand[iActivator].bInCoopMode)
+		{
+			g_liLand[iActivator].bInCoopMode = false;
+		}
+		
+		if(!g_liLand[iOwner].bModeDeathmatch && g_liLand[iActivator].bInDeathmatchMode)
+		{
+			g_liLand[iActivator].bInDeathmatchMode = false;
+		}
+		
+		if(!g_liLand[iOwner].bModeShop && g_liLand[iActivator].bInShopMode)
+		{
+			g_liLand[iActivator].bInShopMode = false;
+		}
 	}
 }
 

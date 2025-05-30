@@ -285,7 +285,9 @@ public Action Command_Color(int iClient, int iArgs)
 							Cel_SetRainbow(Cel_GetEffectAttachment(i), false);
 							
 							Cel_SetColor(Cel_GetEffectAttachment(i), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-						}else if(Cel_GetEntityType(i) == ENTTYPE_LIGHT)
+						}
+						
+						if(Cel_GetEntityType(i) == ENTTYPE_LIGHT)
 						{
 							Cel_SetRainbow(Entity_GetEntityAttachment(i), false);
 							
@@ -359,7 +361,9 @@ public Action Command_Color(int iClient, int iArgs)
 					Cel_SetRainbow(Cel_GetEffectAttachment(iProp), false);
 					
 					Cel_SetColor(Cel_GetEffectAttachment(iProp), StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
-				}else if(Cel_GetEntityType(i) == ENTTYPE_LIGHT)
+				}
+				
+				if(Cel_GetEntityType(iProp) == ENTTYPE_LIGHT)
 				{
 					Cel_SetRainbow(Entity_GetEntityAttachment(iProp), false);
 					
@@ -1257,7 +1261,9 @@ public void Frame_FadeColor(any iProp)
 		if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
 		{
 			Cel_SetColor(Cel_GetEffectAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
-		}else if(Cel_GetEntityType(i) == ENTTYPE_LIGHT)
+		}
+		
+		if(Cel_GetEntityType(iProp) == ENTTYPE_LIGHT)
 		{
 			Cel_SetColor(Entity_GetEntityAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
 		}
@@ -1312,7 +1318,9 @@ public void Frame_Rainbow(any iProp)
 		if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
 		{
 			Cel_SetColor(Cel_GetEffectAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
-		}else if(Cel_GetEntityType(i) == ENTTYPE_LIGHT)
+		}
+		
+		if(Cel_GetEntityType(iProp) == ENTTYPE_LIGHT)
 		{
 			Cel_SetColor(Entity_GetEntityAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
 		}

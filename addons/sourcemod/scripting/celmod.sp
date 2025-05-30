@@ -702,7 +702,7 @@ public Action Command_Light(int iClient, int iArgs)
 	GetClientAbsAngles(iClient, fAngles);
 	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 	
-	int iLight = Cel_SpawnLight(iClient, fAngles, fOrigin, 255, 255, 255, 255);
+	int iLight = Cel_SpawnLight(iClient, fAngles, fOrigin, 255, 255, 255, 128);
 	
 	Call_StartForward(g_hOnCelSpawn);
 	

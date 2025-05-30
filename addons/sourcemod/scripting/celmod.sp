@@ -1016,6 +1016,8 @@ public Action Event_Disconnect(Event eEvent, const char[] sName, bool bDontBroad
 				AcceptEntityInput(Cel_GetEffectAttachment(i), "kill");
 			}
 			
+			Cel_SetEntity(i, false);
+			
 			AcceptEntityInput(i, "kill");
 		}
 	}

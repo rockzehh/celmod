@@ -52,6 +52,31 @@
 		"en"			"Usage: {green}[tag]fadecolor{default} <color name> <color name> <#all>"
 	}
 	
+	"CMD_HookFlip"
+	{
+		"en"			"Usage: {green}[tag]flip{default} <degree>"
+	}
+	
+	"CMD_HookRotate"
+	{
+		"en"			"Usage: {green}[tag]r{default} <degree>"
+	}
+	
+	"CMD_HookRoll"
+	{
+		"en"			"Usage: {green}[tag]roll{default} <degree>"
+	}
+	
+	"CMD_Ladder"
+	{
+		"en"			"Usage: {green}[tag]ladder{default} <1 or 2>"
+	}
+	
+	"CMD_Land"
+	{
+		"en"			"Usage: {green}[tag]land{default} <#clear>"
+	}
+	
 	"CMD_LandGravity"
 	{
 		"en"			"Usage: {green}[tag]gravity{default} <gravity>"
@@ -99,7 +124,7 @@
 	
 	"CMD_Skin"
 	{
-		"en"			"Usage: {green}[tag]skin{default} <skin number>"
+		"en"			"Usage: {green}[tag]skin{default} <skin number> or <prev|next>"
 	}
 	
 	"CMD_Spawn"
@@ -276,6 +301,11 @@
 		"en"			"Invalid effect type."
 	}
 	
+	"LadderSpawn"
+	{
+		"en"			"Spawned {green}ladder{default} cel."
+	}
+	
 	"LandCleared"
 	{
 		"en"			"Land cleared."
@@ -299,6 +329,11 @@
 	"LandStarted"
 	{
 		"en"			"Started drawing land. Type {green}!land{default} again to complete your land."
+	}
+	
+	"LightSpawn"
+	{
+		"en"			"Spawned {green}light{default} cel."
 	}
 	
 	"LoadedBuild"
@@ -492,12 +527,6 @@
 		"en"			"Set hud color to {green}{1}{default}."
 	}
 	
-	"SetLandSkin"
-	{
-		"#format"		"{1:s}"
-		"en"			"Set up land skin with skin {green}{1}{default}."
-	}
-	
 	"SetOwnerClient"
 	{
 		"#format"		"{1:s},{2:s}"
@@ -583,11 +612,5 @@
 	{
 		"#format"		"{1:s}"
 		"en"			"Switched HUD to the {green}{1}{default} side."
-	}
-	
-	"UpdatedLandSkin"
-	{
-		"#format"		"{1:s}"
-		"en"			"Updated land skin to {green}{1}{default}!"
 	}
 }

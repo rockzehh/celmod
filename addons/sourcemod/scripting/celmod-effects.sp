@@ -297,9 +297,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectAttachment(iBase, iEffect);
 
-
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-
 			Cel_SetEffectActive(iBase, bActivate);
 
 			Cel_SetEffectType(iBase, etEffect);
@@ -332,8 +329,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectAttachment(iBase, iEffect);
 
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-
 			Cel_SetEffectType(iBase, etEffect);
 
 			return iBase;
@@ -363,8 +358,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 
 			Cel_SetEffectAttachment(iBase, iEffect);
-
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			Cel_SetEffectActive(iBase, bActivate);
 
@@ -397,8 +390,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 
 			Cel_SetEffectAttachment(iBase, iEffect);
-
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			Cel_SetEffectType(iBase, etEffect);
 
@@ -436,8 +427,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
 
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-
 			Cel_SetEffectActive(iBase, bActivate);
 
 			Cel_SetEffectType(iBase, etEffect);
@@ -474,8 +463,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
 
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-
 			Cel_SetEffectActive(iBase, bActivate);
 
 			Cel_SetEffectType(iBase, etEffect);
@@ -510,8 +497,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 
 			Cel_SetEffectAttachment(iBase, iEffect);
-
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
 
 			Cel_SetEffectActive(iBase, bActivate);
 

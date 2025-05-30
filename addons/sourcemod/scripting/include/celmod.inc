@@ -23,10 +23,12 @@ enum EntityType
 	ENTTYPE_DYNAMIC = 2,
 	ENTTYPE_EFFECT = 3,
 	ENTTYPE_INTERNET = 4,
-	ENTTYPE_LIGHT = 5,
-	ENTTYPE_PHYSICS = 6,
-	ENTTYPE_CLEER = 7,
-	ENTTYPE_UNKNOWN = 8,
+	ENTTYPE_LADDER = 5,
+	ENTTYPE_LIGHT = 6,
+	ENTTYPE_PHYSICS = 7,
+	ENTTYPE_CLEER = 8,
+	ENTTYPE_WEPSPAWNER = 9,
+	ENTTYPE_UNKNOWN = 10,
 };
 
 enum EffectType
@@ -650,6 +652,10 @@ native int Cel_SpawnDoor(int iClient, const char[] sSkin, float fAngles[3], floa
  */
 native int Cel_SpawnInternet(int iClient, const char[] sURL, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
+native int Cel_SpawnLadder(int iClient, int iSkin, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
+native int Cel_SpawnLight(int iClient, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
 /**
  * Spawns a prop entity.
  *
@@ -1012,6 +1018,8 @@ native bool Cel_IsClientInLand(int iClient);
 
 native bool Cel_IsEntityInLand(int iEntity);
 
+native bool Cel_IsLandCreated(int iClient);
+
 /**
  * Checks if a given position is inside a defined land area.
  *
@@ -1174,16 +1182,16 @@ native void Cel_SubFromClientBalance(int iClient, int iBalance);
 stock void HSVtoRGB(float fH, float fS, float fV, int iRGB[3])
 {
 	fH -= 360.0 * RoundToFloor(fH / 360.0);
-	
+
 	int iSeg = RoundToFloor(fH / 60.0) % 6;
 	float fFrac = (fH / 60.0) - iSeg;
-	
+
 	float fP = fV * (1.0 - fS);
 	float fQ = fV * (1.0 - fFrac * fS);
 	float fT = fV * (1.0 - (1.0 - fFrac) * fS);
-	
+
 	float fR, fG, fB;
-	
+
 	switch (iSeg)
 	{
 		case 0: { fR = fV; fG = fT; fB = fP; }
@@ -1193,7 +1201,7 @@ stock void HSVtoRGB(float fH, float fS, float fV, int iRGB[3])
 		case 4: { fR = fT; fG = fP; fB = fV; }
 		default:{ fR = fV; fG = fP; fB = fQ; }
 	}
-	
+
 	iRGB[0] = RoundToFloor(fR * 255.0);
 	iRGB[1] = RoundToFloor(fG * 255.0);
 	iRGB[2] = RoundToFloor(fB * 255.0);
@@ -1204,17 +1212,17 @@ stock void RGBtoHSV(int iR8, int iG8, int iB8, float &fH, float &fS, float &fV)
 	float fR = iR8 / 255.0;
 	float fG = iG8 / 255.0;
 	float fB = iB8 / 255.0;
-	
+
 	float fCMax = fR;
 	if (fG > fCMax) fCMax = fG;
 	if (fB > fCMax) fCMax = fB;
-	
+
 	float fCMin = fR;
 	if (fG < fCMin) fCMin = fG;
 	if (fB < fCMin) fCMin = fB;
-	
+
 	float fDelta = fCMax - fCMin;
-	
+
 	if (fDelta == 0.0)
 	{
 		fH = 0.0;
@@ -1232,7 +1240,7 @@ stock void RGBtoHSV(int iR8, int iG8, int iB8, float &fH, float &fS, float &fV)
 	{
 		fH = 60.0 * (((fR - fG) / fDelta) + 4.0);
 	}
-	
+
 	fS = (fCMax == 0.0) ? 0.0 : (fDelta / fCMax);
 	fV = fCMax;
 }
@@ -1273,16 +1281,16 @@ public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utT
 			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "TurnOn" : "TurnOff");
 		}
 	}
-	
+
 	Cel_SetEffectActive(iEntity, !Cel_IsEffectActive(iEntity));
 }
 
 public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
 {
 	char sURL[PLATFORM_MAX_PATH];
-	
+
 	Cel_GetInternetURL(iEntity, sURL, sizeof(sURL));
-	
+
 	Cel_OpenMOTDOnClient(iActivator, true, "|CelMod| Viewer", sURL, MOTDPANEL_TYPE_URL);
 }
 
@@ -1290,17 +1298,17 @@ public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType u
 public Action Timer_DelayRemove(Handle hTimer, any iRef)
 {
 	int iEntity = EntRefToEntIndex(iRef);
-	
+
 	AcceptEntityInput(iEntity, "kill");
-	
+
 	return Plugin_Continue;
 }
 
 public Action Timer_DisRemove(Handle hTimer, any iRef)
 {
 	int iEntity = EntRefToEntIndex(iRef);
-	
+
 	Cel_DissolveEntity(iEntity);
-	
+
 	return Plugin_Continue;
 }

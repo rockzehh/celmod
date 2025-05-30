@@ -106,13 +106,16 @@ public void OnPluginStart()
 	RegConsoleCmd("v_color", Command_Color, "|CelMod| Colors the prop you are looking at.");
 	RegConsoleCmd("v_copy", Command_CopyProp, "|CelMod| Copies the prop you are looking at into your copy buffer.");
 	RegConsoleCmd("v_fadecolor", Command_FadeColor, "|CelMod| Fades the prop you are looking at between two colors.");
+	RegConsoleCmd("v_flip", Command_HookFlip, "|CelMod| Flips the prop you are looking at.");
 	RegConsoleCmd("v_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("v_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("v_paint", Command_Color, "|CelMod| Colors the prop you are looking at.");
 	RegConsoleCmd("v_paste", Command_PasteProp, "|CelMod| Pastes the prop in your copy buffer where you are looking at.");
 	RegConsoleCmd("v_pmove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("v_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on the prop you are looking at.");
-	RegConsoleCmd("v_rotate", Command_Rotate, "|CelMod| Rotates the prop you are looking at.");
+	RegConsoleCmd("v_r", Command_HookRotate, "|CelMod| Rotates the prop you are looking at.");
+	RegConsoleCmd("v_roll", Command_HookRoll, "|CelMod| Rolls the prop you are looking at.");
+	RegConsoleCmd("v_rotate", Command_Rotate, "|CelMod| Flips, rotates and rolls the prop you are looking at.");
 	RegConsoleCmd("v_skin", Command_Skin, "|CelMod| Changes the skin on the prop you are looking at.");
 	RegConsoleCmd("v_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("v_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
@@ -547,6 +550,75 @@ public Action Command_FreezeIt(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_HookFlip(int iClient, int iArgs)
+{
+	char sDegree[64];
+	
+	if (iArgs < 1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_HookFlip");
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sDegree, sizeof(sDegree));
+	
+	ReplySource rsOldReplySrc = GetCmdReplySource();
+	
+	SetCmdReplySource(SM_REPLY_TO_CHAT);
+	
+	FakeClientCommand(iClient, "v_rotate %i 0 0", StringToInt(sDegree));
+	
+	SetCmdReplySource(rsOldReplySrc);
+	
+	return Plugin_Handled;
+}
+
+public Action Command_HookRotate(int iClient, int iArgs)
+{
+	char sDegree[64];
+	
+	if (iArgs < 1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_HookRotate");
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sDegree, sizeof(sDegree));
+	
+	ReplySource rsOldReplySrc = GetCmdReplySource();
+	
+	SetCmdReplySource(SM_REPLY_TO_CHAT);
+	
+	FakeClientCommand(iClient, "v_rotate 0 %i 0", StringToInt(sDegree));
+	
+	SetCmdReplySource(rsOldReplySrc);
+	
+	return Plugin_Handled;
+}
+
+public Action Command_HookRoll(int iClient, int iArgs)
+{
+	char sDegree[64];
+	
+	if (iArgs < 1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_HookRoll");
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sDegree, sizeof(sDegree));
+	
+	ReplySource rsOldReplySrc = GetCmdReplySource();
+	
+	SetCmdReplySource(SM_REPLY_TO_CHAT);
+	
+	FakeClientCommand(iClient, "v_rotate 0 0 %i", StringToInt(sDegree));
+	
+	SetCmdReplySource(rsOldReplySrc);
+	
+	return Plugin_Handled;
+}
+
 public Action Command_PasteProp(int iClient, int iArgs)
 {
 	char sEntityType[64];
@@ -671,6 +743,7 @@ public Action Command_Rotate(int iClient, int iArgs)
 public Action Command_Skin(int iClient, int iArgs)
 {
 	char sEntityType[64], sSkin[16];
+	int iSkin;
 	
 	if (iArgs < 1)
 	{
@@ -692,11 +765,26 @@ public Action Command_Skin(int iClient, int iArgs)
 	{
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
-		Entity_SetSkin(iProp, StringToInt(sSkin));
+		//Inspired from InkMod (https://github.com/stakillion/InkMod)
+		if(String_IsNumeric(sSkin))
+		{
+			iSkin = StringToInt(sSkin);
+		}else if(StrEqual(sSkin, "prev", false))
+		{
+			iSkin = (Entity_GetSkin(iProp) - 1);
+		}else if(StrEqual(sSkin, "next", false))
+		{
+			iSkin = (Entity_GetSkin(iProp) + 1);
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CMD_Skin");
+			return Plugin_Handled;
+		}
+		
+		Entity_SetSkin(iProp, iSkin);
 		
 		Cel_ChangeBeam(iClient, iProp);
 		
-		Cel_ReplyToCommand(iClient, "%t", "SetSkin", sEntityType, StringToInt(sSkin));
+		Cel_ReplyToCommand(iClient, "%t", "SetSkin", sEntityType, iSkin);
 	} else {
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
@@ -1147,32 +1235,12 @@ public void Frame_FadeColor(any iProp)
 	
 	if (Cel_IsEntity(iProp) && IsValidEntity(iProp) && g_bIsFading[iProp])
 	{
-		/*float fAge  = GetGameTime() - g_fFadeTime[iProp];
+		float fAge  = GetGameTime() - g_fFadeTime[iProp];
 		float fColorFade = ((fAge % PERIOD) <= (PERIOD * 0.5)) ? ((fAge % PERIOD) / (PERIOD * 0.5)) : (1.0 - ((fAge % PERIOD) - (PERIOD * 0.5)) / (PERIOD * 0.5));
 
 		iColor[0] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][0] + fColorFade * g_iFadeColor[iProp][3]);
 		iColor[1] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][1] + fColorFade * g_iFadeColor[iProp][4]);
-		iColor[2] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][2] + fColorFade * g_iFadeColor[iProp][5]);*/
-		
-		float fAge = GetGameTime() - g_fFadeTime[iProp];
-		float fPhase = (fAge / PERIOD) - RoundToFloor(fAge / PERIOD);
-		float fBlend = (fPhase <= 0.5) ? (fPhase * 2.0) : (1.0 - (fPhase - 0.5) * 2.0);
-		
-		float fH0, fS0, fV0, fH1, fS1, fV1;
-		RGBtoHSV(g_iFadeColor[iProp][0], g_iFadeColor[iProp][1], g_iFadeColor[iProp][2], fH0, fS0, fV0);
-		RGBtoHSV(g_iFadeColor[iProp][3], g_iFadeColor[iProp][4], g_iFadeColor[iProp][5], fH1, fS1, fV1);
-		
-		float fDeltaH = fH1 - fH0;
-		if (FloatAbs(fDeltaH) > 180.0) fDeltaH += (fDeltaH > 0.0) ? -360.0 : 360.0;
-		
-		float fHue = fH0 + fDeltaH * fBlend;
-		if (fHue < 0.0) fHue += 360.0;
-		else if (fHue >= 360.0) fHue -= 360.0;
-		
-		float fSat = fS0 + (fS1 - fS0) * fBlend;
-		float fVal = fV0 + (fV1 - fV0) * fBlend;
-		
-		HSVtoRGB(fHue, fSat, fVal, iColor);
+		iColor[2] = RoundToFloor((1.0 - fColorFade) * g_iFadeColor[iProp][2] + fColorFade * g_iFadeColor[iProp][5]);
 		
 		Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
 		
@@ -1180,10 +1248,9 @@ public void Frame_FadeColor(any iProp)
 		{
 			Cel_SetColor(Cel_GetEffectAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
 		}
-	}
-	
-	if(g_bIsFading[iProp])
-	RequestFrame(Frame_FadeColor, iProp);
+		
+		RequestFrame(Frame_FadeColor, iProp);
+	}	
 }
 
 public void Frame_MoveProp(any iClient)
@@ -1233,10 +1300,9 @@ public void Frame_Rainbow(any iProp)
 		{
 			Cel_SetColor(Cel_GetEffectAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
 		}
+		
+		RequestFrame(Frame_Rainbow, iProp);
 	}
-	
-	if(g_bRainbow[iProp])
-	RequestFrame(Frame_Rainbow, iProp);
 }
 
 //Natives:

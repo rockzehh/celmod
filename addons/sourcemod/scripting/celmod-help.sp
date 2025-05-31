@@ -452,7 +452,10 @@ public int Native_ExportPropList(Handle hPlugin, int iNumParams)
 	{
 		kvProps.GetSectionName(sPropname, sizeof(sPropname));
 		
-		fPropList.WriteLine(sPropname);
+		if(!Cel_CheckBlacklistDB(sPropname))
+		{
+			fPropList.WriteLine(sPropname);
+		}
 	} while (kvProps.GotoNextKey(false));
 	
 	fPropList.Close();

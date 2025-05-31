@@ -324,6 +324,5 @@ addons/sourcemod/extensions/x64/updater.ext.dll
 addons/sourcemod/extensions/x64/webternet.ext.dll
 addons/sourcemod/extensions/x64/sdktools.ext.2.dods.dll
 /bin
-addons/sourcemod/data/celmod/blacklist.txt
 addons/sourcemod/scripting/include/ink_build.inc
 addons/sourcemod/scripting/ink_build.sp

@@ -60,6 +60,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SetRainbow", Native_SetRainbow);
 	CreateNative("Cel_SetRenderFX", Native_SetRenderFX);
 	CreateNative("Cel_SetSolid", Native_SetSolid);
+	CreateNative("Cel_TeleportInfrontOfClient", Native_TeleportInfrontOfClient);
 	
 	g_bLate = bLate;
 	
@@ -97,10 +98,10 @@ public void OnPluginStart()
 		ThrowError("|CelMod| %t", "FileNotFound", g_sColorDB);
 	}
 	
-	RegConsoleCmd("+copy", Command_StartCopy, "|CelMod| Starts copying and grabing the prop you are looking at.");
-	RegConsoleCmd("+grab", Command_StartGrab, "|CelMod| Starts grabing the prop you are looking at.");
-	RegConsoleCmd("-copy", Command_StopCopy, "|CelMod| Stops copying and grabing the prop you are looking at.");
-	RegConsoleCmd("-grab", Command_StopGrab, "|CelMod| Stops grabing the prop you are looking at.");
+	RegConsoleCmd("+copy", Command_StartCopy, "|CelMod| Starts copying and moving the prop you are looking at.");
+	RegConsoleCmd("+move", Command_StartGrab, "|CelMod| Starts moving the prop you are looking at.");
+	RegConsoleCmd("-copy", Command_StopCopy, "|CelMod| Stops copying and moving the prop you are looking at.");
+	RegConsoleCmd("-move", Command_StopGrab, "|CelMod| Stops moving the prop you are looking at.");
 	RegConsoleCmd("v_alpha", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
 	RegConsoleCmd("v_amt", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
 	RegConsoleCmd("v_color", Command_Color, "|CelMod| Colors the prop you are looking at.");
@@ -1726,6 +1727,25 @@ public int Native_SetSolid(Handle hPlugin, int iNumParams)
 	bSolid ? DispatchKeyValue(iEntity, "solid", "6") : DispatchKeyValue(iEntity, "solid", "4");
 	
 	g_bSolid[iEntity] = bSolid;
+	
+	return true;
+}
+
+public int Native_TeleportInfrontOfClient(Handle hPlugin, int iNumParams)
+{
+	float fAddOrigin, fCVector[2][3], fFinalOrigin[3];
+	int iClient = GetNativeCell(1), iEntity = GetNativeCell(2);
+	
+	fAddOrigin = GetNativeCell(3);
+	
+	GetClientEyeAngles(iClient, fCVector[0]);
+	GetClientAbsOrigin(iClient, fCVector[1]);
+		
+	fFinalOrigin[0] = fCVector[1][0] + (Cosine(DegToRad(fCVector[0][1])) * 50);
+	fFinalOrigin[1] = fCVector[1][1] + (Sine(DegToRad(fCVector[0][1])) * 50);
+	fFinalOrigin[2] = fCVector[1][2] + fAddOrigin;
+	
+	TeleportEntity(iEntity, fFinalOrigin, NULL_VECTOR, NULL_VECTOR);
 	
 	return true;
 }

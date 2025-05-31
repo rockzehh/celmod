@@ -27,6 +27,26 @@
 		"en"			"Usage: {green}[tag]alpha{default} <transparency value> <#all>"
 	}
 	
+	"CMD_BitAmmo"
+	{
+		"en"			"Usage: {green}[tag]ammo{default} <type>"
+	}
+	
+	"CMD_BitAmmoCrate"
+	{
+		"en"			"Usage: {green}[tag]ammocrate{default} <type>"
+	}
+	
+	"CMD_BitCharger"
+	{
+		"en"			"Usage: {green}[tag]charger{default} <health or suit>"
+	}
+	
+	"CMD_BitWeapon"
+	{
+		"en"			"Usage: {green}[tag]wep{default} <type>"
+	}
+	
 	"CMD_Blacklist"
 	{
 		"en"			"Usage: {green}[tag]blacklist{default} <option> <prop alias>"
@@ -294,6 +314,26 @@
 	"InternetSpawn"
 	{
 		"en"			"Spawned {green}internet{default} cel."
+	}
+	
+	"InvalidBitAmmo"
+	{
+		"en"			"Invalid ammo type."
+	}
+	
+	"InvalidBitAmmoCrate"
+	{
+		"en"			"Invalid ammo crate type."
+	}
+	
+	"InvalidBitCharger"
+	{
+		"en"			"Invalid charger type."
+	}
+	
+	"InvalidBitWeapon"
+	{
+		"en"			"Invalid weapon type."
 	}
 	
 	"InvalidEffect"
@@ -571,6 +611,30 @@
 	"SetUpLandArea"
 	{
 		"en"			"Type {green}!land{default} to set-up a land area."
+	}
+	
+	"SpawnBitAmmo"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} ammo bit."
+	}
+	
+	"SpawnBitAmmoCrate"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} ammo crate bit."
+	}
+	
+	"SpawnBitCharger"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} charger bit."
+	}
+	
+	"SpawnBitWeapon"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} weapon bit."
 	}
 	
 	"SpawnEffect"

@@ -214,7 +214,7 @@ public void OnPluginStart()
 	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://celmod.rockzehh.net", "Default internet cel URL.");
 	g_cvDownloadPath = CreateConVar("cm_download_list_path", "data/celmod/downloads.txt", "Path for the download list for clients.");
 	g_cvPropLimit = CreateConVar("cm_max_player_props", "140", "Maxiumum number of props a player is allowed to spawn.");
-	g_cvOverlayPath = CreateConVar("cm_overlay_material_path", "celmod/cm_overlay3.vmt", "Default CelMod overlay path.");
+	g_cvOverlayPath = CreateConVar("cm_overlay_material_path", "celmod/cm_overlay2.vmt", "Default CelMod overlay path.");
 	CreateConVar("cm_version", CEL_VERSION, "The version of the plugin the server is running.");
 	
 	g_cvCelLimit.AddChangeHook(CM_OnConVarChanged);
@@ -633,6 +633,8 @@ public Action Command_Internet(int iClient, int iArgs)
 	
 	int iInternet = Cel_SpawnInternet(iClient, g_sDefaultInternetURL, fAngles, fOrigin, 255, 255, 255, 255);
 	
+	Cel_TeleportInfrontOfClient(iClient, iInternet, 15.0);
+	
 	Call_StartForward(g_hOnCelSpawn);
 	
 	Call_PushCell(iInternet);
@@ -648,7 +650,7 @@ public Action Command_Internet(int iClient, int iArgs)
 
 public Action Command_Ladder(int iClient, int iArgs)
 {
-	char sOption[32];
+	char sModel[64], sOption[32];
 	float fAngles[3], fOrigin[3];
 	
 	if (!Cel_CheckCelCount(iClient))
@@ -674,7 +676,13 @@ public Action Command_Ladder(int iClient, int iArgs)
 	GetClientAbsAngles(iClient, fAngles);
 	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 	
-	int iLadder = Cel_SpawnLadder(iClient, StringToInt(sOption), fAngles, fOrigin, 255, 255, 255, 255);
+	switch(StringToInt(sOption))
+	{
+		case 1: Format(sModel, sizeof(sModel), "models/props_c17/metalladder001.mdl");
+		case 2: Format(sModel, sizeof(sModel), "models/props_c17/metalladder002.mdl");
+	}
+	
+	int iLadder = Cel_SpawnLadder(iClient, sModel, fAngles, fOrigin, 255, 255, 255, 255);
 	
 	Call_StartForward(g_hOnCelSpawn);
 	
@@ -1263,14 +1271,22 @@ public int Native_GetCelLimit(Handle hPlugin, int iNumParams)
 
 public int Native_GetClientAimTarget(Handle hPlugin, int iNumParams)
 {
-	int iClient = GetNativeCell(1);
+	float fEyeAngles[3], fEyeOrigin[3];
+	int iClient = GetNativeCell(1), iTarget = -1;
 	
-	if (GetClientAimTarget(iClient, false) == -1)
+	GetClientEyeAngles(iClient, fEyeAngles);
+	GetClientEyePosition(iClient, fEyeOrigin);
+	
+	Handle hTraceRay = TR_TraceRayFilterEx(fEyeOrigin, fEyeAngles, (MASK_SHOT_HULL|MASK_SHOT), RayType_Infinite, Cel_FilterPlayer, iClient);
+	
+	if (TR_DidHit(hTraceRay))
 	{
-		return -1;
+		iTarget = TR_GetEntityIndex(hTraceRay);
+		
+		if(iTarget == 0) iTarget = -1;
+		
+		CloseHandle(hTraceRay);
 	}
-	
-	int iTarget = GetClientAimTarget(iClient, false);
 	
 	return (Cel_IsEntity(iTarget)) ? iTarget : -1;
 }
@@ -1291,7 +1307,7 @@ public int Native_GetCrosshairHitOrigin(Handle hPlugin, int iNumParams)
 	GetClientEyeAngles(iClient, fEyeAngles);
 	GetClientEyePosition(iClient, fEyeOrigin);
 	
-	Handle hTraceRay = TR_TraceRayFilterEx(fEyeOrigin, fEyeAngles, MASK_ALL, RayType_Infinite, Cel_FilterPlayer);
+	Handle hTraceRay = TR_TraceRayFilterEx(fEyeOrigin, fEyeAngles, (MASK_SHOT_HULL|MASK_SHOT), RayType_Infinite, Cel_FilterPlayer, iClient);
 	
 	if (TR_DidHit(hTraceRay))
 	{
@@ -1311,7 +1327,7 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	
 	EntityType etEntityType = Cel_GetEntityType(iEntity);
 	
-	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER || etEntityType == ENTTYPE_WEPSPAWNER)
+	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER || etEntityType == ENTTYPE_BIT)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
 	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
@@ -1383,9 +1399,18 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 	} else if (StrContains(sClassname, "prop_physics", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_PHYSICS);
-	} else if (StrContains(sClassname, "cel_wepspanwer_", false) != -1)
+	} else if (StrContains(sClassname, "bit_ammo_", false) != -1)
 	{
-		return view_as<int>(ENTTYPE_WEPSPAWNER);
+		return view_as<int>(ENTTYPE_AMMO);
+	} else if (StrContains(sClassname, "item_ammo_crate", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_AMMOCRATE);
+	} else if (StrContains(sClassname, "item_healthcharger", false) != -1 || StrContains(sClassname, "item_suitcharger", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_CHARGER);
+	} else if (StrContains(sClassname, "bit_wep_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_WEAPONSPWNER);
 	} else {
 		return view_as<int>(ENTTYPE_UNKNOWN);
 	}
@@ -1424,9 +1449,21 @@ public int Native_GetEntityTypeFromName(Handle hPlugin, int iNumParams)
 	} else if (StrEqual(sEntityType, "physics", false))
 	{
 		return view_as<int>(ENTTYPE_PHYSICS);
-	} else if (StrEqual(sEntityType, "wepspawner", false))
+	} else if (StrEqual(sEntityType, "bit", false))
 	{
-		return view_as<int>(ENTTYPE_WEPSPAWNER);
+		return view_as<int>(ENTTYPE_BIT);
+	} else if (StrEqual(sEntityType, "ammo", false))
+	{
+		return view_as<int>(ENTTYPE_AMMO);
+	} else if (StrEqual(sEntityType, "ammocrate", false))
+	{
+		return view_as<int>(ENTTYPE_AMMOCRATE);
+	} else if (StrEqual(sEntityType, "charger", false))
+	{
+		return view_as<int>(ENTTYPE_CHARGER);
+	} else if (StrEqual(sEntityType, "weaponspwner", false))
+	{
+		return view_as<int>(ENTTYPE_WEAPONSPWNER);
 	} else {
 		return view_as<int>(ENTTYPE_UNKNOWN);
 	}
@@ -1475,9 +1512,25 @@ public int Native_GetEntityTypeName(Handle hPlugin, int iNumParams)
 		{
 			Format(sEntityType, sizeof(sEntityType), "physics prop");
 		}
-		case ENTTYPE_WEPSPAWNER:
+		case ENTTYPE_BIT:
 		{
-			Format(sEntityType, sizeof(sEntityType), "weapon spawner cel");
+			Format(sEntityType, sizeof(sEntityType), "bit cel");
+		}
+		case ENTTYPE_AMMO:
+		{
+			Format(sEntityType, sizeof(sEntityType), "ammo bit cel");
+		}
+		case ENTTYPE_AMMOCRATE:
+		{
+			Format(sEntityType, sizeof(sEntityType), "ammo crate bit cel");
+		}
+		case ENTTYPE_CHARGER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "charger bit cel");
+		}
+		case ENTTYPE_WEAPONSPWNER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "weapon bit cel");
 		}
 		case ENTTYPE_UNKNOWN:
 		{
@@ -1891,6 +1944,7 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	DispatchKeyValue(iInternet, "model", "models/props_lab/monitor02.mdl");
 	DispatchKeyValue(iInternet, "classname", "cel_internet");
 	DispatchKeyValue(iInternet, "skin", "1");
+	DispatchKeyValue(iInternet, "spawnflags", "256");
 	
 	TeleportEntity(iInternet, fOrigin, fAngles, NULL_VECTOR);
 	
@@ -1914,7 +1968,7 @@ public int Native_SpawnInternet(Handle hPlugin, int iNumParams)
 	
 	Cel_SetRenderFX(iInternet, RENDERFX_NONE);
 	
-	SDKHook(iInternet, SDKHook_UsePost, Hook_InternetUse);
+	SDKHook(iInternet, SDKHook_Use, Hook_InternetUse);
 	
 	return iInternet;
 }
@@ -1923,7 +1977,9 @@ public int Native_SpawnLadder(Handle hPlugin, int iNumParams)
 {
 	char sModel[64];
 	float fAngles[3], fOrigin[3];
-	int iClient = GetNativeCell(1), iColor[4], iSkin = GetNativeCell(2);
+	int iClient = GetNativeCell(1), iColor[4];
+	
+	GetNativeString(2, sModel, sizeof(sModel));
 	
 	GetNativeArray(3, fAngles, 3);
 	GetNativeArray(4, fOrigin, 3);
@@ -1937,12 +1993,6 @@ public int Native_SpawnLadder(Handle hPlugin, int iNumParams)
 	
 	if (iProp == -1)
 	return -1;
-	
-	switch(iSkin)
-	{
-		case 1: Format(sModel, sizeof(sModel), "models/props_c17/metalladder001.mdl");
-		case 2: Format(sModel, sizeof(sModel), "models/props_c17/metalladder002.mdl");
-	}
 	
 	PrecacheModel(sModel);
 	

@@ -27,8 +27,12 @@ enum EntityType
 	ENTTYPE_LIGHT = 6,
 	ENTTYPE_PHYSICS = 7,
 	ENTTYPE_CLEER = 8,
-	ENTTYPE_WEPSPAWNER = 9,
-	ENTTYPE_UNKNOWN = 10,
+	ENTTYPE_BIT = 9,
+	ENTTYPE_AMMO = 10,
+	ENTTYPE_AMMOCRATE = 11,
+	ENTTYPE_CHARGER = 12,
+	ENTTYPE_WEAPONSPWNER = 13,
+	ENTTYPE_UNKNOWN = 14,
 };
 
 enum EffectType
@@ -41,6 +45,52 @@ enum EffectType
 	EFFECT_SPOTLIGHT = 5,
 	EFFECT_STEAM = 6,
 	EFFECT_UNKNOWN = 7,
+};
+
+enum WeaponBitType
+{
+	WEPBIT_GRAVGUN = 0,
+	WEPBIT_STUNSTICK = 1,
+	WEPBIT_CROWBAR = 2,
+	WEPBIT_PISTOL = 3,
+	WEPBIT_MAGNUM = 4,
+	WEPBIT_SMG = 5,
+	WEPBIT_AR2 = 6,
+	WEPBIT_SHOTGUN = 7,
+	WEPBIT_CROSSBOW = 8,
+	WEPBIT_GRENADE = 9,
+	WEPBIT_RPG = 10,
+	WEPBIT_SLAM = 11,
+	WEPBIT_UNKNOWN = 12,
+};
+
+enum AmmoBitType
+{
+	AMMOBIT_PISTOL = 0,
+	AMMOBIT_MAGNUM = 1,
+	AMMOBIT_SMG = 2,
+	AMMOBIT_AR2 = 3,
+	AMMOBIT_SHOTGUN = 4,
+	AMMOBIT_CROSSBOW = 5,
+	AMMOBIT_RPG = 6,
+	AMMOBIT_UNKNOWN = 7,
+};
+
+enum AmmoCrateType
+{
+	AMMOCRATEBIT_SMG = 1,
+	AMMOCRATEBIT_AR2 = 2,
+	AMMOCRATEBIT_RPG = 3,
+	AMMOCRATEBIT_GRENADE = 5,
+	AMMOCRATEBIT_CBALL = 8,
+	AMMOCRATEBIT_UNKNOWN = 9,
+};
+
+enum ChargerType
+{
+	CHARGERBIT_HEALTH = 0,
+	CHARGERBIT_SUIT = 1,
+	CHARGERBIT_UNKNOWN = 2,
 };
 
 #define CEL_AUTHOR "rockzehh"
@@ -652,7 +702,7 @@ native int Cel_SpawnDoor(int iClient, const char[] sSkin, float fAngles[3], floa
  */
 native int Cel_SpawnInternet(int iClient, const char[] sURL, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
-native int Cel_SpawnLadder(int iClient, int iSkin, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+native int Cel_SpawnLadder(int iClient, const char[] sModel, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
 native int Cel_SpawnLight(int iClient, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
@@ -686,6 +736,8 @@ native void Cel_SubFromCelCount(int iClient);
  * @param iClient  The client index.
  */
 native void Cel_SubFromPropCount(int iClient);
+
+native void Cel_TeleportInfrontOfClient(int iClient, int iEntity, float fAdd = 0.0);
 
 /**
  * Retrieves the angles of an entity.
@@ -1177,6 +1229,38 @@ native void Cel_SetClientBalance(int iClient, int iBalance);
 native void Cel_StartSale(int iClient, int iEntity, int iPrice);
 
 native void Cel_SubFromClientBalance(int iClient, int iBalance);
+
+native AmmoBitType Cel_GetAmmoType(int iEntity);
+
+native AmmoBitType Cel_GetAmmoTypeFromName(char[] sAmmo);
+
+native void Cel_GetAmmoTypeName(AmmoBitType abtType, const char[] sName, int iMaxLength);
+
+native AmmoCrateType Cel_GetAmmoCrateType(int iEntity);
+
+native AmmoCrateType Cel_GetAmmoCrateTypeFromName(char[] sAmmoCrate);
+
+native void Cel_GetAmmoCrateTypeName(AmmoCrateType actType, const char[] sName, int iMaxLength);
+
+native ChargerType Cel_GetChargerType(int iEntity);
+
+native ChargerType Cel_GetChargerTypeFromName(char[] sCharger);
+
+native void Cel_GetChargerTypeName(ChargerType ctType, const char[] sName, int iMaxLength);
+
+native WeaponBitType Cel_GetWeaponType(int iEntity);
+
+native WeaponBitType Cel_GetWeaponTypeFromName(char[] sWeapon);
+
+native void Cel_GetWeaponTypeName(WeaponBitType wbtType, const char[] sName, int iMaxLength);
+
+native int Cel_SpawnAmmoBit(int iClient, AmmoBitType abtType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
+native int Cel_SpawnAmmoCrate(int iClient, AmmoCrateType actType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
+native int Cel_SpawnCharger(int iClient, ChargerType ctType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
+native int Cel_SpawnWeaponBit(int iClient, WeaponBitType wbtType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
 //Stocks
 stock void HSVtoRGB(float fH, float fS, float fV, int iRGB[3])

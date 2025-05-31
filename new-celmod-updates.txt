@@ -14,3 +14,9 @@
 	 - 05/01/25: Added +grab, +copy, !skin, !copy and !paste.
 		 - Update rainbow and sm_fadecolor to use HSV to RGB for a better and more consistant color.
 	 - 05/08/25: Added a blacklist to blacklist props without altering the prop list.
+	 - 05/30/25: Added !ladder and !light to spawn in ladder and light cels. Updated +grab to +move.
+		 - Added bits for weapons, ammo, and chargers.
+			 - !ammo
+			 - !ammocrate
+			 - !charger
+			 - !weapon

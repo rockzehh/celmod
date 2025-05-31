@@ -112,6 +112,7 @@ public void OnPluginStart()
 	
 	RegConsoleCmd("v_coop", Command_LandCoop, "|CelMod| Changes the mode to co-op within the land.");
 	RegConsoleCmd("v_deathmatch", Command_LandDeathmatch, "|CelMod| Changes the mode to deathmatch within the land.");
+	RegConsoleCmd("v_dm", Command_LandDeathmatch, "|CelMod| Changes the mode to deathmatch within the land.");
 	RegConsoleCmd("v_gravity", Command_LandGravity, "|CelMod| Changes the gravity within the land.");
 	RegConsoleCmd("v_land", Command_Land, "|CelMod| Creates a building zone.");
 	RegConsoleCmd("v_landcoop", Command_LandCoop, "|CelMod| Changes the mode to co-op within the land.");
@@ -312,7 +313,7 @@ public int Native_CreateLand(Handle hPlugin, int iNumParams)
 	
 	iEnt = CreateEntityByName("trigger_multiple");
 	
-	DispatchKeyValue(iEnt, "spawnflags", "64");
+	DispatchKeyValue(iEnt, "spawnflags", "1103");
 	DispatchKeyValue(iEnt, "wait", "0");
 	
 	DispatchSpawn(iEnt);
@@ -836,17 +837,20 @@ public void EntOut_LandOnStartTouch(const char[] sOutput, int iCaller, int iActi
 	
 	int iOwner = g_iLandEntOwner[iCaller];
 	
-	GetClientName(iOwner, sName, sizeof(sName));
-	
-	if(!g_liLand[iActivator].bInsideLand)
+	if(Cel_IsPlayer(iActivator))
 	{
-		Cel_PrintToChat(iActivator, "%t", "EnteredLand", sName);
+		GetClientName(iOwner, sName, sizeof(sName));
+		
+		if(!g_liLand[iActivator].bInsideLand)
+		{
+			Cel_PrintToChat(iActivator, "%t", "EnteredLand", sName);
+		}
+		
+		g_liLand[iActivator].bInsideLand = true;
+		
+		Cel_SetCurrentLandEntity(iActivator, g_liLand[iOwner].iLandEntity);
+		Cel_SetCurrentLandOwner(iActivator, g_liLand[iOwner].iLandOwner);
 	}
-	
-	g_liLand[iActivator].bInsideLand = true;
-	
-	Cel_SetCurrentLandEntity(iActivator, g_liLand[iOwner].iLandEntity);
-	Cel_SetCurrentLandOwner(iActivator, g_liLand[iOwner].iLandOwner);
 }
 
 public void EntOut_LandOnTrigger(const char[] sOutput, int iCaller, int iActivator, float fDelay)
@@ -856,33 +860,36 @@ public void EntOut_LandOnTrigger(const char[] sOutput, int iCaller, int iActivat
 	
 	int iOwner = g_iLandEntOwner[iCaller];
 	
-	if(g_liLand[iActivator].bInsideLand)
+	if(Cel_IsPlayer(iActivator))
 	{
-		SetEntityGravity(iActivator, Cel_GetLandGravity(iOwner));
-		
-		if(g_liLand[iOwner].bModeDeathmatch && !g_liLand[iActivator].bInDeathmatchMode)
+		if(g_liLand[iActivator].bInsideLand)
 		{
-			SetEntProp(iActivator, Prop_Data, "m_takedamage", 2, 1);
+			SetEntityGravity(iActivator, Cel_GetLandGravity(iOwner));
 			
-			g_liLand[iActivator].bInDeathmatchMode = true;
+			if(g_liLand[iOwner].bModeDeathmatch && !g_liLand[iActivator].bInDeathmatchMode)
+			{
+				SetEntProp(iActivator, Prop_Data, "m_takedamage", 2, 1);
+				
+				g_liLand[iActivator].bInDeathmatchMode = true;
+				
+				Cel_PrintToChat(iActivator, "%t", "LandMode_Deathmatch");
+			}
 			
-			Cel_PrintToChat(iActivator, "%t", "LandMode_Deathmatch");
-		}
-		
-		//Update land modes.
-		if(!g_liLand[iOwner].bModeCoop && g_liLand[iActivator].bInCoopMode)
-		{
-			g_liLand[iActivator].bInCoopMode = false;
-		}
-		
-		if(!g_liLand[iOwner].bModeDeathmatch && g_liLand[iActivator].bInDeathmatchMode)
-		{
-			g_liLand[iActivator].bInDeathmatchMode = false;
-		}
-		
-		if(!g_liLand[iOwner].bModeShop && g_liLand[iActivator].bInShopMode)
-		{
-			g_liLand[iActivator].bInShopMode = false;
+			//Update land modes.
+			if(!g_liLand[iOwner].bModeCoop && g_liLand[iActivator].bInCoopMode)
+			{
+				g_liLand[iActivator].bInCoopMode = false;
+			}
+			
+			if(!g_liLand[iOwner].bModeDeathmatch && g_liLand[iActivator].bInDeathmatchMode)
+			{
+				g_liLand[iActivator].bInDeathmatchMode = false;
+			}
+			
+			if(!g_liLand[iOwner].bModeShop && g_liLand[iActivator].bInShopMode)
+			{
+				g_liLand[iActivator].bInShopMode = false;
+			}
 		}
 	}
 }
@@ -892,18 +899,21 @@ public void EntOut_LandOnEndTouch(const char[] sOutput, int iCaller, int iActiva
 	if (iActivator < 1 || iActivator > MaxClients || !IsClientInGame(iActivator) || !IsPlayerAlive(iActivator))
 	return;
 	
-	g_liLand[iActivator].bInsideLand = false;
-	
-	Cel_SetCurrentLandEntity(iActivator, -1);
-	Cel_SetCurrentLandOwner(iActivator, -1);
-	
-	SetEntityGravity(iActivator, 1.0);
-	
-	if(g_liLand[iActivator].bInDeathmatchMode)
+	if(Cel_IsPlayer(iActivator))
 	{
-		Cel_SetNoKill(iActivator, Cel_GetNoKill(iActivator));
+		g_liLand[iActivator].bInsideLand = false;
 		
-		g_liLand[iActivator].bInDeathmatchMode = false;
+		Cel_SetCurrentLandEntity(iActivator, -1);
+		Cel_SetCurrentLandOwner(iActivator, -1);
+		
+		SetEntityGravity(iActivator, 1.0);
+		
+		if(g_liLand[iActivator].bInDeathmatchMode)
+		{
+			Cel_SetNoKill(iActivator, Cel_GetNoKill(iActivator));
+			
+			g_liLand[iActivator].bInDeathmatchMode = false;
+		}
 	}
 }
 

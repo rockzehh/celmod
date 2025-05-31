@@ -1,16 +1,19 @@
-+copy - Client - Starts copying and grabing the prop you are looking at.
-+grab - Client - Starts grabing the prop you are looking at.
--copy - Client - Stops copying and grabing the prop you are looking at.
--grab - Client - Stops grabing the prop you are looking at.
++copy - Client - Starts copying and moving the prop you are looking at.
++move - Client - Starts moving the prop you are looking at.
+-copy - Client - Stops copying and moving the prop you are looking at.
+-move - Client - Stops moving the prop you are looking at.
 cm_exportcolorlist - Server - Exports the color list into a text or html file in 'data/celmod/exports'.
 cm_exportcommandlist - Server - Exports the command list into a text or html file in 'data/celmod/exports'.
 cm_exportproplist - Server - Exports the prop list into a text or html file in 'data/celmod/exports'.
 v_alpha - Client - Changes the transparency on the prop you are looking at.
+v_ammo - Client - Creates a ammo bit that will give ammo when the player touches it.
+v_ammocrate - Client - Creates a ammo crate bit that will give ammo to the player.
 v_amt - Client - Changes the transparency on the prop you are looking at.
 v_axis - Client - Creates a marker to the player showing every axis.
 v_balance - Client - Gets the players current balance.
 v_blacklist - Admin - Adds/removes a prop from the spawn blacklist.
 v_buy - Client - Purchases the current entity you are looking at or command you specified.
+v_charger - Client - Creates a health/suit charger bit that will give health/suit to the player.
 v_cmds - Client - Displays the command list.
 v_color - Client - Colors the prop you are looking at.
 v_colorlist - Client - Displays the color list.
@@ -24,6 +27,7 @@ v_del - Client - Removes the prop you are looking at.
 v_delall - Client - Removes all the entities that you own.
 v_delete - Client - Removes the prop you are looking at.
 v_deleteall - Client - Removes all the entities that you own.
+v_dm - Client - Changes the mode to deathmatch within the land.
 v_door - Client - Spawns a working door cel.
 v_effect - Client - Spawns a working effect cel.
 v_effectlist - Client - Displays the effect list.
@@ -80,3 +84,4 @@ v_unfreeze - Client - Unfreezes the prop you are looking at.
 v_unfreezeit - Client - Unfreezes the prop you are looking at.
 v_updatelist - Client - Displays the update list.
 v_updates - Client - Displays the update list.
+v_wep - Client - Creates a weapon bit that will give a weapon when the player touches it.

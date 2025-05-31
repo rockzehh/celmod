@@ -17,13 +17,17 @@ Extract the zip file into your server directory with [SourceMod](https://www.sou
 Command | Description | Aliases | Type | Extra
 --- | --- | --- | --- | ---
 v_alpha|Changes the transparency on the prop you are looking at.|v_amt|Client|
+v_ammo|Creates a ammo bit that will give ammo when the player touches it.|None|Client|
+v_ammocrate|Creates a ammo crate bit that will give ammo to the player.|None|Client|
 v_axis|Creates a marker to the player showing every axis.|v_mark, v_marker|Client|
 v_balance|Gets the players current balance.|None|Client|
 v_blacklist|Adds/removes a prop from the spawn blacklist.|None|Admin|
 v_buy|Purchases the current entity you are looking at or command you specified.|None|Client|
+v_charger|Creates a health/suit charger bit that will give health/suit to the player.|None|Client|
 v_color|Colors the prop you are looking at.|v_paint|Client|
 v_colorlist|Displays the color list.|v_colors|Client|[Color List](https://celmod.rockzehh.net/colors.html)
 v_commandlist|Displays the command list.|v_cmds, v_commands|Client|[Command List](https://celmod.rockzehh.net/cmds.html)
+v_copy|Copies the prop you are looking at into your copy buffer.|None|Client|
 v_delete|Removes the prop you are looking at.|v_del, v_remove|Client|
 v_door|Spawns a working door cel.|None|Client|
 v_effect|Spawns a working effect cel.|v_emitter|Client|
@@ -32,12 +36,14 @@ v_fadecolor|Fades the prop you are looking at between two colors.|None|Client|
 v_fly|Enables/disables nocip on the player.|None|Client|
 v_freeze|Freezes the prop you are looking at.|v_freezeit|Client|
 v_internet|Creates a working internet cel.|None|Client|
+v_ladder|Creates a working ladder cel.|None|Client|
 v_land|Creates a building zone.|None|Client|
 v_landdeathmatch|Changes the deathmatch setting within the land.|None|Client|
 v_landgravity|Changes the gravity within the land.|None|Client|
-v_landskin|Changes the skin within the land.|None|Client|This command currently doesn't work.
+v_light|Creates a working light cel.|None|Client|
 v_load|Loads entites from a save file.|None|Client|
 v_nokill|Enables/disables godmode on the player.|None|Client|
+v_paste|Pastes the prop in your copy buffer where you are looking at.|None|Client|
 v_proplist|Displays the prop list.|v_props|Client|[Prop List](https://celmod.rockzehh.net/props.html)
 v_renderfx|Changes the RenderFX on what prop you are looking at.|None|Client|
 v_rotate|Rotates the prop you are looking at.|None|Client|
@@ -54,6 +60,7 @@ v_stackinfo|Gets the origin difference between props for help stacking.|None|Cli
 v_stand|Resets the angles on the prop you are looking at.|v_straight, v_straighten|Client|
 v_switch|Switches the side the hud is on the screen.|None|Client|
 v_unfreeze|Unfreezes the prop you are looking at.|v_unfreezeit|Client|
+v_wep|Creates a weapon bit that will give a weapon when the player touches it.|None|Client|
 
 ## Developer Commands
 Command | Description | Type

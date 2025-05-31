@@ -97,10 +97,10 @@ public Action Command_SaveBuild(int iClient, int iArgs)
 
 public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[64], sFile[PLATFORM_MAX_PATH], sRelPath[PLATFORM_MAX_PATH], sSaveName[96];
+	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96];
 	float fEnt[2][3], fOrigin[3];
 	
-	int iClient = GetNativeCell(1);
+	int iClient = GetNativeCell(1), iProp = -1;
 	
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
 	
@@ -120,259 +120,105 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 		{
 			do
 			{
+				fEnt[0][0] = kvLoadBuild.GetFloat("a1");
+				fEnt[0][1] = kvLoadBuild.GetFloat("a2");
+				fEnt[0][2] = kvLoadBuild.GetFloat("a3");
+				
+				fEnt[1][0] = kvLoadBuild.GetFloat("o1");
+				fEnt[1][1] = kvLoadBuild.GetFloat("o2");
+				fEnt[1][2] = kvLoadBuild.GetFloat("o3");
+				
+				fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
+				fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
+				fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
+				
+				kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
+				kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
+				kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
+				
 				EntityType etType = view_as<EntityType>(kvLoadBuild.GetNum("entitytype"));
 				
 				switch(etType)
 				{
 					case ENTTYPE_CYCLER:
 					{
-						char sBuffer[4][PLATFORM_MAX_PATH];
+						kvLoadBuild.GetString("propname", sPropName, sizeof(sPropName));
 						
-						kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("propname", sBuffer[3], sizeof(sBuffer[]));
-						
-						fEnt[0][0] = kvLoadBuild.GetFloat("a1");
-						fEnt[0][1] = kvLoadBuild.GetFloat("a2");
-						fEnt[0][2] = kvLoadBuild.GetFloat("a3");
-						
-						fEnt[1][0] = kvLoadBuild.GetFloat("o1");
-						fEnt[1][1] = kvLoadBuild.GetFloat("o2");
-						fEnt[1][2] = kvLoadBuild.GetFloat("o3");
-						
-						fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
-						fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
-						fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
-						
-						int iProp = Cel_SpawnProp(iClient, sBuffer[3], "cycler", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						
-						Cel_SetEntity(iProp, true);
-						Entity_SetName(iProp, sBuffer[1]);
-						Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
-						Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
-						Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
-						Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
-						Cel_SetOwner(iClient, iProp);
-						Cel_SetPropName(iProp, sBuffer[3]);
-						
-						Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
-						Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
+						iProp = Cel_SpawnProp(iClient, sPropName, "cycler", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 						
 						Entity_SetAnimSequence(iProp, kvLoadBuild.GetNum("animsequence"));
 					}
 					case ENTTYPE_DOOR:
 					{
-						char sBuffer[3][PLATFORM_MAX_PATH];
-						
-						kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
-						
-						fEnt[0][0] = kvLoadBuild.GetFloat("a1");
-						fEnt[0][1] = kvLoadBuild.GetFloat("a2");
-						fEnt[0][2] = kvLoadBuild.GetFloat("a3");
-						
-						fEnt[1][0] = kvLoadBuild.GetFloat("o1");
-						fEnt[1][1] = kvLoadBuild.GetFloat("o2");
-						fEnt[1][2] = kvLoadBuild.GetFloat("o3");
-						
-						fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
-						fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
-						fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
-						
-						int iProp = Cel_SpawnDoor(iClient, "1", fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						
-						Cel_SetEntity(iProp, true);
-						Entity_SetName(iProp, sBuffer[1]);
-						Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
-						Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
-						Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
-						Cel_SetSolid(iProp, view_as<bool>(kvLoadBuild.GetNum("solid")));
-						Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
-						Cel_SetOwner(iClient, iProp);
-						
-						Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
-						Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
+						iProp = Cel_SpawnDoor(iClient, "1", fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 					case ENTTYPE_DYNAMIC:
 					{
-						char sBuffer[4][PLATFORM_MAX_PATH];
+						kvLoadBuild.GetString("propname", sPropName, sizeof(sPropName));
 						
-						kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("propname", sBuffer[3], sizeof(sBuffer[]));
-						
-						fEnt[0][0] = kvLoadBuild.GetFloat("a1");
-						fEnt[0][1] = kvLoadBuild.GetFloat("a2");
-						fEnt[0][2] = kvLoadBuild.GetFloat("a3");
-						
-						fEnt[1][0] = kvLoadBuild.GetFloat("o1");
-						fEnt[1][1] = kvLoadBuild.GetFloat("o2");
-						fEnt[1][2] = kvLoadBuild.GetFloat("o3");
-						
-						fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
-						fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
-						fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
-						
-						int iProp = Cel_SpawnProp(iClient, sBuffer[3], "prop_physics_override", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						
-						Cel_SetEntity(iProp, true);
-						Entity_SetName(iProp, sBuffer[1]);
-						Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
-						Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
-						Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
-						Cel_SetSolid(iProp, view_as<bool>(kvLoadBuild.GetNum("solid")));
-						Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
-						Cel_SetOwner(iClient, iProp);
-						Cel_SetPropName(iProp, sBuffer[3]);
-						
-						Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
-						Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
+						iProp = Cel_SpawnProp(iClient, sPropName, "prop_physics_override", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 					case ENTTYPE_EFFECT:
 					{
-						char sBuffer[3][PLATFORM_MAX_PATH];
-						
-						kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
-						
-						fEnt[0][0] = kvLoadBuild.GetFloat("a1");
-						fEnt[0][1] = kvLoadBuild.GetFloat("a2");
-						fEnt[0][2] = kvLoadBuild.GetFloat("a3");
-						
-						fEnt[1][0] = kvLoadBuild.GetFloat("o1");
-						fEnt[1][1] = kvLoadBuild.GetFloat("o2");
-						fEnt[1][2] = kvLoadBuild.GetFloat("o3");
-						
-						fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
-						fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
-						fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
-						
-						int iProp = Cel_SpawnEffect(iClient, fOrigin, view_as<EffectType>(kvLoadBuild.GetNum("effecttype")), view_as<bool>(kvLoadBuild.GetNum("effectenabled")), kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						
-						Cel_SetEntity(iProp, true);
-						Entity_SetName(iProp, sBuffer[1]);
-						Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
-						Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
-						Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
-						Cel_SetSolid(iProp, view_as<bool>(kvLoadBuild.GetNum("solid")));
-						Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
-						Cel_SetOwner(iClient, iProp);
-						
-						Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
-						Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
+						iProp = Cel_SpawnEffect(iClient, fOrigin, view_as<EffectType>(kvLoadBuild.GetNum("effecttype")), view_as<bool>(kvLoadBuild.GetNum("effectenabled")), kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 					case ENTTYPE_INTERNET:
 					{
-						char sBuffer[4][PLATFORM_MAX_PATH];
+						char sURL[PLATFORM_MAX_PATH];
 						
-						kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("interneturl", sBuffer[3], sizeof(sBuffer[]));
+						kvLoadBuild.GetString("interneturl", sURL, sizeof(sURL));
 						
-						fEnt[0][0] = kvLoadBuild.GetFloat("a1");
-						fEnt[0][1] = kvLoadBuild.GetFloat("a2");
-						fEnt[0][2] = kvLoadBuild.GetFloat("a3");
-						
-						fEnt[1][0] = kvLoadBuild.GetFloat("o1");
-						fEnt[1][1] = kvLoadBuild.GetFloat("o2");
-						fEnt[1][2] = kvLoadBuild.GetFloat("o3");
-						
-						fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
-						fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
-						fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
-						
-						int iProp = Cel_SpawnInternet(iClient, sBuffer[3], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						
-						Cel_SetEntity(iProp, true);
-						Entity_SetName(iProp, sBuffer[1]);
-						Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
-						Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
-						Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
-						Cel_SetSolid(iProp, view_as<bool>(kvLoadBuild.GetNum("solid")));
-						Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
-						Cel_SetOwner(iClient, iProp);
-						
-						Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
-						Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
+						iProp = Cel_SpawnInternet(iClient, sURL, fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_LADDER:
+					{
+						iProp = Cel_SpawnLadder(iClient, sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_LIGHT:
+					{
+						iProp = Cel_SpawnLight(iClient, fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 					case ENTTYPE_PHYSICS:
 					{
-						char sBuffer[4][PLATFORM_MAX_PATH];
+						kvLoadBuild.GetString("propname", sPropName, sizeof(sPropName));
 						
-						kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("propname", sBuffer[3], sizeof(sBuffer[]));
-						
-						fEnt[0][0] = kvLoadBuild.GetFloat("a1");
-						fEnt[0][1] = kvLoadBuild.GetFloat("a2");
-						fEnt[0][2] = kvLoadBuild.GetFloat("a3");
-						
-						fEnt[1][0] = kvLoadBuild.GetFloat("o1");
-						fEnt[1][1] = kvLoadBuild.GetFloat("o2");
-						fEnt[1][2] = kvLoadBuild.GetFloat("o3");
-						
-						fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
-						fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
-						fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
-						
-						int iProp = Cel_SpawnProp(iClient, sBuffer[3], "prop_physics_override", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						
-						Cel_SetEntity(iProp, true);
-						Entity_SetName(iProp, sBuffer[1]);
-						Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
-						Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
-						Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
-						Cel_SetSolid(iProp, view_as<bool>(kvLoadBuild.GetNum("solid")));
-						Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
-						Cel_SetOwner(iClient, iProp);
-						Cel_SetPropName(iProp, sBuffer[3]);
-						
-						Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
-						Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
+						iProp = Cel_SpawnProp(iClient, sPropName, "prop_physics_override", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_AMMO:
+					{
+						iProp = Cel_SpawnAmmoBit(iClient, view_as<AmmoBitType>(kvLoadBuild.GetNum("ammobittype")), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_AMMOCRATE:
+					{
+						iProp = Cel_SpawnAmmoCrate(iClient, view_as<AmmoCrateType>(kvLoadBuild.GetNum("ammocratetype")), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_CHARGER:
+					{
+						iProp = Cel_SpawnCharger(iClient, view_as<ChargerType>(kvLoadBuild.GetNum("chargertype")), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_WEAPONSPWNER:
+					{
+						iProp = Cel_SpawnWeaponBit(iClient, view_as<WeaponBitType>(kvLoadBuild.GetNum("weaponbittype")), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 					case ENTTYPE_UNKNOWN:
 					{
-						char sBuffer[4][PLATFORM_MAX_PATH];
+						kvLoadBuild.GetString("propname", sPropName, sizeof(sPropName));
 						
-						kvLoadBuild.GetString("classname", sBuffer[0], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("targetname", sBuffer[1], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("model", sBuffer[2], sizeof(sBuffer[]));
-						kvLoadBuild.GetString("propname", sBuffer[3], sizeof(sBuffer[]));
-						
-						fEnt[0][0] = kvLoadBuild.GetFloat("a1");
-						fEnt[0][1] = kvLoadBuild.GetFloat("a2");
-						fEnt[0][2] = kvLoadBuild.GetFloat("a3");
-						
-						fEnt[1][0] = kvLoadBuild.GetFloat("o1");
-						fEnt[1][1] = kvLoadBuild.GetFloat("o2");
-						fEnt[1][2] = kvLoadBuild.GetFloat("o3");
-						
-						fOrigin[0] = fEnt[1][0] + g_fCrosshairOrigin[iClient][0];
-						fOrigin[1] = fEnt[1][1] + g_fCrosshairOrigin[iClient][1];
-						fOrigin[2] = fEnt[1][2] + g_fCrosshairOrigin[iClient][2];
-						
-						int iProp = Cel_SpawnProp(iClient, sBuffer[3], "prop_physics_override", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						
-						Cel_SetEntity(iProp, true);
-						Entity_SetName(iProp, sBuffer[1]);
-						Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
-						Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
-						Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
-						Cel_SetSolid(iProp, view_as<bool>(kvLoadBuild.GetNum("solid")));
-						Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
-						Cel_SetOwner(iClient, iProp);
-						Cel_SetPropName(iProp, sBuffer[3]);
-						
-						Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
-						Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
+						iProp = Cel_SpawnProp(iClient, sPropName, "prop_physics_override", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 				}
+				
+				Entity_SetName(iProp, sBuffer[1]);
+				Cel_SetEntity(iProp, true);
+				Entity_SetSpawnFlags(iProp, kvLoadBuild.GetNum("spawnflags"));
+				Entity_SetSkin(iProp, kvLoadBuild.GetNum("skin"));
+				Cel_SetMotion(iProp, view_as<bool>(kvLoadBuild.GetNum("motion")));
+				Cel_SetSolid(iProp, view_as<bool>(kvLoadBuild.GetNum("solid")));
+				Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
+				Cel_SetOwner(iClient, iProp);
+				
+				Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
+				Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
 			}
 			
 			while (kvLoadBuild.GotoNextKey());
@@ -382,6 +228,8 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 		{
 			kvLoadBuild.Close();	
 		}
+		
+		iProp = -1;
 		
 		Cel_ReplyToCommand(iClient, "%t", "LoadedBuild", sSaveName);
 		
@@ -398,7 +246,7 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 //Natives:
 public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[64], sFile[2][PLATFORM_MAX_PATH], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sCount[32];
+	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sFile[2][PLATFORM_MAX_PATH], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sCount[32];
 	float fEnt[2][3], fLandPos[2][3], fMiddle[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4], iCount = 0, iFadeColor[2][3], iLand;
 	
@@ -470,369 +318,134 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 					
 					IntToString(iCount, sCount, sizeof(sCount));
 					
+					Entity_GetRenderColor(i, iColor);
+					Cel_GetFadeColor(i, iFadeColor[0], iFadeColor[1]);
+					
+					Entity_GetClassName(i, sBuffer[0], sizeof(sBuffer[]));
+					Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
+					Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
+					
+					Cel_GetEntityAngles(i, fEnt[0]);
+					
+					Cel_GetEntityOrigin(i, fEnt[1]);
+					
+					fOrigin[0] = fEnt[1][0] - fMiddle[0];
+					fOrigin[1] = fEnt[1][1] - fMiddle[1];
+					fOrigin[2] = fEnt[1][2] - fMiddle[2];
+					
+					kvSaveBuild.JumpToKey(sCount, true);
+					
+					kvSaveBuild.SetNum("entitytype", view_as<int>(Cel_GetEntityType(i)));
+					
+					kvSaveBuild.SetString("classname", sBuffer[0]);
+					kvSaveBuild.SetString("targetname", sBuffer[1]);
+					kvSaveBuild.SetString("model", sBuffer[2]);
+					
+					kvSaveBuild.SetNum("spawnflags", Entity_GetSpawnFlags(i));
+					kvSaveBuild.SetNum("skin", Entity_GetSkin(i));
+					kvSaveBuild.SetNum("motion", view_as<int>(Cel_GetMotion(i)));
+					kvSaveBuild.SetNum("renderfx", view_as<int>(Cel_GetRenderFX(i)));
+					kvSaveBuild.SetNum("solid", view_as<int>(Cel_IsSolid(i)));
+					
+					kvSaveBuild.SetNum("c1", iColor[0]);
+					kvSaveBuild.SetNum("c2", iColor[1]);
+					kvSaveBuild.SetNum("c3", iColor[2]);
+					kvSaveBuild.SetNum("c4", iColor[3]);
+					
+					kvSaveBuild.SetFloat("a1", fEnt[0][0]);
+					kvSaveBuild.SetFloat("a2", fEnt[0][1]);
+					kvSaveBuild.SetFloat("a3", fEnt[0][2]);
+					
+					kvSaveBuild.SetFloat("o1", fOrigin[0]);
+					kvSaveBuild.SetFloat("o2", fOrigin[1]);
+					kvSaveBuild.SetFloat("o3", fOrigin[2]);
+					
+					kvSaveBuild.SetNum("fc1-1", iFadeColor[0][0]);
+					kvSaveBuild.SetNum("fc1-2", iFadeColor[0][1]);
+					kvSaveBuild.SetNum("fc1-3", iFadeColor[0][2]);
+					kvSaveBuild.SetNum("fc2-1", iFadeColor[1][0]);
+					kvSaveBuild.SetNum("fc2-2", iFadeColor[1][1]);
+					kvSaveBuild.SetNum("fc2-3", iFadeColor[1][2]);
+					
+					kvSaveBuild.SetNum("colorfading", view_as<int>(Cel_IsFading(i)));
+					kvSaveBuild.SetNum("colorrainbow", view_as<int>(Cel_IsRainbow(i)));
+					
 					switch(Cel_GetEntityType(i))
 					{
 						case ENTTYPE_CYCLER:
 						{
-							char sBuffer[4][PLATFORM_MAX_PATH];
+							Cel_GetPropName(i, sPropName, sizeof(sPropName));
 							
-							Entity_GetClassName(i, sBuffer[0], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
-							Cel_GetPropName(i, sBuffer[3], sizeof(sBuffer[]));
+							kvSaveBuild.SetString("propname", sPropName);
 							
-							Entity_GetRenderColor(i, iColor);
-							Cel_GetFadeColor(i, iFadeColor[0], iFadeColor[1]);
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							
-							fOrigin[0] = fEnt[1][0] - fMiddle[0];
-							fOrigin[1] = fEnt[1][1] - fMiddle[1];
-							fOrigin[2] = fEnt[1][2] - fMiddle[2];
-							
-							kvSaveBuild.JumpToKey(sCount, true);
-							
-							kvSaveBuild.SetNum("entitytype", view_as<int>(Cel_GetEntityType(i)));
-							
-							kvSaveBuild.SetString("classname", sBuffer[0]);
-							kvSaveBuild.SetString("targetname", sBuffer[1]);
-							kvSaveBuild.SetString("model", sBuffer[2]);
-							kvSaveBuild.SetString("propname", sBuffer[3]);
-							
-							kvSaveBuild.SetNum("spawnflags", Entity_GetSpawnFlags(i));
-							kvSaveBuild.SetNum("skin", Entity_GetSkin(i));
-							kvSaveBuild.SetNum("motion", view_as<int>(Cel_GetMotion(i)));
-							kvSaveBuild.SetNum("renderfx", view_as<int>(Cel_GetRenderFX(i)));
 							kvSaveBuild.SetNum("animsequence", Entity_GetAnimSequence(i));
-							
-							kvSaveBuild.SetNum("c1", iColor[0]);
-							kvSaveBuild.SetNum("c2", iColor[1]);
-							kvSaveBuild.SetNum("c3", iColor[2]);
-							kvSaveBuild.SetNum("c4", iColor[3]);
-							
-							kvSaveBuild.SetFloat("a1", fEnt[0][0]);
-							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							kvSaveBuild.SetFloat("a3", fEnt[0][2]);
-							
-							kvSaveBuild.SetFloat("o1", fOrigin[0]);
-							kvSaveBuild.SetFloat("o2", fOrigin[1]);
-							kvSaveBuild.SetFloat("o3", fOrigin[2]);
-							
-							kvSaveBuild.SetNum("fc1-1", iFadeColor[0][0]);
-							kvSaveBuild.SetNum("fc1-2", iFadeColor[0][1]);
-							kvSaveBuild.SetNum("fc1-3", iFadeColor[0][2]);
-							kvSaveBuild.SetNum("fc2-1", iFadeColor[1][0]);
-							kvSaveBuild.SetNum("fc2-2", iFadeColor[1][1]);
-							kvSaveBuild.SetNum("fc2-3", iFadeColor[1][2]);
-							
-							kvSaveBuild.SetNum("colorfading", view_as<int>(Cel_IsFading(i)));
-							kvSaveBuild.SetNum("colorrainbow", view_as<int>(Cel_IsRainbow(i)));
-							
-							kvSaveBuild.Rewind();
 						}
 						case ENTTYPE_DOOR:
 						{
-							char sBuffer[3][PLATFORM_MAX_PATH];
-							
-							Entity_GetClassName(i, sBuffer[0], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
-							
-							Entity_GetRenderColor(i, iColor);
-							Cel_GetFadeColor(i, iFadeColor[0], iFadeColor[1]);
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							
-							fOrigin[0] = fEnt[1][0] - fMiddle[0];
-							fOrigin[1] = fEnt[1][1] - fMiddle[1];
-							fOrigin[2] = fEnt[1][2] - fMiddle[2];
-							
 							fOrigin[2] -= 54;
 							
-							kvSaveBuild.JumpToKey(sCount, true);
-							
-							kvSaveBuild.SetNum("entitytype", view_as<int>(Cel_GetEntityType(i)));
-							
-							kvSaveBuild.SetString("classname", sBuffer[0]);
-							kvSaveBuild.SetString("targetname", sBuffer[1]);
-							kvSaveBuild.SetString("model", sBuffer[2]);
-							
-							kvSaveBuild.SetNum("spawnflags", Entity_GetSpawnFlags(i));
-							kvSaveBuild.SetNum("skin", Entity_GetSkin(i));
-							kvSaveBuild.SetNum("motion", view_as<int>(Cel_GetMotion(i)));
-							kvSaveBuild.SetNum("renderfx", view_as<int>(Cel_GetRenderFX(i)));
-							kvSaveBuild.SetNum("solid", view_as<int>(Cel_IsSolid(i)));
-							
-							kvSaveBuild.SetNum("c1", iColor[0]);
-							kvSaveBuild.SetNum("c2", iColor[1]);
-							kvSaveBuild.SetNum("c3", iColor[2]);
-							kvSaveBuild.SetNum("c4", iColor[3]);
-							
-							kvSaveBuild.SetFloat("a1", fEnt[0][0]);
-							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							kvSaveBuild.SetFloat("a3", fEnt[0][2]);
-							
-							kvSaveBuild.SetFloat("o1", fOrigin[0]);
-							kvSaveBuild.SetFloat("o2", fOrigin[1]);
 							kvSaveBuild.SetFloat("o3", fOrigin[2]);
-							
-							kvSaveBuild.SetNum("fc1-1", iFadeColor[0][0]);
-							kvSaveBuild.SetNum("fc1-2", iFadeColor[0][1]);
-							kvSaveBuild.SetNum("fc1-3", iFadeColor[0][2]);
-							kvSaveBuild.SetNum("fc2-1", iFadeColor[1][0]);
-							kvSaveBuild.SetNum("fc2-2", iFadeColor[1][1]);
-							kvSaveBuild.SetNum("fc2-3", iFadeColor[1][2]);
-							
-							kvSaveBuild.SetNum("colorfading", view_as<int>(Cel_IsFading(i)));
-							kvSaveBuild.SetNum("colorrainbow", view_as<int>(Cel_IsRainbow(i)));
-							
-							kvSaveBuild.Rewind();
 						}
 						case ENTTYPE_DYNAMIC:
 						{
-							char sBuffer[4][PLATFORM_MAX_PATH];
+							Cel_GetPropName(i, sPropName, sizeof(sPropName));
 							
-							Entity_GetClassName(i, sBuffer[0], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
-							Cel_GetPropName(i, sBuffer[3], sizeof(sBuffer[]));
-							
-							Entity_GetRenderColor(i, iColor);
-							Cel_GetFadeColor(i, iFadeColor[0], iFadeColor[1]);
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							
-							fOrigin[0] = fEnt[1][0] - fMiddle[0];
-							fOrigin[1] = fEnt[1][1] - fMiddle[1];
-							fOrigin[2] = fEnt[1][2] - fMiddle[2];
-							
-							kvSaveBuild.JumpToKey(sCount, true);
-							
-							kvSaveBuild.SetNum("entitytype", view_as<int>(ENTTYPE_PHYSICS));
-							
-							kvSaveBuild.SetString("classname", sBuffer[0]);
-							kvSaveBuild.SetString("targetname", sBuffer[1]);
-							kvSaveBuild.SetString("model", sBuffer[2]);
-							kvSaveBuild.SetString("propname", sBuffer[3]);
-							
-							kvSaveBuild.SetNum("spawnflags", Entity_GetSpawnFlags(i));
-							kvSaveBuild.SetNum("skin", Entity_GetSkin(i));
-							kvSaveBuild.SetNum("motion", view_as<int>(Cel_GetMotion(i)));
-							kvSaveBuild.SetNum("renderfx", view_as<int>(Cel_GetRenderFX(i)));
-							kvSaveBuild.SetNum("solid", view_as<int>(Cel_IsSolid(i)));
-							
-							kvSaveBuild.SetNum("c1", iColor[0]);
-							kvSaveBuild.SetNum("c2", iColor[1]);
-							kvSaveBuild.SetNum("c3", iColor[2]);
-							kvSaveBuild.SetNum("c4", iColor[3]);
-							
-							kvSaveBuild.SetFloat("a1", fEnt[0][0]);
-							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							kvSaveBuild.SetFloat("a3", fEnt[0][2]);
-							
-							kvSaveBuild.SetFloat("o1", fOrigin[0]);
-							kvSaveBuild.SetFloat("o2", fOrigin[1]);
-							kvSaveBuild.SetFloat("o3", fOrigin[2]);
-							
-							kvSaveBuild.SetNum("fc1-1", iFadeColor[0][0]);
-							kvSaveBuild.SetNum("fc1-2", iFadeColor[0][1]);
-							kvSaveBuild.SetNum("fc1-3", iFadeColor[0][2]);
-							kvSaveBuild.SetNum("fc2-1", iFadeColor[1][0]);
-							kvSaveBuild.SetNum("fc2-2", iFadeColor[1][1]);
-							kvSaveBuild.SetNum("fc2-3", iFadeColor[1][2]);
-							
-							kvSaveBuild.SetNum("colorfading", view_as<int>(Cel_IsFading(i)));
-							kvSaveBuild.SetNum("colorrainbow", view_as<int>(Cel_IsRainbow(i)));
-							
-							kvSaveBuild.Rewind();
+							kvSaveBuild.SetString("propname", sPropName);
 						}
 						case ENTTYPE_EFFECT:
 						{
-							char sBuffer[3][PLATFORM_MAX_PATH];
-							
-							Entity_GetClassName(i, sBuffer[0], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
-							
-							Entity_GetRenderColor(i, iColor);
-							Cel_GetFadeColor(i, iFadeColor[0], iFadeColor[1]);
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							
-							fOrigin[0] = fEnt[1][0] - fMiddle[0];
-							fOrigin[1] = fEnt[1][1] - fMiddle[1];
-							fOrigin[2] = fEnt[1][2] - fMiddle[2];
-							
-							kvSaveBuild.JumpToKey(sCount, true);
-							
-							kvSaveBuild.SetNum("entitytype", view_as<int>(Cel_GetEntityType(i)));
-							
-							kvSaveBuild.SetString("classname", sBuffer[0]);
-							kvSaveBuild.SetString("targetname", sBuffer[1]);
-							kvSaveBuild.SetString("model", sBuffer[2]);
-							
-							kvSaveBuild.SetNum("spawnflags", Entity_GetSpawnFlags(i));
-							kvSaveBuild.SetNum("skin", Entity_GetSkin(i));
-							kvSaveBuild.SetNum("motion", view_as<int>(Cel_GetMotion(i)));
-							kvSaveBuild.SetNum("renderfx", view_as<int>(Cel_GetRenderFX(i)));
-							kvSaveBuild.SetNum("solid", view_as<int>(Cel_IsSolid(i)));
 							kvSaveBuild.SetNum("effecttype", view_as<int>(Cel_GetEffectType(i)));
 							kvSaveBuild.SetNum("effectenabled", view_as<int>(Cel_IsEffectActive(i)));
-							
-							kvSaveBuild.SetNum("c1", iColor[0]);
-							kvSaveBuild.SetNum("c2", iColor[1]);
-							kvSaveBuild.SetNum("c3", iColor[2]);
-							kvSaveBuild.SetNum("c4", iColor[3]);
-							
-							kvSaveBuild.SetFloat("a1", fEnt[0][0]);
-							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							kvSaveBuild.SetFloat("a3", fEnt[0][2]);
-							
-							kvSaveBuild.SetFloat("o1", fOrigin[0]);
-							kvSaveBuild.SetFloat("o2", fOrigin[1]);
-							kvSaveBuild.SetFloat("o3", fOrigin[2]);
-							
-							kvSaveBuild.SetNum("fc1-1", iFadeColor[0][0]);
-							kvSaveBuild.SetNum("fc1-2", iFadeColor[0][1]);
-							kvSaveBuild.SetNum("fc1-3", iFadeColor[0][2]);
-							kvSaveBuild.SetNum("fc2-1", iFadeColor[1][0]);
-							kvSaveBuild.SetNum("fc2-2", iFadeColor[1][1]);
-							kvSaveBuild.SetNum("fc2-3", iFadeColor[1][2]);
-							
-							kvSaveBuild.SetNum("colorfading", view_as<int>(Cel_IsFading(i)));
-							kvSaveBuild.SetNum("colorrainbow", view_as<int>(Cel_IsRainbow(i)));
-							
-							kvSaveBuild.Rewind();
 						}
 						case ENTTYPE_INTERNET:
 						{
-							char sBuffer[4][PLATFORM_MAX_PATH];
+							char sURL[PLATFORM_MAX_PATH];
 							
-							Entity_GetClassName(i, sBuffer[0], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
-							Cel_GetInternetURL(i, sBuffer[3], sizeof(sBuffer[]));
+							Cel_GetInternetURL(i, sURL, sizeof(sURL));
 							
-							Entity_GetRenderColor(i, iColor);
-							Cel_GetFadeColor(i, iFadeColor[0], iFadeColor[1]);
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							
-							fOrigin[0] = fEnt[1][0] - fMiddle[0];
-							fOrigin[1] = fEnt[1][1] - fMiddle[1];
-							fOrigin[2] = fEnt[1][2] - fMiddle[2];
-							
-							kvSaveBuild.JumpToKey(sCount, true);
-							
-							kvSaveBuild.SetNum("entitytype", view_as<int>(Cel_GetEntityType(i)));
-							
-							kvSaveBuild.SetString("classname", sBuffer[0]);
-							kvSaveBuild.SetString("targetname", sBuffer[1]);
-							kvSaveBuild.SetString("model", sBuffer[2]);
-							kvSaveBuild.SetString("interneturl", sBuffer[3]);
-							
-							kvSaveBuild.SetNum("spawnflags", Entity_GetSpawnFlags(i));
-							kvSaveBuild.SetNum("skin", Entity_GetSkin(i));
-							kvSaveBuild.SetNum("motion", view_as<int>(Cel_GetMotion(i)));
-							kvSaveBuild.SetNum("renderfx", view_as<int>(Cel_GetRenderFX(i)));
-							kvSaveBuild.SetNum("solid", view_as<int>(Cel_IsSolid(i)));
-							
-							kvSaveBuild.SetNum("c1", iColor[0]);
-							kvSaveBuild.SetNum("c2", iColor[1]);
-							kvSaveBuild.SetNum("c3", iColor[2]);
-							kvSaveBuild.SetNum("c4", iColor[3]);
-							
-							kvSaveBuild.SetFloat("a1", fEnt[0][0]);
-							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							kvSaveBuild.SetFloat("a3", fEnt[0][2]);
-							
-							kvSaveBuild.SetFloat("o1", fOrigin[0]);
-							kvSaveBuild.SetFloat("o2", fOrigin[1]);
-							kvSaveBuild.SetFloat("o3", fOrigin[2]);
-							
-							kvSaveBuild.SetNum("fc1-1", iFadeColor[0][0]);
-							kvSaveBuild.SetNum("fc1-2", iFadeColor[0][1]);
-							kvSaveBuild.SetNum("fc1-3", iFadeColor[0][2]);
-							kvSaveBuild.SetNum("fc2-1", iFadeColor[1][0]);
-							kvSaveBuild.SetNum("fc2-2", iFadeColor[1][1]);
-							kvSaveBuild.SetNum("fc2-3", iFadeColor[1][2]);
-							
-							kvSaveBuild.SetNum("colorfading", view_as<int>(Cel_IsFading(i)));
-							kvSaveBuild.SetNum("colorrainbow", view_as<int>(Cel_IsRainbow(i)));
-							
-							kvSaveBuild.Rewind();
+							kvSaveBuild.SetString("interneturl", sURL);
 						}
 						case ENTTYPE_PHYSICS:
 						{
-							char sBuffer[4][PLATFORM_MAX_PATH];
+							Cel_GetPropName(i, sPropName, sizeof(sPropName));
 							
-							Entity_GetClassName(i, sBuffer[0], sizeof(sBuffer[]));
-							Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
-							Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
-							Cel_GetPropName(i, sBuffer[3], sizeof(sBuffer[]));
+							kvSaveBuild.SetString("propname", sPropName);
+						}
+						case ENTTYPE_AMMO:
+						{
+							fEnt[0][1] -= 90;
 							
-							Entity_GetRenderColor(i, iColor);
-							Cel_GetFadeColor(i, iFadeColor[0], iFadeColor[1]);
-							
-							Cel_GetEntityAngles(i, fEnt[0]);
-							
-							Cel_GetEntityOrigin(i, fEnt[1]);
-							
-							fOrigin[0] = fEnt[1][0] - fMiddle[0];
-							fOrigin[1] = fEnt[1][1] - fMiddle[1];
-							fOrigin[2] = fEnt[1][2] - fMiddle[2];
-							
-							kvSaveBuild.JumpToKey(sCount, true);
-							
-							kvSaveBuild.SetNum("entitytype", view_as<int>(Cel_GetEntityType(i)));
-							
-							kvSaveBuild.SetString("classname", sBuffer[0]);
-							kvSaveBuild.SetString("targetname", sBuffer[1]);
-							kvSaveBuild.SetString("model", sBuffer[2]);
-							kvSaveBuild.SetString("propname", sBuffer[3]);
-							
-							kvSaveBuild.SetNum("spawnflags", Entity_GetSpawnFlags(i));
-							kvSaveBuild.SetNum("skin", Entity_GetSkin(i));
-							kvSaveBuild.SetNum("motion", view_as<int>(Cel_GetMotion(i)));
-							kvSaveBuild.SetNum("renderfx", view_as<int>(Cel_GetRenderFX(i)));
-							kvSaveBuild.SetNum("solid", view_as<int>(Cel_IsSolid(i)));
-							
-							kvSaveBuild.SetNum("c1", iColor[0]);
-							kvSaveBuild.SetNum("c2", iColor[1]);
-							kvSaveBuild.SetNum("c3", iColor[2]);
-							kvSaveBuild.SetNum("c4", iColor[3]);
-							
-							kvSaveBuild.SetFloat("a1", fEnt[0][0]);
 							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							kvSaveBuild.SetFloat("a3", fEnt[0][2]);
 							
-							kvSaveBuild.SetFloat("o1", fOrigin[0]);
-							kvSaveBuild.SetFloat("o2", fOrigin[1]);
-							kvSaveBuild.SetFloat("o3", fOrigin[2]);
+							kvSaveBuild.SetNum("ammobittype", Cel_GetAmmoType(i));
+						}
+						case ENTTYPE_AMMOCRATE:
+						{
+							fEnt[0][1] -= 180;
 							
-							kvSaveBuild.SetNum("fc1-1", iFadeColor[0][0]);
-							kvSaveBuild.SetNum("fc1-2", iFadeColor[0][1]);
-							kvSaveBuild.SetNum("fc1-3", iFadeColor[0][2]);
-							kvSaveBuild.SetNum("fc2-1", iFadeColor[1][0]);
-							kvSaveBuild.SetNum("fc2-2", iFadeColor[1][1]);
-							kvSaveBuild.SetNum("fc2-3", iFadeColor[1][2]);
+							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
 							
-							kvSaveBuild.SetNum("colorfading", view_as<int>(Cel_IsFading(i)));
-							kvSaveBuild.SetNum("colorrainbow", view_as<int>(Cel_IsRainbow(i)));
+							kvSaveBuild.SetNum("ammocratetype", Cel_GetAmmoCrateType(i));
+						}
+						case ENTTYPE_CHARGER:
+						{
+							fEnt[0][1] -= 180;
 							
-							kvSaveBuild.Rewind();
+							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
+							
+							kvSaveBuild.SetNum("chargertype", Cel_GetChargerType(i));
+						}
+						case ENTTYPE_WEAPONSPWNER:
+						{
+							fEnt[0][1] -= 90;
+							
+							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
+							
+							kvSaveBuild.SetNum("weaponbittype", Cel_GetWeaponType(i));
 						}
 					}
+					
+					kvSaveBuild.Rewind();
 				}
 			}
 		}

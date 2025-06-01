@@ -4,8 +4,8 @@
 	{
 		"Version"
 		{
-			"Latest"		"2.1.0"
-			"Previously"	"2.0.0"
+			"Latest"		"2.1.1"
+			"Previously"	"2.1.0"
 		}
 		
 		"Notes"	"Added +grab, +copy, !skin, !copy and !paste."

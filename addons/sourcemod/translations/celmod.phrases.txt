@@ -49,7 +49,7 @@
 	
 	"CMD_Blacklist"
 	{
-		"en"			"Usage: {green}[tag]blacklist{default} <option> <prop alias>"
+		"en"			"Usage: {green}[tag]blacklist{default} <#add|#remove> <prop alias>"
 	}
 	
 	"CMD_Color"
@@ -145,6 +145,11 @@
 	"CMD_Skin"
 	{
 		"en"			"Usage: {green}[tag]skin{default} <skin number> or <prev|next>"
+	}
+	
+	"CMD_SMove"
+	{
+		"en"			"Usage: {green}[tag]smove{default} <x> <y> <z>"
 	}
 	
 	"CMD_Spawn"

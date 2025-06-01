@@ -278,6 +278,7 @@ public Action Command_Color(int iClient, int iArgs)
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
 						
 						Cel_SetRainbow(i, false);
+						Cel_SetColorFade(i, false, 0, 0, 0, 0, 0, 0);
 						
 						Cel_SetColor(i, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 						
@@ -354,6 +355,7 @@ public Action Command_Color(int iClient, int iArgs)
 				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 				
 				Cel_SetRainbow(iProp, false);
+				Cel_SetColorFade(iProp, false, 0, 0, 0, 0, 0, 0);
 				
 				Cel_SetColor(iProp, StringToInt(sColorBuffer[0]), StringToInt(sColorBuffer[1]), StringToInt(sColorBuffer[2]), -1);
 				

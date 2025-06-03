@@ -12,6 +12,7 @@ v_amt - Client - Changes the transparency on the prop you are looking at.
 v_axis - Client - Creates a marker to the player showing every axis.
 v_balance - Client - Gets the players current balance.
 v_blacklist - Admin - Adds/removes a prop from the spawn blacklist.
+v_button - Client - Spawns a button trigger bit.
 v_buy - Client - Purchases the current entity you are looking at or command you specified.
 v_charger - Client - Creates a health/suit charger bit that will give health/suit to the player.
 v_cmds - Client - Displays the command list.
@@ -47,6 +48,7 @@ v_landdeathmatch - Client - Changes the mode to deathmatch within the land.
 v_landgravity - Client - Changes the gravity within the land.
 v_landshop - Client - Changes the mode to shop (merchant) within the land.
 v_light - Client - Creates a working light cel.
+v_link - Client - Creates a link between a trigger bit and an entity.
 v_load - Client - Loads entities from a save file.
 v_mark - Client - Creates a marker to the player showing every axis.
 v_marker - Client - Creates a marker to the player showing every axis.

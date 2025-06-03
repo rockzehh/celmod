@@ -22,6 +22,7 @@ v_ammocrate|Creates a ammo crate bit that will give ammo to the player.|None|Cli
 v_axis|Creates a marker to the player showing every axis.|v_mark, v_marker|Client|
 v_balance|Gets the players current balance.|None|Client|
 v_blacklist|Adds/removes a prop from the spawn blacklist.|None|Admin|
+v_button|Spawns a button trigger bit.|None|Client|
 v_buy|Purchases the current entity you are looking at or command you specified.|None|Client|
 v_charger|Creates a health/suit charger bit that will give health/suit to the player.|None|Client|
 v_color|Colors the prop you are looking at.|v_paint|Client|
@@ -29,18 +30,19 @@ v_colorlist|Displays the color list.|v_colors|Client|[Color List](https://celmod
 v_commandlist|Displays the command list.|v_cmds, v_commands|Client|[Command List](https://celmod.rockzehh.net/cmds.html)
 v_copy|Copies the prop you are looking at into your copy buffer.|None|Client|
 v_delete|Removes the prop you are looking at.|v_del, v_remove|Client|
+v_dm|Changes the deathmatch setting within the land.|v_landdeathmatch|Client|
 v_door|Spawns a working door cel.|None|Client|
 v_effect|Spawns a working effect cel.|v_emitter|Client|
 v_effectlist|Displays the effect list.|v_effects|Client|[Effects List](https://celmod.rockzehh.net/effects.html)
 v_fadecolor|Fades the prop you are looking at between two colors.|None|Client|
 v_fly|Enables/disables nocip on the player.|None|Client|
 v_freeze|Freezes the prop you are looking at.|v_freezeit|Client|
+v_gravity|Changes the gravity within the land.|v_landgravity|Client|
 v_internet|Creates a working internet cel.|None|Client|
 v_ladder|Creates a working ladder cel.|None|Client|
 v_land|Creates a building zone.|None|Client|
-v_landdeathmatch|Changes the deathmatch setting within the land.|None|Client|
-v_landgravity|Changes the gravity within the land.|None|Client|
 v_light|Creates a working light cel.|None|Client|
+v_link|Creates a link between a trigger bit and an entity.|None|Client|
 v_load|Loads entites from a save file.|None|Client|
 v_nokill|Enables/disables godmode on the player.|None|Client|
 v_paste|Pastes the prop in your copy buffer where you are looking at.|None|Client|

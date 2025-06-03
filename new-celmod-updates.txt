@@ -20,3 +20,5 @@
 			 - !ammocrate
 			 - !charger
 			 - !weapon
+	 - 06/03/25: Started work on control bits, spawn one with !button/v_button and link it to a cel using !link/v_link.
+		 - Fixed !skin next/prev to automatically scroll through all skins on a prop.

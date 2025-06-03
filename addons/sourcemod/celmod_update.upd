@@ -13,7 +13,7 @@
 		"Notes"	"Added a blacklist to blacklist props without altering the prop list."
 		"Notes" "Updated all commands from sm_ to v_."
 		"Notes" "Accuratly scrolling through skins is now achieved by using StudioHdr."
-		"Notes" "Started work on buttons/triggers."
+		"Notes" "Started work on buttons/triggers. ALPHA"
 	}
 	
 	"Files"

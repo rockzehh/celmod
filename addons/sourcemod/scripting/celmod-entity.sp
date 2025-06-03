@@ -760,7 +760,7 @@ public Action Command_Rotate(int iClient, int iArgs)
 public Action Command_Skin(int iClient, int iArgs)
 {
 	char sEntityType[64], sSkin[16];
-	int iSkin;
+	int iMaxSkins, iSkin;
 	
 	if (iArgs < 1)
 	{
@@ -782,16 +782,28 @@ public Action Command_Skin(int iClient, int iArgs)
 	{
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
-		//Inspired from InkMod (https://github.com/stakillion/InkMod)
+		//Inspired from InkMod (https://github.com/stakillion/InkMod) and BotinTV.
+		iMaxSkins = (StudioHdr.FromEntity(iProp).numskinfamilies - 1);
+		
 		if(String_IsNumeric(sSkin))
 		{
 			iSkin = StringToInt(sSkin);
 		}else if(StrEqual(sSkin, "prev", false))
 		{
-			iSkin = (Entity_GetSkin(iProp) - 1);
+			if(Entity_GetSkin(iProp) <= 0)
+			{
+				iSkin = iMaxSkins;
+			}else{
+				iSkin = (Entity_GetSkin(iProp) - 1);
+			}
 		}else if(StrEqual(sSkin, "next", false))
 		{
-			iSkin = (Entity_GetSkin(iProp) + 1);
+			if(Entity_GetSkin(iProp) >= iMaxSkins)
+			{
+				iSkin = 0;
+			}else{
+				iSkin = (Entity_GetSkin(iProp) + 1);
+			}
 		}else{
 			Cel_ReplyToCommand(iClient, "%t", "CMD_Skin");
 			return Plugin_Handled;
@@ -823,9 +835,9 @@ public Action Command_SMove(int iClient, int iArgs)
 	
 	for (int i = 0; i < 3; i++)
 	{
-		GetCmdArg(i, sTemp, sizeof(sTemp));
+		GetCmdArg(i+1, sTemp, sizeof(sTemp));
 		
-		fAddOrigin[i-1] = StringToFloat(sTemp);
+		fAddOrigin[i] = StringToFloat(sTemp);
 	}
 	
 	if (Cel_GetClientAimTarget(iClient) == -1)
@@ -1340,6 +1352,8 @@ public int Native_ChangePositionRelativeToOrigin(Handle hPlugin, int iNumParams)
 	int iEntity = GetNativeCell(1);
 	
 	GetNativeArray(2, fAddOrigin, 3);
+	
+	Cel_GetEntityOrigin(iEntity, fOrigin);
 	
 	fFinalOrigin[0] = fOrigin[0] += fAddOrigin[0];
 	fFinalOrigin[1] = fOrigin[1] += fAddOrigin[1];

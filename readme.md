@@ -2,12 +2,12 @@
 
 **|CelMod|** is a fully customized building experience, and extra features to enhance the standard gameplay.
 
-Latest release is *2.0.0*, current working version is *2.1.0*.
+Latest release is *2.0.0*, current working version is *2.1.x*.
 
 Built against SourceMod *1.12.0-git7198* and Metamod: Source *1.12.0-git1219*.
 
 This plugin uses [Updater](https://github.com/rockzehh/updater) to update its files, and is required.
-This plugin uses [More Colors](https://forums.alliedmods.net/showthread.php?t=185016) for the text color. It is required if you want to recompile the plugin.
+This plugin uses [More Colors](https://forums.alliedmods.net/showthread.php?t=185016) for the text color, and [StudioHdr](https://forums.alliedmods.net/showthread.php?t=333857) for advanced model information. It is required if you want to recompile the plugin.
 
 ## Installation
 

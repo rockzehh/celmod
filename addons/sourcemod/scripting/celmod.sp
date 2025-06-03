@@ -1327,7 +1327,7 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	
 	EntityType etEntityType = Cel_GetEntityType(iEntity);
 	
-	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER || etEntityType == ENTTYPE_BIT)
+	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER || etEntityType == ENTTYPE_BIT || etEntType == ENTTYPE_TRIGGER)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
 	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
@@ -1411,6 +1411,9 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 	} else if (StrContains(sClassname, "bit_wep_", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_WEAPONSPWNER);
+	} else if (StrContains(sClassname, "bit_trigger_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_TRIGGER);
 	} else {
 		return view_as<int>(ENTTYPE_UNKNOWN);
 	}

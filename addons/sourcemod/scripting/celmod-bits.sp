@@ -12,6 +12,15 @@ AmmoCrateType g_actAmmoCrateType[MAXENTITIES + 1];
 ChargerType g_ctChargerType[MAXENTITIES + 1];
 WeaponBitType g_wbtWeaponType[MAXENTITIES + 1];
 
+ControlTriggerType g_cttTriggerType[MAXENTITIES + 1];
+
+bool g_bCreatingLink[MAXPLAYERS + 1];
+bool g_bHasLink[MAXENTITIES + 1];
+
+int g_iLinkedEntity[MAXENTITIES + 1];
+int g_iLinkingEntity[MAXPLAYERS + 1];
+int g_iLinkStage[MAXPLAYERS + 1];
+
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_GetAmmoType", Native_GetAmmoType);
@@ -23,13 +32,18 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetChargerType", Native_GetChargerType);
 	CreateNative("Cel_GetChargerTypeFromName", Native_GetChargerTypeFromName);
 	CreateNative("Cel_GetChargerTypeName", Native_GetChargerTypeName);
+	CreateNative("Cel_GetTriggerType", Native_GetTriggerType);
 	CreateNative("Cel_GetWeaponType", Native_GetWeaponType);
 	CreateNative("Cel_GetWeaponTypeFromName", Native_GetWeaponTypeFromName);
 	CreateNative("Cel_GetWeaponTypeName", Native_GetWeaponTypeName);
+	CreateNative("Cel_IsTrigger", Native_IsTrigger);
 	CreateNative("Cel_SpawnAmmoBit", Native_SpawnAmmoBit);
 	CreateNative("Cel_SpawnAmmoCrate", Native_SpawnAmmoCrate);
+	CreateNative("Cel_SpawnButton", Native_SpawnButton);
 	CreateNative("Cel_SpawnCharger", Native_SpawnCharger);
+	//CreateNative("Cel_SpawnTrigger", Native_SpawnTrigger);
 	CreateNative("Cel_SpawnWeaponBit", Native_SpawnWeaponBit);
+	CreateNative("Cel_TriggerEntity", Native_TriggerEntity);
 	
 	return APLRes_Success;
 }
@@ -60,7 +74,9 @@ public void OnPluginStart()
 	
 	RegConsoleCmd("v_ammo", Command_SpawnAmmoBit, "|CelMod| Creates a ammo bit that will give ammo when the player touches it.");
 	RegConsoleCmd("v_ammocrate", Command_SpawnAmmoCrateBit, "|CelMod| Creates a ammo crate bit that will give ammo to the player.");
+	RegConsoleCmd("v_button", Command_SpawnButton, "");
 	RegConsoleCmd("v_charger", Command_SpawnChargerBit, "|CelMod| Creates a health/suit charger bit that will give health/suit to the player.");
+	RegConsoleCmd("v_link", Command_Link, "|CelMod| Links a cel to a trigger to activate the cel.");
 	RegConsoleCmd("v_wep", Command_SpawnWeaponBit, "|CelMod| Creates a weapon bit that will give a weapon when the player touches it.");
 }
 
@@ -72,6 +88,55 @@ public void OnClientPutInServer(int iClient)
 public void OnClientDisconnect(int iClient)
 {
 	g_bTouched[iClient] = false;
+}
+
+public Action Command_Link(int iClient, int iArgs)
+{
+	char sOption[64];
+	
+	GetCmdArg(1, sOption, sizeof(sOption));
+	
+	int iEntity = Cel_GetClientAimTarget(iClient);
+	
+	switch(g_iLinkStage[iClient])
+	{
+		case 0:
+		{
+			if(!(Cel_GetEntityType(iEntity) == ENTTYPE_TRIGGER))
+			{
+				//You cannot make a link on a non-trigger bit.
+				Cel_ReplyToCommand(iClient, "%t", "NotTriggerEntity");
+				return Plugin_Handled;
+			}
+			
+			g_bCreatingLink[iClient] = true;
+			g_iLinkingEntity[iClient] = iEntity;
+			
+			g_iLinkStage[iClient] = 1;
+			
+			//Started creating link. Type !link on another entity to complete the link.
+			Cel_ReplyToCommand(iClient, "%t", "CreatingLink");
+			return Plugin_Handled;
+		}
+		case 1:
+		{
+			if(Cel_CheckEntityType(iEntity, "door") || Cel_CheckEntityType(iEntity, "effect") || Cel_CheckEntityType(iEntity, "light"))
+			{
+				g_iLinkedEntity[g_iLinkingEntity[iClient]] = iEntity;
+				g_bHasLink[g_iLinkingEntity[iClient]] = true;
+				
+				g_bCreatingLink[iClient] = false;
+				g_iLinkStage[iClient] = 0;
+				
+				Cel_ReplyToCommand(iClient, "%t", "CreatedLink");
+				return Plugin_Handled;
+			}else{
+				//You cannot make a link on a physics prop.
+				Cel_ReplyToCommand(iClient, "%t", "CantLinkEntity");
+				return Plugin_Handled;
+			}
+		}
+	}
 }
 
 public Action Command_SpawnAmmoBit(int iClient, int iArgs)
@@ -140,6 +205,25 @@ public Action Command_SpawnAmmoCrateBit(int iClient, int iArgs)
 	Cel_GetAmmoCrateTypeName(actType, sType, sizeof(sType));
 	
 	Cel_ReplyToCommand(iClient, "%t", "SpawnBitAmmoCrate", sType);
+	
+	return Plugin_Handled;
+}
+
+public Action Command_SpawnButton(int iClient, int iArgs)
+{
+	char sOption[64];
+	float fAngles[3], fOrigin[3];
+	
+	GetCmdArg(1, sOption, sizeof(sOption));
+	
+	GetClientAbsAngles(iClient, fAngles);
+	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
+	
+	int iBit = Cel_SpawnButton(iClient, fAngles, fOrigin, 255, 255, 255, 255);
+	
+	Cel_TeleportInfrontOfClient(iClient, iBit, 20.0);
+	
+	Cel_ReplyToCommand(iClient, "%t", "SpawnButton");
 	
 	return Plugin_Handled;
 }
@@ -424,6 +508,27 @@ public int Native_GetChargerTypeName(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_GetTriggerType(Handle hPlugin, int iNumParams)
+{
+	char sClassname[64];
+	
+	ControlTriggerType cttType;
+	
+	int iEntity = GetNativeCell(1);
+	
+	GetEntityClassname(iEntity, sClassname, sizeof(sClassname));
+	
+	if(StrEqual(sClassname, "bit_trigger_button"))
+	{
+		cttType = TRIGGERTYPE_BUTTON;
+	}else if(StrEqual(sClassname, "bit_trigger_step"))
+	{
+		cttType = TRIGGERTYPE_STEP;
+	}
+	
+	return view_as<int>(cttType);
+}
+
 public int Native_GetWeaponType(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -543,6 +648,22 @@ public int Native_GetWeaponTypeName(Handle hPlugin, int iNumParams)
 	SetNativeString(2, sName, iMaxLength);
 	
 	return true;
+}
+
+public int Native_IsTrigger(Handle hPlugin, int iNumParams)
+{
+	char sClassname[64];
+	
+	int iEntity = GetNativeCell(1);
+	
+	GetEntityClassname(iEntity, sClassname, sizeof(sClassname));
+	
+	if(StrContains(sClassname, "bit_trigger_") != -1)
+	{
+		return true;
+	}else{
+		return false;
+	}
 }
 
 public int Native_SpawnAmmoBit(Handle hPlugin, int iNumParams)
@@ -700,6 +821,47 @@ public int Native_SpawnAmmoCrate(Handle hPlugin, int iNumParams)
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
 	g_actAmmoCrateType[iBase] = actType;
+	
+	return iBase;
+}
+
+public int Native_SpawnButton(Handle hPlugin, int iNumParams)
+{
+	float fAngles[3], fOrigin[3];
+	int iBase, iClient = GetNativeCell(1), iColor[4];
+	
+	GetNativeArray(2, fAngles, 3);
+	GetNativeArray(3, fOrigin, 3);
+	iColor[0] = GetNativeCell(4);
+	iColor[1] = GetNativeCell(5);
+	iColor[2] = GetNativeCell(6);
+	iColor[3] = GetNativeCell(7);
+	
+	iBase = CreateEntityByName("prop_physics_override");
+	
+	PrecacheModel("models/props_combine/combinebutton.mdl");
+	
+	DispatchKeyValue(iBase, "model", "models/props_combine/combinebutton.mdl");
+	DispatchKeyValue(iBase, "classname", "bit_trigger_button");
+	DispatchKeyValue(iBase, "spawnflags", "256");
+	
+	DispatchSpawn(iBase);
+	
+	TeleportEntity(iBase, fOrigin, fAngles, NULL_VECTOR);
+	
+	g_bHasLink[iBase] = false;
+	g_iLinkedEntity[iBase] = -1;
+	
+	Cel_AddToCelCount(iClient);
+	Cel_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
+	Cel_SetRainbow(iBase, false);
+	Cel_SetEntity(iBase, true);
+	Cel_SetMotion(iBase, false);
+	Cel_SetOwner(iClient, iBase);
+	Cel_SetSolid(iBase, true);
+	Cel_SetRenderFX(iBase, RENDERFX_NONE);
+	
+	SDKHook(iBase, SDKHook_UsePost, Hook_ButtonUse);
 	
 	return iBase;
 }
@@ -913,6 +1075,35 @@ public int Native_SpawnWeaponBit(Handle hPlugin, int iNumParams)
 	return iBase;
 }
 
+public int Native_TriggerEntity(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1), iEntity = GetNativeCell(2);
+	
+	if(Cel_IsEntity(g_iLinkedEntity[iEntity]))
+	{
+		switch(Cel_GetEntityType(g_iLinkedEntity[iEntity]))
+		{
+			case ENTTYPE_DOOR:
+			{
+				AcceptEntityInput(g_iLinkedEntity[iEntity], "Toggle", iClient);
+			}
+			
+			case ENTTYPE_LIGHT:
+			{
+				AcceptEntityInput(Entity_GetEntityAttachment(g_iLinkedEntity[iEntity]), "Toggle", iClient);
+				
+			}
+			
+			case ENTTYPE_EFFECT:
+			{
+				Cel_ActivateEffect(g_iLinkedEntity[iEntity]);
+			}
+		}	
+	}
+	
+	return true;
+}
+
 //Hooks:
 public void Hook_AmmoBitTouch(int iEntity, int iClient)
 {
@@ -979,6 +1170,22 @@ public void Hook_AmmoBitTouch(int iEntity, int iClient)
 		}
 		
 		g_bTouched[iClient] = true;
+	}
+}
+
+public void Hook_ButtonUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
+{
+	if(g_bHasLink[iEntity])
+	{
+		Cel_TriggerEntity(iActivator, iEntity);
+		
+		PrecacheSound("buttons/combine_button1.wav");
+		
+		EmitSoundToAll("buttons/combine_button1.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	}else{
+		PrecacheSound("buttons/combine_button_locked.wav");
+		
+		EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	}
 }
 

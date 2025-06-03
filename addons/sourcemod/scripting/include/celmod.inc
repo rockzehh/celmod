@@ -8,6 +8,7 @@
 #include <morecolors>
 #include <sourcemod>
 #include <smlib>
+#include <studio_hdr>
 
 enum EntityCatagory
 {
@@ -32,7 +33,8 @@ enum EntityType
 	ENTTYPE_AMMOCRATE = 11,
 	ENTTYPE_CHARGER = 12,
 	ENTTYPE_WEAPONSPWNER = 13,
-	ENTTYPE_UNKNOWN = 14,
+	ENTTYPE_TRIGGER = 14,
+	ENTTYPE_UNKNOWN = 15,
 };
 
 enum EffectType
@@ -93,9 +95,15 @@ enum ChargerType
 	CHARGERBIT_UNKNOWN = 2,
 };
 
+enum ControlTriggerType
+{
+	TRIGGERTYPE_BUTTON = 0,
+	TRIGGERTYPE_STEP = 1,
+};
+
 #define CEL_AUTHOR "rockzehh"
 #define CEL_URL "https://github.com/rockzehh/celmod"
-#define CEL_VERSION "2.1.1"
+#define CEL_VERSION "2.1.2"
 #define UPDATE_URL "https://raw.githubusercontent.com/rockzehh/celmod/main/addons/sourcemod/celmod_update.upd"
 #define UPDATE_BETA_URL "https://raw.githubusercontent.com/rockzehh/celmod/beta/addons/sourcemod/celmod_update.upd"
 
@@ -1262,6 +1270,14 @@ native int Cel_SpawnCharger(int iClient, ChargerType ctType, float fAngles[3], f
 
 native int Cel_SpawnWeaponBit(int iClient, WeaponBitType wbtType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
+native int Cel_GetTriggerType(iEntity);
+
+native bool Cel_IsTrigger(iEntity);
+
+native int Cel_SpawnButton(iClient, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
+native void Cel_TriggerEntity(int iClient, int iEntity);
+
 //Stocks
 stock void HSVtoRGB(float fH, float fS, float fV, int iRGB[3])
 {
@@ -1329,8 +1345,7 @@ stock void RGBtoHSV(int iR8, int iG8, int iB8, float &fH, float &fS, float &fV)
 	fV = fCMax;
 }
 
-//Hooks:
-public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
+stock void Cel_ActivateEffect(int iEntity)
 {
 	switch(Cel_GetEffectType(iEntity))
 	{
@@ -1367,6 +1382,12 @@ public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utT
 	}
 
 	Cel_SetEffectActive(iEntity, !Cel_IsEffectActive(iEntity));
+}
+
+//Hooks:
+public void Hook_EffectUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
+{
+	Cel_ActivateEffect(iEntity);
 }
 
 public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)

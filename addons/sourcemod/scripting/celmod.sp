@@ -592,7 +592,7 @@ public Action Command_Door(int iClient, int iArgs)
 	GetClientAbsAngles(iClient, fAngles);
 	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 	
-	int iDoor = Cel_SpawnDoor(iClient, sSkin, fAngles, fOrigin, 255, 255, 255, 255);
+	int iDoor = Cel_SpawnDoor(iClient, StringToInt(sSkin), fAngles, fOrigin, 255, 255, 255, 255);
 	
 	Call_StartForward(g_hOnCelSpawn);
 	
@@ -1327,7 +1327,7 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	
 	EntityType etEntityType = Cel_GetEntityType(iEntity);
 	
-	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER || etEntityType == ENTTYPE_BIT || etEntType == ENTTYPE_TRIGGER)
+	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER || etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_TRIGGER)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
 	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
@@ -1864,7 +1864,7 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	float fAngles[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4];
 	
-	GetNativeString(2, sSkin, sizeof(sSkin));
+	IntToString(GetNativeCell(2), sSkin, sizeof(sSkin));
 	
 	GetNativeArray(3, fAngles, 3);
 	GetNativeArray(4, fOrigin, 3);
@@ -1883,7 +1883,7 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	
 	PrecacheModel("models/props_c17/door01_left.mdl");
 	
-	DispatchKeyValue(iDoor, "ajarangles", sAngles);
+	DispatchKeyValue(iDoor, "angles", sAngles);
 	DispatchKeyValue(iDoor, "model", "models/props_c17/door01_left.mdl");
 	DispatchKeyValue(iDoor, "classname", "cel_door");
 	DispatchKeyValue(iDoor, "skin", sSkin);

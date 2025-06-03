@@ -705,7 +705,8 @@ public Action Command_RenderFX(int iClient, int iArgs)
 public Action Command_Rotate(int iClient, int iArgs)
 {
 	char sTemp[16];
-	float fAddAngles[3], fAngles[3], fOrigin[3], fPropAngles[3];
+	float fAddAngles[3], fAngles[3], fDoorOrigin[3], fOrigin[3], fPropAngles[3];
+	int iDoorColor[4], iDoorSkin;
 	
 	if (iArgs < 3)
 	{
@@ -737,11 +738,11 @@ public Action Command_Rotate(int iClient, int iArgs)
 		fAngles[1] = fPropAngles[1] += fAddAngles[1];
 		fAngles[2] = fPropAngles[2] += fAddAngles[2];
 		
+		TeleportEntity(iProp, NULL_VECTOR, fAngles, NULL_VECTOR);
+		
 		if (Cel_CheckEntityType(iProp, "door"))
 		{
-			DispatchKeyValueVector(iProp, "angles", fAngles);
-		} else {
-			TeleportEntity(iProp, NULL_VECTOR, fAngles, NULL_VECTOR);
+			DispatchSpawn(iProp);
 		}
 		
 		TE_SetupBeamRingPoint(fOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 3.0, 0.0, g_iOrange, 10, 0); TE_SendToAll();

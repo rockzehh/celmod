@@ -24,6 +24,7 @@
 		"Plugin"	"Path_SM/data/celmod/spawns.txt"
 		"Plugin"	"Path_SM/plugins/funcommands.smx"
 		"Plugin"	"Path_SM/plugins/celmod.smx"
+		"Plugin"	"Path_SM/plugins/celmod-bits.smx"
 		"Plugin"	"Path_SM/plugins/celmod-buildsaving.smx"
 		"Plugin"	"Path_SM/plugins/celmod-clientstorage.smx"
 		"Plugin"	"Path_SM/plugins/celmod-economy.smx"
@@ -38,6 +39,7 @@
 		
 		"Source"	"Path_SM/scripting/funcommands.sp"
 		"Source"	"Path_SM/scripting/celmod.sp"
+		"Source"	"Path_SM/scripting/celmod-bits.sp"
 		"Source"	"Path_SM/scripting/celmod-buildsaving.sp"
 		"Source"	"Path_SM/scripting/celmod-clientstorage.sp"
 		"Source"	"Path_SM/scripting/celmod-economy.sp"

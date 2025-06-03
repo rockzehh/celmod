@@ -150,7 +150,7 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 					}
 					case ENTTYPE_DOOR:
 					{
-						iProp = Cel_SpawnDoor(iClient, "1", fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+						iProp = Cel_SpawnDoor(iClient, 1, fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 					case ENTTYPE_DYNAMIC:
 					{

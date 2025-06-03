@@ -684,7 +684,7 @@ native void Cel_SetSolid(int iEntity, bool bSolid);
  * Spawns a door entity.
  *
  * @param iClient   The client index.
- * @param sSkin     The skin name for the door.
+ * @param iSkin     The skin number for the door.
  * @param fAngles   The rotation angles of the door.
  * @param fOrigin   The spawn origin of the door.
  * @param iR        Red color component (0-255).
@@ -693,7 +693,7 @@ native void Cel_SetSolid(int iEntity, bool bSolid);
  * @param iA        Alpha transparency (0-255).
  * @return          The entity index of the spawned door.
  */
-native int Cel_SpawnDoor(int iClient, const char[] sSkin, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+native int Cel_SpawnDoor(int iClient, int iSkin, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
 /**
  * Spawns an Internet entity with a URL.

@@ -177,6 +177,12 @@
 		"en"			"Cannot find matching client!"
 	}
 	
+	"CantLinkEntity"
+	{
+		"#format"		"{1:s}"
+		"en"			"You cannot make a link on a {1}."
+	}
+	
 	"CantStack"
 	{
 		"en"			"You cannot stack this prop!"
@@ -212,6 +218,16 @@
 	"CreateAxis"
 	{
 		"en"			"Created {red}X{default}, {green}Y{default}, and {blue}Z{default} axis markers."
+	}
+	
+	"CreatedLink"
+	{
+		"en"			"Created trigger link."
+	}
+	
+	"CreatingLink"
+	{
+		"en"			"Started creating link. Type {green}!link{default} on another entity to complete the link."
 	}
 	
 	"DeathmatchOff"
@@ -424,6 +440,11 @@
 	"NotLooking"
 	{
 		"en"			"You are not looking at anything."
+	}
+	
+	"NotTriggerBit"
+	{
+		"en"			"You cannot make a link on a non-trigger bit."
 	}
 	
 	"NoPropInQueue"
@@ -640,6 +661,11 @@
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned {green}{1}{default} weapon bit."
+	}
+	
+	"SpawnButton"
+	{
+		"en"			"Spawned {green}button{default} trigger bit."
 	}
 	
 	"SpawnEffect"

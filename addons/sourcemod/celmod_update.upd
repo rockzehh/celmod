@@ -36,6 +36,7 @@
 		"Plugin"	"Path_SM/scripting/include/celmod.inc"
 		"Source"	"Path_SM/scripting/include/updater.inc"
 		"Plugin"	"Path_SM/translations/celmod.phrases.txt"
+		"Plugin"	"Path_SM/gamedata/studio_hdr.games.txt"
 		
 		"Source"	"Path_SM/scripting/funcommands.sp"
 		"Source"	"Path_SM/scripting/celmod.sp"
@@ -52,6 +53,8 @@
 		"Source"	"Path_SM/scripting/include/celmod.inc"
 		"Source"	"Path_SM/scripting/include/morecolors.inc"
 		"Source"	"Path_SM/scripting/include/updater.inc"
+		"Source"	"Path_SM/scripting/include/studio_hdr.inc"
 		"Source"	"Path_SM/translations/celmod.phrases.txt"
+		"Source"	"Path_SM/gamedata/studio_hdr.games.txt"
 	}
 }

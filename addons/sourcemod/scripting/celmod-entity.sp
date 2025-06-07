@@ -754,6 +754,8 @@ public Action Command_PasteProp(int iClient, int iArgs)
 public Action Command_Replace(int iClient, int iArgs)
 {
 	char sAlias[64], sEntityType[64], sSpawnBuffer[2][128], sSpawnString[256];
+	float fAngles[3], fOrigin[3];
+	int iColor[4];
 	
 	if (iArgs < 1)
 	{
@@ -769,27 +771,52 @@ public Action Command_Replace(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
+	if(Cel_CheckBlacklistDB(sAlias))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "PropNotFound", sAlias);
+		return Plugin_Handled;
+	}
+	
 	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if(!Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CantReplace");
+	}
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
-		if(Cel_CheckBlacklistDB(sAlias))
-		{
-			Cel_ReplyToCommand(iClient, "%t", "PropNotFound", sAlias);
-			return Plugin_Handled;
-		}
-		
 		if (Cel_CheckSpawnDB(sAlias, sSpawnString, sizeof(sSpawnString)))
 		{
 			ExplodeString(sSpawnString, "|", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
 			
-			DispatchKeyValue(iProp, "model", sSpawnBuffer[1]);
+			Entity_GetRenderColor(iProp, iColor);
 			
-			DispatchSpawn(iProp);
+			Cel_GetEntityAngles(iProp, fAngles);
 			
-			Cel_ReplyToCommand(iClient, "ReplacedModel", sAlias, sEntityType);
+			Cel_GetEntityOrigin(iProp, fOrigin);
+			
+			Cel_SubFromPropCount(iClient);
+			
+			int iReplaceProp = Cel_SpawnProp(iClient, sAlias, sSpawnBuffer[0], sSpawnBuffer[1], fAngles, fOrigin, iColor[0], iColor[1], iColor[2], iColor[3]);
+			
+			Entity_SetSpawnFlags(iReplaceProp, Entity_GetSpawnFlags(iProp));
+			Entity_SetSkin(iReplaceProp, Entity_GetSkin(iProp));
+			Cel_SetMotion(iReplaceProp, Cel_GetMotion(iProp));
+			Cel_SetSolid(iReplaceProp, Cel_IsSolid(iProp));
+			
+			Cel_SetRenderFX(iReplaceProp, Cel_GetRenderFX(iProp));
+			
+			Cel_SetColorFade(iReplaceProp, Cel_IsFading(iProp), g_iFadeColor[iProp][0], g_iFadeColor[iProp][1], g_iFadeColor[iProp][2], g_iFadeColor[iProp][3], g_iFadeColor[iProp][4], g_iFadeColor[iProp][5]);
+			Cel_SetRainbow(iReplaceProp, Cel_IsRainbow(iProp));
+			
+			AcceptEntityInput(iProp, "kill");
+			
+			Cel_ChangeBeam(iClient, iReplaceProp);
+			
+			Cel_ReplyToCommand(iClient, "%t", "ReplacedModel", sAlias, sEntityType);
 		} else {
 			Cel_ReplyToCommand(iClient, "%t", "PropNotFound", sAlias);
 			return Plugin_Handled;

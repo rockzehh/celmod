@@ -92,10 +92,16 @@ public void OnClientDisconnect(int iClient)
 
 public Action Command_Link(int iClient, int iArgs)
 {
-	char sOption[64], sType[64];
+	/*char sOption[64], sType[64];
 	float fLinkOrigin[2][3];
 	
 	GetCmdArg(1, sOption, sizeof(sOption));
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
 	
 	int iEntity = Cel_GetClientAimTarget(iClient);
 	
@@ -148,7 +154,12 @@ public Action Command_Link(int iClient, int iArgs)
 				return Plugin_Handled;
 			}
 		}
-	}
+	}*/
+	char sOption[64];
+	
+	GetCmdArg(1, sOption, sizeof(sOption));
+	
+	
 }
 
 public Action Command_SpawnAmmoBit(int iClient, int iArgs)
@@ -169,6 +180,12 @@ public Action Command_SpawnAmmoBit(int iClient, int iArgs)
 	if (abtType == AMMOBIT_UNKNOWN)
 	{
 		Cel_ReplyToCommand(iClient, "%t", "InvalidBitAmmo");
+		return Plugin_Handled;
+	}
+	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
 		return Plugin_Handled;
 	}
 	
@@ -207,6 +224,12 @@ public Action Command_SpawnAmmoCrateBit(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
+		return Plugin_Handled;
+	}
+	
 	GetClientAbsAngles(iClient, fAngles);
 	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 	
@@ -231,9 +254,15 @@ public Action Command_SpawnButton(int iClient, int iArgs)
 	GetClientAbsAngles(iClient, fAngles);
 	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
+		return Plugin_Handled;
+	}
+	
 	int iBit = Cel_SpawnButton(iClient, fAngles, fOrigin, 255, 255, 255, 255);
 	
-	Cel_TeleportInfrontOfClient(iClient, iBit, 20.0);
+	Cel_TeleportInfrontOfClient(iClient, iBit, 35.0);
 	
 	Cel_ReplyToCommand(iClient, "%t", "SpawnButton");
 	
@@ -258,6 +287,12 @@ public Action Command_SpawnChargerBit(int iClient, int iArgs)
 	if (ctType == CHARGERBIT_UNKNOWN)
 	{
 		Cel_ReplyToCommand(iClient, "%t", "InvalidBitCharger");
+		return Plugin_Handled;
+	}
+	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
 		return Plugin_Handled;
 	}
 	
@@ -293,6 +328,12 @@ public Action Command_SpawnWeaponBit(int iClient, int iArgs)
 	if (wbtType == WEPBIT_UNKNOWN)
 	{
 		Cel_ReplyToCommand(iClient, "%t", "InvalidBitWeapon");
+		return Plugin_Handled;
+	}
+	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
 		return Plugin_Handled;
 	}
 	
@@ -781,6 +822,7 @@ public int Native_SpawnAmmoBit(Handle hPlugin, int iNumParams)
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
+	Cel_LockEntity(iBase, false);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
 	g_abtAmmoType[iBase] = abtType;
@@ -830,6 +872,7 @@ public int Native_SpawnAmmoCrate(Handle hPlugin, int iNumParams)
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
+	Cel_LockEntity(iBase, false);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
 	g_actAmmoCrateType[iBase] = actType;
@@ -871,6 +914,7 @@ public int Native_SpawnButton(Handle hPlugin, int iNumParams)
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
+	Cel_LockEntity(iBase, false);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
 	SDKHook(iBase, SDKHook_UsePost, Hook_ButtonUse);
@@ -920,6 +964,7 @@ public int Native_SpawnCharger(Handle hPlugin, int iNumParams)
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
+	Cel_LockEntity(iBase, false);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
 	g_ctChargerType[iBase] = ctType;
@@ -1077,6 +1122,7 @@ public int Native_SpawnWeaponBit(Handle hPlugin, int iNumParams)
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
+	Cel_LockEntity(iBase, false);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
 	
 	g_wbtWeaponType[iBase] = wbtType;
@@ -1119,6 +1165,8 @@ public int Native_TriggerEntity(Handle hPlugin, int iNumParams)
 //Hooks:
 public void Hook_AmmoBitTouch(int iEntity, int iClient)
 {
+	if(!Cel_IsLocked(iEntity))
+	{
 	if(!g_bTouched[iClient])
 	{
 		switch(Cel_GetAmmoType(iEntity))
@@ -1183,10 +1231,13 @@ public void Hook_AmmoBitTouch(int iEntity, int iClient)
 		
 		g_bTouched[iClient] = true;
 	}
+	}
 }
 
 public void Hook_ButtonUse(int iEntity, int iActivator, int iCaller, UseType utType, float fValue)
 {
+	if(!Cel_IsLocked(iEntity))
+	{
 	if(g_bHasLink[iEntity])
 	{
 		Cel_TriggerEntity(iActivator, iEntity);
@@ -1194,6 +1245,11 @@ public void Hook_ButtonUse(int iEntity, int iActivator, int iCaller, UseType utT
 		PrecacheSound("buttons/combine_button1.wav");
 		
 		EmitSoundToAll("buttons/combine_button1.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	}else{
+		PrecacheSound("buttons/combine_button_locked.wav");
+		
+		EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	}
 	}else{
 		PrecacheSound("buttons/combine_button_locked.wav");
 		
@@ -1208,64 +1264,67 @@ public void Hook_StopTouch(int iEntity, int iClient)
 
 public void Hook_WeaponBitTouch(int iEntity, int iClient)
 {
-	if(!g_bTouched[iClient])
+	if(!Cel_IsLocked(iEntity))
 	{
-		switch(Cel_GetWeaponType(iEntity))
+		if(!g_bTouched[iClient])
 		{
-			case WEPBIT_GRAVGUN:
+			switch(Cel_GetWeaponType(iEntity))
 			{
-				Client_GiveWeapon(iClient, "weapon_physcannon", false);
+				case WEPBIT_GRAVGUN:
+				{
+					Client_GiveWeapon(iClient, "weapon_physcannon", false);
+				}
+				case WEPBIT_STUNSTICK:
+				{
+					Client_GiveWeapon(iClient, "weapon_stunstick", false);
+				}
+				case WEPBIT_CROWBAR:
+				{
+					Client_GiveWeapon(iClient, "weapon_crowbar", false);
+				}
+				case WEPBIT_PISTOL:
+				{
+					Client_GiveWeapon(iClient, "weapon_pistol", false);
+				}
+				case WEPBIT_MAGNUM:
+				{
+					Client_GiveWeapon(iClient, "weapon_357", false);
+				}
+				case WEPBIT_SMG:
+				{
+					Client_GiveWeapon(iClient, "weapon_smg1", false);
+				}
+				case WEPBIT_AR2:
+				{
+					Client_GiveWeapon(iClient, "weapon_ar2", false);
+				}
+				case WEPBIT_SHOTGUN:
+				{
+					Client_GiveWeapon(iClient, "weapon_shotgun", false);
+				}
+				case WEPBIT_CROSSBOW:
+				{
+					Client_GiveWeapon(iClient, "weapon_crossbow", false);
+				}
+				case WEPBIT_GRENADE:
+				{
+					Client_GiveWeapon(iClient, "weapon_frag", false);
+				}
+				case WEPBIT_RPG:
+				{
+					Client_GiveWeapon(iClient, "weapon_rpg", false);
+				}
+				case WEPBIT_SLAM:
+				{
+					Client_GiveWeapon(iClient, "weapon_slam", false);
+				}
+				case WEPBIT_UNKNOWN:
+				{
+					Client_GiveWeapon(iClient, "weapon_smg1", false);
+				}
 			}
-			case WEPBIT_STUNSTICK:
-			{
-				Client_GiveWeapon(iClient, "weapon_stunstick", false);
-			}
-			case WEPBIT_CROWBAR:
-			{
-				Client_GiveWeapon(iClient, "weapon_crowbar", false);
-			}
-			case WEPBIT_PISTOL:
-			{
-				Client_GiveWeapon(iClient, "weapon_pistol", false);
-			}
-			case WEPBIT_MAGNUM:
-			{
-				Client_GiveWeapon(iClient, "weapon_357", false);
-			}
-			case WEPBIT_SMG:
-			{
-				Client_GiveWeapon(iClient, "weapon_smg1", false);
-			}
-			case WEPBIT_AR2:
-			{
-				Client_GiveWeapon(iClient, "weapon_ar2", false);
-			}
-			case WEPBIT_SHOTGUN:
-			{
-				Client_GiveWeapon(iClient, "weapon_shotgun", false);
-			}
-			case WEPBIT_CROSSBOW:
-			{
-				Client_GiveWeapon(iClient, "weapon_crossbow", false);
-			}
-			case WEPBIT_GRENADE:
-			{
-				Client_GiveWeapon(iClient, "weapon_frag", false);
-			}
-			case WEPBIT_RPG:
-			{
-				Client_GiveWeapon(iClient, "weapon_rpg", false);
-			}
-			case WEPBIT_SLAM:
-			{
-				Client_GiveWeapon(iClient, "weapon_slam", false);
-			}
-			case WEPBIT_UNKNOWN:
-			{
-				Client_GiveWeapon(iClient, "weapon_smg1", false);
-			}
+			
+			g_bTouched[iClient] = true;
 		}
-		
-		g_bTouched[iClient] = true;
-	}
+		}
 }

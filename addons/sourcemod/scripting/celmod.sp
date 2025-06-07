@@ -201,6 +201,7 @@ public void OnPluginStart()
 	RegConsoleCmd("v_mark", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
 	RegConsoleCmd("v_marker", Command_Axis, "|CelMod| Creates a marker to the player showing every axis.");
 	RegConsoleCmd("v_nokill", Command_NoKill, "|CelMod| Enables/disables godmode on the player.");
+	RegConsoleCmd("v_owner", Command_Owner, "|CelMod| Gets the owner of the entity you are looking at.");
 	RegConsoleCmd("v_p", Command_Spawn, "|CelMod| Spawns a prop by name.");
 	RegConsoleCmd("v_remove", Command_Delete, "|CelMod| Removes the prop you are looking at.");
 	RegConsoleCmd("v_removeall", Command_DeleteAll, "|CelMod| Removes all the entities that you own.");
@@ -734,25 +735,56 @@ public Action Command_NoKill(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public Action Command_SetOwner(int iClient, int iArgs)
+public Action Command_Owner(int iClient, int iArgs)
 {
+	char sEntityType[64], sOwner[64];
+	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
 		return Plugin_Handled;
 	}
 	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if(Cel_IsEntity(iProp))
+	{
+		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+		
+		if(Cel_CheckOwner(iClient, iProp))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "IsOwner", sEntityType);
+		}else{
+			GetClientName(Cel_GetOwner(iProp), sOwner, sizeof(sOwner));
+			
+			Cel_ReplyToCommand(iClient, "%t", "EntityOwner", sOwner, sEntityType);
+		}
+	}
+	
+	
+	return Plugin_Handled;
+}
+
+public Action Command_SetOwner(int iClient, int iArgs)
+{
 	char sEntityType[64], sNames[2][PLATFORM_MAX_PATH], sTarget[PLATFORM_MAX_PATH];
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
 	int iProp = Cel_GetClientAimTarget(iClient);
 	
 	GetCmdArg(1, sTarget, sizeof(sTarget));
 	
 	GetClientName(iClient, sNames[0], sizeof(sNames[]));
 	
+	Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+	
 	if (StrEqual(sTarget, ""))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		Cel_SetOwner(iClient, iProp);
 		
 		Cel_ChangeBeam(iClient, iProp);
@@ -1916,6 +1948,8 @@ public int Native_SpawnDoor(Handle hPlugin, int iNumParams)
 	
 	Cel_SetSolid(iDoor, true);
 	
+	Cel_LockEntity(iDoor, false);
+	
 	Cel_SetRenderFX(iDoor, RENDERFX_NONE);
 	
 	return iDoor;
@@ -2198,11 +2232,6 @@ public int Native_SubFromPropCount(Handle hPlugin, int iNumParams)
 }
 
 //Stocks:
-public bool Cel_FilterPlayer(int iEntity, int iContentsMask)
-{
-	return iEntity > MaxClients;
-}
-
 stock void Cel_PopulateCelCommands()
 {
 	char sCMD[2][MAX_MESSAGE_LENGTH];

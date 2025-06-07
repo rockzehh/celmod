@@ -68,6 +68,12 @@ public Action Command_Effect(int iClient, int iArgs)
 		Cel_ReplyToCommand(iClient, "%t", "InvalidEffect");
 		return Plugin_Handled;
 	}
+	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
+		return Plugin_Handled;
+	}
 
 	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 

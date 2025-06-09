@@ -4,8 +4,8 @@
 	{
 		"Version"
 		{
-			"Latest"		"2.1.2"
-			"Previously"	"2.1.1"
+			"Latest"		"2.1.3"
+			"Previously"	"2.1.2"
 		}
 		
 		"Notes"	"Added +move, +copy, !skin, !copy and !paste."
@@ -14,6 +14,7 @@
 		"Notes" "Updated all commands from sm_ to v_."
 		"Notes" "Accuratly scrolling through skins is now achieved by using StudioHdr."
 		"Notes" "Started work on buttons/triggers. ALPHA"
+		"Notes" "Added !owner, !drop, !replace, !lock and !unlock."
 	}
 	
 	"Files"

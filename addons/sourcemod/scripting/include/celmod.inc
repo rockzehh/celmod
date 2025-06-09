@@ -1397,7 +1397,10 @@ public void Hook_InternetUse(int iEntity, int iActivator, int iCaller, UseType u
 	
 	Cel_GetInternetURL(iEntity, sURL, sizeof(sURL));
 	
-	Cel_OpenMOTDOnClient(iActivator, true, "|CelMod| Viewer", sURL, MOTDPANEL_TYPE_URL);
+	if(!Cel_IsLocked(iEntity))
+	{
+		Cel_OpenMOTDOnClient(iActivator, true, "|CelMod| Viewer", sURL, MOTDPANEL_TYPE_URL);
+	}
 }
 
 //Timers:

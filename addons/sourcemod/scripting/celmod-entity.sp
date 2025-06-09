@@ -133,7 +133,7 @@ public void OnPluginStart()
 	RegConsoleCmd("v_straighten", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
 	RegConsoleCmd("v_unfreeze", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
 	RegConsoleCmd("v_unfreezeit", Command_UnfreezeIt, "|CelMod| Unfreezes the prop you are looking at.");
-	RegConsoleCmd("v_unlock", Command_Lock, "|CelMod| Unlocks the cel you are looking at.");
+	RegConsoleCmd("v_unlock", Command_Unlock, "|CelMod| Unlocks the cel you are looking at.");
 }
 
 public void OnClientPutInServer(int iClient)
@@ -703,20 +703,23 @@ public Action Command_Lock(int iClient, int iArgs)
 	{
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
-		if(Cel_CheckEntityType(iProp, "cycler") || Cel_CheckEntityType(iProp, "dynamic") || Cel_CheckEntityType(iProp, "internet") || Cel_CheckEntityType(iProp, "ladder") || 
+		if(Cel_CheckEntityType(iProp, "cycler") || Cel_CheckEntityType(iProp, "dynamic") || Cel_CheckEntityType(iProp, "ladder") || 
 			Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "cleer") || Cel_CheckEntityType(iProp, "bit") || Cel_CheckEntityType(iProp, "unknown"))
 		{
-			Cel_ReplyToCommand(iClient, "%t", "CannotLock", sEntityType);
+			Cel_ReplyToCommand(iClient, "%t", "CannotLock");
 			return Plugin_Handled;
 		}
 		
 		Cel_LockEntity(iProp, true);
+		
+		Cel_ReplyToCommand(iClient, "%t", "Locked", sEntityType);
 		
 		Cel_ChangeBeam(iClient, iProp);
 	} else {
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
 	}
+	
 	return Plugin_Handled;
 }
 
@@ -812,6 +815,9 @@ public Action Command_Replace(int iClient, int iArgs)
 			Cel_SetColorFade(iReplaceProp, Cel_IsFading(iProp), g_iFadeColor[iProp][0], g_iFadeColor[iProp][1], g_iFadeColor[iProp][2], g_iFadeColor[iProp][3], g_iFadeColor[iProp][4], g_iFadeColor[iProp][5]);
 			Cel_SetRainbow(iReplaceProp, Cel_IsRainbow(iProp));
 			
+			Cel_SetColorFade(iProp, false, g_iFadeColor[iProp][0], g_iFadeColor[iProp][1], g_iFadeColor[iProp][2], g_iFadeColor[iProp][3], g_iFadeColor[iProp][4], g_iFadeColor[iProp][5]);
+			Cel_SetRainbow(iProp, false);
+			
 			AcceptEntityInput(iProp, "kill");
 			
 			Cel_ChangeBeam(iClient, iReplaceProp);
@@ -825,6 +831,8 @@ public Action Command_Replace(int iClient, int iArgs)
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
 	}
+	
+	return Plugin_Handled;
 }
 
 public Action Command_RenderFX(int iClient, int iArgs)
@@ -865,8 +873,7 @@ public Action Command_RenderFX(int iClient, int iArgs)
 public Action Command_Rotate(int iClient, int iArgs)
 {
 	char sTemp[16];
-	float fAddAngles[3], fAngles[3], fDoorOrigin[3], fOrigin[3], fPropAngles[3];
-	int iDoorColor[4], iDoorSkin;
+	float fAddAngles[3], fAngles[3], fOrigin[3], fPropAngles[3];
 	
 	if (iArgs < 3)
 	{
@@ -1400,6 +1407,42 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_Unlock(int iClient, int iArgs)
+{
+	char sEntityType[32];
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+		
+		if(Cel_CheckEntityType(iProp, "cycler") || Cel_CheckEntityType(iProp, "dynamic") || Cel_CheckEntityType(iProp, "ladder") || 
+			Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "cleer") || Cel_CheckEntityType(iProp, "bit") || Cel_CheckEntityType(iProp, "unknown"))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "CannotUnlock", sEntityType);
+			return Plugin_Handled;
+		}
+		
+		Cel_LockEntity(iProp, false);
+		
+		Cel_ReplyToCommand(iClient, "%t", "Unlocked", sEntityType);
+		
+		Cel_ChangeBeam(iClient, iProp);
+	} else {
+		Cel_NotYours(iClient, iProp);
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Handled;
+}
+
 //Frames:
 public void Frame_CopyProp(any iClient)
 {
@@ -1758,6 +1801,13 @@ public int Native_IsLocked(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
 	
+	if(g_bLocked[iEntity])
+	{
+		PrecacheSound("buttons/combine_button_locked.wav");
+		
+		EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	}
+	
 	return g_bLocked[iEntity];
 }
 
@@ -1782,14 +1832,6 @@ public int Native_LockEntity(Handle hPlugin, int iNumParams)
 	
 	switch(Cel_GetEntityType(iEntity))
 	{
-		case ENTTYPE_AMMOCRATE:
-		{
-			AcceptEntityInput(iEntity, bLock ? "disable" : "enable");
-		}
-		case ENTTYPE_CHARGER:
-		{
-			AcceptEntityInput(iEntity, bLock ? "charge 0" : "charge 100");
-		}
 		case ENTTYPE_DOOR:
 		{
 			AcceptEntityInput(iEntity, bLock ? "lock" : "unlock");
@@ -1797,6 +1839,8 @@ public int Native_LockEntity(Handle hPlugin, int iNumParams)
 	}
 	
 	g_bLocked[iEntity] = bLock;
+	
+	return g_bLocked[iEntity];
 }
 
 public int Native_PasteProp(Handle hPlugin, int iNumParams)

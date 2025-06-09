@@ -94,17 +94,17 @@ public Action Command_Link(int iClient, int iArgs)
 {
 	/*char sOption[64], sType[64];
 	float fLinkOrigin[2][3];
-	
+
 	GetCmdArg(1, sOption, sizeof(sOption));
-	
+
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
 		return Plugin_Handled;
 	}
-	
+
 	int iEntity = Cel_GetClientAimTarget(iClient);
-	
+
 	switch(g_iLinkStage[iClient])
 	{
 		case 0:
@@ -115,12 +115,12 @@ public Action Command_Link(int iClient, int iArgs)
 				Cel_ReplyToCommand(iClient, "%t", "NotTriggerBit");
 				return Plugin_Handled;
 			}
-			
+
 			g_bCreatingLink[iClient] = true;
 			g_iLinkingEntity[iClient] = iEntity;
-			
+
 			g_iLinkStage[iClient] = 1;
-			
+
 			//Started creating link. Type !link on another entity to complete the link.
 			Cel_ReplyToCommand(iClient, "%t", "CreatingLink");
 			return Plugin_Handled;
@@ -131,19 +131,19 @@ public Action Command_Link(int iClient, int iArgs)
 			{
 				g_iLinkedEntity[g_iLinkingEntity[iClient]] = iEntity;
 				g_bHasLink[g_iLinkingEntity[iClient]] = true;
-				
+
 				g_bCreatingLink[iClient] = false;
 				g_iLinkStage[iClient] = 0;
-				
+
 				Cel_GetEntityOrigin(g_iLinkingEntity[iClient], fLinkOrigin[0]);
 				Cel_GetEntityOrigin(iEntity, fLinkOrigin[1]);
-				
+
 				TE_SetupBeamPoints(fLinkOrigin[0], fLinkOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.60, 1.0, 1.0, 1, 0.0, g_iOrange, 10); TE_SendToAll();
-				
+
 				PrecacheSound("buttons/button19.wav");
 				EmitSoundToAll("buttons/button19.wav", g_iLinkingEntity[iClient], 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 				EmitSoundToAll("buttons/button19.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
-				
+
 				//Created trigger link.
 				Cel_ReplyToCommand(iClient, "%t", "CreatedLink");
 				return Plugin_Handled;
@@ -1156,7 +1156,7 @@ public int Native_TriggerEntity(Handle hPlugin, int iNumParams)
 			{
 				Cel_ActivateEffect(g_iLinkedEntity[iEntity]);
 			}
-		}	
+		}
 	}
 	
 	return true;
@@ -1167,70 +1167,70 @@ public void Hook_AmmoBitTouch(int iEntity, int iClient)
 {
 	if(!Cel_IsLocked(iEntity))
 	{
-	if(!g_bTouched[iClient])
-	{
-		switch(Cel_GetAmmoType(iEntity))
+		if(!g_bTouched[iClient])
 		{
-			case AMMOBIT_PISTOL:
+			switch(Cel_GetAmmoType(iEntity))
 			{
-				if(Client_HasWeapon(iClient, "weapon_pistol"))
+				case AMMOBIT_PISTOL:
 				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_pistol", false);
+					if(Client_HasWeapon(iClient, "weapon_pistol"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_pistol", false);
+					}
+				}
+				case AMMOBIT_MAGNUM:
+				{
+					if(Client_HasWeapon(iClient, "weapon_357"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_357", false);
+					}
+				}
+				case AMMOBIT_SMG:
+				{
+					if(Client_HasWeapon(iClient, "weapon_smg1"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_smg1", false, 45, 3, 45, 3);
+					}
+				}
+				case AMMOBIT_AR2:
+				{
+					if(Client_HasWeapon(iClient, "weapon_ar2"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_ar2", false);
+					}
+				}
+				case AMMOBIT_SHOTGUN:
+				{
+					if(Client_HasWeapon(iClient, "weapon_shotgun"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_shotgun", false);
+					}
+				}
+				case AMMOBIT_CROSSBOW:
+				{
+					if(Client_HasWeapon(iClient, "weapon_crossbow"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_crossbow", false);
+					}
+				}
+				case AMMOBIT_RPG:
+				{
+					if(Client_HasWeapon(iClient, "weapon_rpg"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_rpg", false);
+					}
+				}
+				case AMMOBIT_UNKNOWN:
+				{
+					if(Client_HasWeapon(iClient, "weapon_pistol"))
+					{
+						Client_GiveWeaponAndAmmo(iClient, "weapon_pistol", false);
+					}
 				}
 			}
-			case AMMOBIT_MAGNUM:
-			{
-				if(Client_HasWeapon(iClient, "weapon_357"))
-				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_357", false);
-				}
-			}
-			case AMMOBIT_SMG:
-			{
-				if(Client_HasWeapon(iClient, "weapon_smg1"))
-				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_smg1", false, 45, 3, 45, 3);
-				}
-			}
-			case AMMOBIT_AR2:
-			{
-				if(Client_HasWeapon(iClient, "weapon_ar2"))
-				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_ar2", false);
-				}
-			}
-			case AMMOBIT_SHOTGUN:
-			{
-				if(Client_HasWeapon(iClient, "weapon_shotgun"))
-				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_shotgun", false);
-				}
-			}
-			case AMMOBIT_CROSSBOW:
-			{
-				if(Client_HasWeapon(iClient, "weapon_crossbow"))
-				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_crossbow", false);
-				}
-			}
-			case AMMOBIT_RPG:
-			{
-				if(Client_HasWeapon(iClient, "weapon_rpg"))
-				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_rpg", false);
-				}
-			}
-			case AMMOBIT_UNKNOWN:
-			{
-				if(Client_HasWeapon(iClient, "weapon_pistol"))
-				{
-					Client_GiveWeaponAndAmmo(iClient, "weapon_pistol", false);
-				}
-			}
+			
+			g_bTouched[iClient] = true;
 		}
-		
-		g_bTouched[iClient] = true;
-	}
 	}
 }
 
@@ -1238,22 +1238,18 @@ public void Hook_ButtonUse(int iEntity, int iActivator, int iCaller, UseType utT
 {
 	if(!Cel_IsLocked(iEntity))
 	{
-	if(g_bHasLink[iEntity])
-	{
-		Cel_TriggerEntity(iActivator, iEntity);
-		
-		PrecacheSound("buttons/combine_button1.wav");
-		
-		EmitSoundToAll("buttons/combine_button1.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
-	}else{
-		PrecacheSound("buttons/combine_button_locked.wav");
-		
-		EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
-	}
-	}else{
-		PrecacheSound("buttons/combine_button_locked.wav");
-		
-		EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+		if(g_bHasLink[iEntity])
+		{
+			Cel_TriggerEntity(iActivator, iEntity);
+			
+			PrecacheSound("buttons/combine_button1.wav");
+			
+			EmitSoundToAll("buttons/combine_button1.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+		}else{
+			PrecacheSound("buttons/combine_button_locked.wav");
+			
+			EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+		}
 	}
 }
 
@@ -1326,5 +1322,5 @@ public void Hook_WeaponBitTouch(int iEntity, int iClient)
 			
 			g_bTouched[iClient] = true;
 		}
-		}
+	}
 }

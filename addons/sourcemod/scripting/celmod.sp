@@ -44,8 +44,6 @@ int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
 int g_iPropLimit;
 
-StringMap g_smCelCommands;
-
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_AddToBlacklist", Native_AddToBlacklist);
@@ -79,17 +77,10 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetPhysicsMaterial", Native_GetPhysicsMaterial);
 	CreateNative("Cel_GetPropCount", Native_GetPropCount);
 	CreateNative("Cel_GetPropLimit", Native_GetPropLimit);
-	CreateNative("Cel_IsCelCommand", Native_IsCelCommand);
 	CreateNative("Cel_IsEntity", Native_IsEntity);
 	CreateNative("Cel_IsPlayer", Native_IsPlayer);
-	CreateNative("Cel_NotLooking", Native_NotLooking);
-	CreateNative("Cel_NotYours", Native_NotYours);
-	CreateNative("Cel_PlayChatMessageSound", Native_PlayChatMessageSound);
-	CreateNative("Cel_PrintToChat", Native_PrintToChat);
-	CreateNative("Cel_PrintToChatAll", Native_PrintToChatAll);
 	CreateNative("Cel_RemovalBeam", Native_RemovalBeam);
 	CreateNative("Cel_RemoveFromBlacklist", Native_RemoveFromBlacklist);
-	CreateNative("Cel_ReplyToCommand", Native_ReplyToCommand);
 	CreateNative("Cel_SetAuthID", Native_SetAuthID);
 	CreateNative("Cel_SetCelCount", Native_SetCelCount);
 	CreateNative("Cel_SetCelLimit", Native_SetCelLimit);
@@ -150,9 +141,6 @@ public void OnPluginStart()
 		}
 	}
 	
-	AddCommandListener(Handle_Chat, "say");
-	AddCommandListener(Handle_Chat, "say_team");
-	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod");
 	if (!DirExists(sPath))
 	{
@@ -174,6 +162,9 @@ public void OnPluginStart()
 		Cel_AddToBlacklist("alyx");
 	}
 	
+	AddCommandListener(Handle_Spawn, "say");
+	AddCommandListener(Handle_Spawn, "say_team");
+	
 	g_hOnCelSpawn = CreateGlobalForward("Cel_OnCelSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 	g_hOnEntityRemove = CreateGlobalForward("Cel_OnEntityRemove", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 	g_hOnPropSpawn = CreateGlobalForward("Cel_OnPropSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
@@ -183,6 +174,7 @@ public void OnPluginStart()
 	HookEvent("player_disconnect", Event_Disconnect, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_Spawn, EventHookMode_Post);
 	
+	RegConsoleCmd("noclip", Command_Fly, "noclip");	
 	RegConsoleCmd("dev_getpos", Dev_GetPos, "");
 	
 	RegAdminCmd("v_blacklist", Command_Blacklist, ADMFLAG_SLAY, "|CelMod| Adds/removes a prop from the spawn blacklist.");
@@ -238,12 +230,8 @@ public void OnPluginStart()
 		Updater_AddPlugin(g_bBetaBranchUpdates ? UPDATE_BETA_URL : UPDATE_URL);
 	}
 	
-	SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") - FCVAR_CHEAT);
-}
-
-public void OnPluginEnd()
-{
-	delete g_smCelCommands;
+	ConCommand_RemoveFlags("r_screenoverlay", FCVAR_CHEAT);
+	ConCommand_RemoveFlags("noclip", FCVAR_CHEAT);
 }
 
 public void OnClientAuthorized(int iClient, const char[] sAuthID)
@@ -326,8 +314,6 @@ public void OnMapStart()
 	g_iPhys = PrecacheModel("materials/sprites/physbeam.vmt", true);
 	
 	Cel_DownloadClientFiles();
-	
-	Cel_PopulateCelCommands();
 }
 
 public void OnMapEnd()
@@ -906,14 +892,10 @@ public Action Command_Spawn(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
+public Action Handle_Spawn(int iClient, char[] sCommand, int iArgs)
 {
-	char sCommandString[MAX_MESSAGE_LENGTH], sPropAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
+	char sPropAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
 	float fAngles[3], fOrigin[3];
-	
-	GetCmdArgString(sCommandString, sizeof(sCommandString));
-	
-	StripQuotes(sCommandString);
 	
 	GetCmdArg(1, sPropAlias, sizeof(sPropAlias));
 	
@@ -950,23 +932,6 @@ public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 		
 		Cel_ReplyToCommand(iClient, "%t", "SpawnProp", sPropAlias);
 		
-		return Plugin_Handled;
-	} else if (sCommandString[0] == '!' || sCommandString[0] == '/') {
-		ReplaceString(sCommandString, sizeof(sCommandString), (sCommandString[0] == '!') ? "!" : "/", "v_");
-		
-		if(Cel_IsCelCommand(sCommandString))
-		{
-			ReplySource rsOldReplySrc = GetCmdReplySource();
-			
-			SetCmdReplySource(SM_REPLY_TO_CHAT);
-			
-			FakeClientCommand(iClient, sCommandString);
-			
-			SetCmdReplySource(rsOldReplySrc);
-		}
-		
-		return Plugin_Handled;
-	}else if (IsChatTrigger()) {
 		return Plugin_Handled;
 	}
 	
@@ -1623,20 +1588,6 @@ public int Native_GetPropLimit(Handle hPlugin, int iNumParams)
 	return g_iPropLimit;
 }
 
-public int Native_IsCelCommand(Handle hPlugin, int iNumParams)
-{
-	char sCommand[MAX_MESSAGE_LENGTH], sCommandSplit[2][MAX_MESSAGE_LENGTH];
-	int iValue;
-	
-	GetNativeString(1, sCommand, sizeof(sCommand));
-	
-	ExplodeString(sCommand, " ", sCommandSplit, 2, sizeof(sCommandSplit[]), false);
-	
-	CStrToLower(sCommandSplit[0]);
-	
-	return g_smCelCommands.GetValue(sCommandSplit[0], iValue);
-}
-
 public int Native_IsEntity(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -1654,66 +1605,6 @@ public int Native_IsPlayer(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	
 	return g_bPlayer[iClient];
-}
-
-public int Native_NotLooking(Handle hPlugin, int iNumParams)
-{
-	int iClient = GetNativeCell(1);
-	
-	Cel_ReplyToCommand(iClient, "%t", "NotLooking");
-	
-	return true;
-}
-
-public int Native_NotYours(Handle hPlugin, int iNumParams)
-{
-	int iClient = GetNativeCell(1);
-	int iEntity = GetNativeCell(2);
-	
-	char sEntityType[32];
-	
-	Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sEntityType, sizeof(sEntityType));
-	
-	Cel_ReplyToCommand(iClient, "%t", "NotYours", sEntityType);
-	
-	return true;
-}
-
-public int Native_PlayChatMessageSound(Handle hPlugin, int iNumParams)
-{
-	int iClient = GetNativeCell(1);
-	
-	ClientCommand(iClient, "play npc/stalker/stalker_footstep_%s1", GetRandomInt(0, 1) ? "left" : "right");
-	
-	return true;
-}
-
-public int Native_PrintToChat(Handle hPlugin, int iNumParams)
-{
-	char sBuffer[MAX_MESSAGE_LENGTH];
-	
-	int iPlayer = GetNativeCell(1), iWritten;
-	
-	FormatNativeString(0, 2, 3, sizeof(sBuffer), iWritten, sBuffer);
-	
-	CPrintToChat(iPlayer, "{blue}|CelMod|{default} %s", sBuffer);
-	
-	Cel_PlayChatMessageSound(iPlayer);
-	
-	return true;
-}
-
-public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
-{
-	char sBuffer[MAX_MESSAGE_LENGTH];
-	
-	int iWritten;
-	
-	FormatNativeString(0, 1, 2, sizeof(sBuffer), iWritten, sBuffer);
-	
-	CPrintToChatAll("{blue}|CM|{default} %s", sBuffer);
-	
-	return true;
 }
 
 public int Native_RemovalBeam(Handle hPlugin, int iNumParams)
@@ -1761,30 +1652,6 @@ public int Native_RemoveFromBlacklist(Handle hPlugin, int iNumParams)
 	kvBlacklist.ExportToFile(g_sBlacklistDB);
 	
 	kvBlacklist.Close();
-	
-	return true;
-}
-
-public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
-{
-	char sBuffer[MAX_MESSAGE_LENGTH];
-	
-	int iPlayer = GetNativeCell(1), iWritten;
-	
-	FormatNativeString(0, 2, 3, sizeof(sBuffer), iWritten, sBuffer);
-	
-	ReplaceString(sBuffer, sizeof(sBuffer), "[tag]", GetCmdReplySource() == SM_REPLY_TO_CONSOLE ? "v_" : "!", true);
-	
-	if (GetCmdReplySource() == SM_REPLY_TO_CONSOLE)
-	{
-		CRemoveTags(sBuffer, sizeof(sBuffer));
-		
-		PrintToConsole(iPlayer, "|CelMod| %s", sBuffer);
-	} else {
-		CPrintToChat(iPlayer, "{blue}|CelMod|{default} %s", sBuffer);
-		
-		Cel_PlayChatMessageSound(iPlayer);
-	}
 	
 	return true;
 }
@@ -2183,6 +2050,9 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	
 	DispatchKeyValue(iProp, "model", sModel);
 	
+	if (StrEqual(sEntityType, "cycler"))
+	DispatchKeyValue(iProp, "DefaultAnim", "ragdoll");
+	
 	TeleportEntity(iProp, fOrigin, fAngles, NULL_VECTOR);
 	
 	DispatchSpawn(iProp);
@@ -2203,7 +2073,6 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	
 	Cel_SetRenderFX(iProp, RENDERFX_NONE);
 	
-	if (!StrEqual(sEntityType, "cycler"))
 	Cel_SetSolid(iProp, true);
 	
 	return iProp;
@@ -2229,24 +2098,4 @@ public int Native_SubFromPropCount(Handle hPlugin, int iNumParams)
 	Cel_SetPropCount(iClient, iFinalCount);
 	
 	return true;
-}
-
-//Stocks:
-stock void Cel_PopulateCelCommands()
-{
-	char sCMD[2][MAX_MESSAGE_LENGTH];
-	Handle hCommandIter = GetCommandIterator();
-	int iFlags;
-	
-	g_smCelCommands = new StringMap();
-	
-	while (ReadCommandIterator(hCommandIter, sCMD[0], sizeof(sCMD[]), iFlags, sCMD[1], sizeof(sCMD[])))
-	{
-		if (StrContains(sCMD[1], "|CelMod|", true) != -1)
-		{
-			g_smCelCommands.SetValue(sCMD[0], 1);
-		}
-	}
-	
-	CloseHandle(hCommandIter);
 }

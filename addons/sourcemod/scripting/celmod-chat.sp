@@ -37,8 +37,11 @@ public void OnPluginStart()
 		OnMapStart();
 	}
 	
+	AddCommandListener(Handle_Noclip, "noclip");
 	AddCommandListener(Handle_Chat, "say");
 	AddCommandListener(Handle_Chat, "say_team");
+	
+	ConCommand_RemoveFlags("noclip", FCVAR_CHEAT);
 }
 
 public void OnMapStart()
@@ -80,6 +83,13 @@ public Action Handle_Chat(int iClient, char[] sCommand, int iArgs)
 	}
 	
 	return Plugin_Continue;
+}
+
+public Action Handle_Noclip(int iClient, char[] sCommand, int iArgs)
+{
+	FakeClientCommand(iClient, "v_fly");
+	
+	return Plugin_Handled;
 }
 
 //Natives:

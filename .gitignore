@@ -60,8 +60,6 @@ addons/sourcemod/scripting/funcommands/beacon.sp
 addons/sourcemod/scripting/funcommands/blind.sp
 addons/sourcemod/scripting/funcommands/drug.sp
 addons/sourcemod/scripting/funcommands/fire.sp
-addons/sourcemod/scripting/funcommands/gravity.sp
-addons/sourcemod/scripting/funcommands/noclip.sp
 addons/sourcemod/scripting/funcommands/timebomb.sp
 addons/sourcemod/scripting/funvotes
 addons/sourcemod/scripting/funvotes.sp

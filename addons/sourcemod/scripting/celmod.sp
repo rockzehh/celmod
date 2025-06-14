@@ -139,6 +139,8 @@ public void OnPluginStart()
 				OnClientPutInServer(i);
 			}
 		}
+		
+		OnMapStart();
 	}
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/celmod");
@@ -159,7 +161,7 @@ public void OnPluginStart()
 	BuildPath(Path_SM, g_sBlacklistDB, sizeof(g_sBlacklistDB), "data/celmod/blacklist.txt");
 	if (!FileExists(g_sBlacklistDB))
 	{
-		Cel_AddToBlacklist("alyx");
+		Cel_AddToBlacklist("traintrack01");
 	}
 	
 	AddCommandListener(Handle_Spawn, "say");
@@ -174,7 +176,6 @@ public void OnPluginStart()
 	HookEvent("player_disconnect", Event_Disconnect, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_Spawn, EventHookMode_Post);
 	
-	RegConsoleCmd("noclip", Command_Fly, "noclip");	
 	RegConsoleCmd("dev_getpos", Dev_GetPos, "");
 	
 	RegAdminCmd("v_blacklist", Command_Blacklist, ADMFLAG_SLAY, "|CelMod| Adds/removes a prop from the spawn blacklist.");
@@ -231,7 +232,6 @@ public void OnPluginStart()
 	}
 	
 	ConCommand_RemoveFlags("r_screenoverlay", FCVAR_CHEAT);
-	ConCommand_RemoveFlags("noclip", FCVAR_CHEAT);
 }
 
 public void OnClientAuthorized(int iClient, const char[] sAuthID)
@@ -348,13 +348,6 @@ public void CM_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const ch
 }
 
 //Commands:
-public Action CL_Noclip(int iClient, const char[] sCommand, int iArgs)
-{
-	FakeClientCommand(iClient, "sm_fly");
-	
-	return Plugin_Handled;
-}
-
 public Action Dev_GetPos(int iClient, int iArgs)
 {
 	float fAng[3], fPos[3];

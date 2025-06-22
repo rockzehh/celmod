@@ -1107,7 +1107,6 @@ public Action Command_StartCopy(int iClient, int iArgs)
 		g_bRainbow[g_iMoveCopyEntity[iClient]] = false;
 		
 		SetEntityRenderColor(g_iMoveCopyEntity[iClient], 32, 32, 255, 128);
-		SetEntityRenderFx(g_iMoveCopyEntity[iClient], RENDERFX_DISTORT);
 		
 		RequestFrame(Frame_CopyProp, iClient);
 	} else {
@@ -1154,7 +1153,6 @@ public Action Command_StartGrab(int iClient, int iArgs)
 		g_iMoveEntity[iClient] = iProp;
 		
 		SetEntityRenderColor(g_iMoveEntity[iClient], 32, 255, 32, 128);
-		SetEntityRenderFx(g_iMoveEntity[iClient], RENDERFX_DISTORT);
 		
 		RequestFrame(Frame_MoveProp, iClient);
 	} else {

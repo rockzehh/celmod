@@ -689,7 +689,7 @@ public int Native_IsClientCrosshairInLand(Handle hPlugin, int iNumParams)
 
 public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 {
-	float fOrigin[3];
+	float fMax[3], fMin[3], fOrigin[3];
 	int iEntity = GetNativeCell(1);
 	
 	for (int i = 1; i < MaxClients; i++)
@@ -697,11 +697,19 @@ public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 		if (IsClientAuthorized(i))
 		{
 			Entity_GetAbsOrigin(iEntity, fOrigin);
+			Entity_GetMinSize(iEntity, fMin);
+			Entity_GetMaxSize(iEntity, fMax);
 			
 			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
 			{
 				return true;
-			}else{
+			}else if(Cel_IsPositionInBox(fMin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			{
+				return true;
+			}else if(Cel_IsPositionInBox(fMax, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			{
+				return true;
+			}else {
 				return false;
 			}
 		}else{

@@ -39,7 +39,6 @@ int g_iBeam;
 int g_iCelCount[MAXPLAYERS + 1];
 int g_iCelLimit;
 int g_iHalo;
-int g_iOwner[MAXENTITIES + 1];
 int g_iPhys;
 int g_iPropCount[MAXPLAYERS + 1];
 int g_iPropLimit;
@@ -1317,7 +1316,10 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	
 	EntityType etEntityType = Cel_GetEntityType(iEntity);
 	
-	if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER || etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_TRIGGER)
+	if (etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_TRIGGER)
+	{
+		return view_as<int>(ENTCATAGORY_BIT);
+	}else if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
 	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
@@ -1335,6 +1337,10 @@ public int Native_GetEntityCatagoryName(Handle hPlugin, int iNumParams)
 	
 	switch (view_as<EntityCatagory>(GetNativeCell(1)))
 	{
+		case ENTCATAGORY_BIT:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "bit entity");
+		}
 		case ENTCATAGORY_CEL:
 		{
 			Format(sEntityCatagory, sizeof(sEntityCatagory), "cel entity");
@@ -1559,9 +1565,19 @@ public int Native_GetNoKill(Handle hPlugin, int iNumParams)
 
 public int Native_GetOwner(Handle hPlugin, int iNumParams)
 {
+	char sOwnerString[128];
 	int iEntity = GetNativeCell(1);
 	
-	return GetClientFromSerial(g_iOwner[iEntity]);
+	if(Cel_IsEntity(iEntity))
+	{
+		Entity_GetGlobalName(iEntity, sOwnerString, sizeof(sOwnerString));
+		
+		ReplaceString(sOwnerString, sizeof(sOwnerString), "CelMod:", "");
+		
+		return GetClientFromSerial(StringToInt(sOwnerString));
+	}
+	
+	return -1;
 }
 
 public int Native_GetPhysicsMaterial(Handle hPlugin, int iNumParams)
@@ -1583,11 +1599,17 @@ public int Native_GetPropLimit(Handle hPlugin, int iNumParams)
 
 public int Native_IsEntity(Handle hPlugin, int iNumParams)
 {
+	char sOwnerString[128];
 	int iEntity = GetNativeCell(1);
 	
 	if(IsValidEntity(iEntity) && iEntity != -1)
 	{
-		return g_bEntity[iEntity];
+		Entity_GetGlobalName(iEntity, sOwnerString, sizeof(sOwnerString));
+		
+		if(StrContains(sOwnerString, "CelMod:", true) != -1)
+		{
+			return true;
+		}
 	}
 	
 	return false;
@@ -1717,7 +1739,7 @@ public int Native_SetOwner(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	int iEntity = GetNativeCell(2);
 	
-	g_iOwner[iEntity] = GetClientSerial(iClient);
+	Entity_SetGlobalName(iEntity, "CelMod:%i", GetClientSerial(iClient));
 	
 	return true;
 }
@@ -2019,7 +2041,7 @@ public int Native_SpawnLight(Handle hPlugin, int iNumParams)
 public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 {
 	char sAlias[64], sModel[64], sEntityType[64];
-	float fAngles[3], fOrigin[3];
+	float fAngles[3], fDiff, fMin[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4];
 	
 	GetNativeString(2, sAlias, sizeof(sAlias));
@@ -2044,11 +2066,27 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	DispatchKeyValue(iProp, "model", sModel);
 	
 	if (StrEqual(sEntityType, "cycler"))
-	DispatchKeyValue(iProp, "DefaultAnim", "ragdoll");
+	{
+		DispatchKeyValue(iProp, "classname", "cel_doll");
+		DispatchKeyValue(iProp, "DefaultAnim", "ragdoll");	
+	}
 	
 	TeleportEntity(iProp, fOrigin, fAngles, NULL_VECTOR);
 	
 	DispatchSpawn(iProp);
+	
+	Entity_GetMaxSize(iProp, fMin);
+	
+	fDiff = fOrigin[2] - fMin[2];
+	
+	PrintToChat(iClient, "Diff: %f Min: %f Org: %f", fDiff, fMin[2], fOrigin[2]);
+	
+	if(fDiff > 0.0)
+	{
+		fOrigin[2] = (fOrigin[2] += fDiff);
+		
+		TeleportEntity(iProp, fOrigin, fAngles, NULL_VECTOR);
+	}
 	
 	Cel_AddToPropCount(iClient);
 	

@@ -32,6 +32,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	LoadTranslations("celmod.phrases");
+	
 	if (g_bLate)
 	{
 		OnMapStart();

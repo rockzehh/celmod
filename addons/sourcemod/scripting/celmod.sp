@@ -739,7 +739,6 @@ public Action Command_Owner(int iClient, int iArgs)
 		}
 	}
 	
-	
 	return Plugin_Handled;
 }
 
@@ -867,6 +866,8 @@ public Action Command_Spawn(int iClient, int iArgs)
 		
 		int iProp = Cel_SpawnProp(iClient, sAlias, sSpawnBuffer[0], sSpawnBuffer[1], fAngles, fOrigin, 255, 255, 255, 255);
 		
+		Cel_FixSpawnPosition(iProp, fOrigin);
+		
 		Call_StartForward(g_hOnPropSpawn);
 		
 		Call_PushCell(iProp);
@@ -913,6 +914,8 @@ public Action Handle_Spawn(int iClient, char[] sCommand, int iArgs)
 		Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 		
 		int iProp = Cel_SpawnProp(iClient, sPropAlias, sSpawnBuffer[0], sSpawnBuffer[1], fAngles, fOrigin, 255, 255, 255, 255);
+		
+		Cel_FixSpawnPosition(iProp, fOrigin);
 		
 		Call_StartForward(g_hOnPropSpawn);
 		
@@ -1319,10 +1322,10 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	if (etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_TRIGGER)
 	{
 		return view_as<int>(ENTCATAGORY_BIT);
-	}else if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_CLEER)
+	}else if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
-	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS)
+	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS || etEntityType == ENTTYPE_CLEER)
 	{
 		return view_as<int>(ENTCATAGORY_PROP);
 	} else {
@@ -1368,7 +1371,7 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 	
 	GetEntityClassname(iEntity, sClassname, sizeof(sClassname));
 	
-	if (StrEqual(sClassname, "cycler", false))
+	if (StrEqual(sClassname, "cel_doll", false))
 	{
 		return view_as<int>(ENTTYPE_CYCLER);
 	} else if (StrEqual(sClassname, "cel_door", false))
@@ -1386,22 +1389,22 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 	} else if (StrContains(sClassname, "effect_", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_EFFECT);
-	} else if (StrContains(sClassname, "prop_cleer", false) != -1)
+	} else if (StrEqual(sClassname, "cel_cleerbox", false))
 	{
 		return view_as<int>(ENTTYPE_CLEER);
-	} else if (StrContains(sClassname, "prop_dynamic", false) != -1)
+	} else if (StrEqual(sClassname, "cel_dynamic", false))
 	{
 		return view_as<int>(ENTTYPE_DYNAMIC);
-	} else if (StrContains(sClassname, "prop_physics", false) != -1)
+	} else if (StrEqual(sClassname, "cel_physics", false))
 	{
 		return view_as<int>(ENTTYPE_PHYSICS);
 	} else if (StrContains(sClassname, "bit_ammo_", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_AMMO);
-	} else if (StrContains(sClassname, "item_ammo_crate", false) != -1)
+	} else if (StrEqual(sClassname, "bit_ammocrate", false))
 	{
 		return view_as<int>(ENTTYPE_AMMOCRATE);
-	} else if (StrContains(sClassname, "item_healthcharger", false) != -1 || StrContains(sClassname, "item_suitcharger", false) != -1)
+	} else if (StrContains(sClassname, "bit_charger_", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_CHARGER);
 	} else if (StrContains(sClassname, "bit_wep_", false) != -1)
@@ -2041,7 +2044,7 @@ public int Native_SpawnLight(Handle hPlugin, int iNumParams)
 public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 {
 	char sAlias[64], sModel[64], sEntityType[64];
-	float fAngles[3], fDiff, fMin[3], fOrigin[3];
+	float fAngles[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4];
 	
 	GetNativeString(2, sAlias, sizeof(sAlias));
@@ -2064,6 +2067,7 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	PrecacheModel(sModel);
 	
 	DispatchKeyValue(iProp, "model", sModel);
+	DispatchKeyValue(iProp, "classname", "cel_physics");
 	
 	if (StrEqual(sEntityType, "cycler"))
 	{
@@ -2074,19 +2078,6 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	TeleportEntity(iProp, fOrigin, fAngles, NULL_VECTOR);
 	
 	DispatchSpawn(iProp);
-	
-	Entity_GetMaxSize(iProp, fMin);
-	
-	fDiff = fOrigin[2] - fMin[2];
-	
-	PrintToChat(iClient, "Diff: %f Min: %f Org: %f", fDiff, fMin[2], fOrigin[2]);
-	
-	if(fDiff > 0.0)
-	{
-		fOrigin[2] = (fOrigin[2] += fDiff);
-		
-		TeleportEntity(iProp, fOrigin, fAngles, NULL_VECTOR);
-	}
 	
 	Cel_AddToPropCount(iClient);
 	

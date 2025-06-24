@@ -1295,6 +1295,17 @@ public bool Cel_FilterPlayer(int iEntity, int iContentsMask, any aData)
 	return (iEntity != aData && iEntity > MaxClients);
 }
 
+stock void Cel_FixSpawnPosition(int iEntity, float fOrigin[3])
+{
+	float fMins[3];
+	
+	GetEntPropVector(iEntity, Prop_Send, "m_vecMinsPreScaled", fMins);
+	
+	fOrigin[2] = fOrigin[2] - fMins[2];
+
+    TeleportEntity(iEntity, fOrigin, NULL_VECTOR, NULL_VECTOR);
+}
+
 /**
  * Retrieves the angles of an entity.
  *

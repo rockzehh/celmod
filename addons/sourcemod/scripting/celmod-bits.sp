@@ -92,7 +92,7 @@ public void OnClientDisconnect(int iClient)
 
 public Action Command_Link(int iClient, int iArgs)
 {
-	/*char sOption[64], sType[64];
+	char sOption[64], sType[64];
 	float fLinkOrigin[2][3];
 
 	GetCmdArg(1, sOption, sizeof(sOption));
@@ -154,12 +154,7 @@ public Action Command_Link(int iClient, int iArgs)
 				return Plugin_Handled;
 			}
 		}
-	}*/
-	char sOption[64];
-	
-	GetCmdArg(1, sOption, sizeof(sOption));
-	
-	
+	}
 }
 
 public Action Command_SpawnAmmoBit(int iClient, int iArgs)
@@ -858,6 +853,7 @@ public int Native_SpawnAmmoCrate(Handle hPlugin, int iNumParams)
 	IntToString(view_as<int>(actType), sAmmoCrateType, sizeof(sAmmoCrateType));
 	
 	DispatchKeyValue(iBase, "AmmoType", sAmmoCrateType);
+	DispatchKeyValue(iBase, "classname", "bit_ammocrate");
 	
 	DispatchSpawn(iBase);
 	
@@ -940,14 +936,20 @@ public int Native_SpawnCharger(Handle hPlugin, int iNumParams)
 		case CHARGERBIT_HEALTH:
 		{
 			iBase = CreateEntityByName("item_healthcharger");
+			
+			DispatchKeyValue(iBase, "classname", "bit_charger_health");
 		}
 		case CHARGERBIT_SUIT:
 		{
 			iBase = CreateEntityByName("item_suitcharger");
+			
+			DispatchKeyValue(iBase, "classname", "bit_charger_suit");
 		}
 		case CHARGERBIT_UNKNOWN:
 		{
 			iBase = CreateEntityByName("item_healthcharger");
+			
+			DispatchKeyValue(iBase, "classname", "bit_charger_health");
 		}
 	}
 	

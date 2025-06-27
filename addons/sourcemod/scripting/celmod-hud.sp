@@ -455,7 +455,88 @@ public Action Timer_HUD(Handle hTimer)
 				
 				if (iEntity != -1)
 				{
-					if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
+					if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_BIT)) {
+						if(Cel_GetEntityType(iEntity) == ENTTYPE_AMMO)
+						{
+							Cel_GetAmmoTypeName(Cel_GetAmmoType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Ammo: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nAmmo: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_AMMOCRATE)
+						{
+							Cel_GetAmmoCrateTypeName(Cel_GetAmmoCrateType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Ammocrate: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nAmmocrate: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_CHARGER)
+						{
+							Cel_GetChargerTypeName(Cel_GetChargerType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Charger: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nCharger: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_TRIGGER)
+						{
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Cel: %s", "trigger");
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nCel: %s", Cel_GetOwner(iEntity), "trigger");
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_WEAPONSPWNER)
+						{
+							Cel_GetWeaponTypeName(Cel_GetWeaponType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Weapon: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nWeapon: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else{
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Cel: %s", "bit");
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nCel: %s", Cel_GetOwner(iEntity), "bit");
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}
+					}else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
 					{
 						Cel_GetPropName(iEntity, sPropName, sizeof(sPropName));
 						

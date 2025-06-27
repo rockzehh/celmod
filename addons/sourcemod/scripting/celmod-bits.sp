@@ -76,7 +76,7 @@ public void OnPluginStart()
 	RegConsoleCmd("v_ammocrate", Command_SpawnAmmoCrateBit, "|CelMod| Creates a ammo crate bit that will give ammo to the player.");
 	RegConsoleCmd("v_button", Command_SpawnButton, "|CelMod| Spawns a button trigger bit.");
 	RegConsoleCmd("v_charger", Command_SpawnChargerBit, "|CelMod| Creates a health/suit charger bit that will give health/suit to the player.");
-	//RegConsoleCmd("v_link", Command_Link, "|CelMod| Creates a link between a trigger bit and an entity.");
+	RegConsoleCmd("v_link", Command_Link, "|CelMod| Creates a link between a trigger bit and an entity.");
 	RegConsoleCmd("v_wep", Command_SpawnWeaponBit, "|CelMod| Creates a weapon bit that will give a weapon when the player touches it.");
 }
 
@@ -94,17 +94,17 @@ public Action Command_Link(int iClient, int iArgs)
 {
 	char sOption[64], sType[64];
 	float fLinkOrigin[2][3];
-
+	
 	GetCmdArg(1, sOption, sizeof(sOption));
-
+	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
 		return Plugin_Handled;
 	}
-
+	
 	int iEntity = Cel_GetClientAimTarget(iClient);
-
+	
 	switch(g_iLinkStage[iClient])
 	{
 		case 0:
@@ -115,12 +115,12 @@ public Action Command_Link(int iClient, int iArgs)
 				Cel_ReplyToCommand(iClient, "%t", "NotTriggerBit");
 				return Plugin_Handled;
 			}
-
+			
 			g_bCreatingLink[iClient] = true;
 			g_iLinkingEntity[iClient] = iEntity;
-
+			
 			g_iLinkStage[iClient] = 1;
-
+			
 			//Started creating link. Type !link on another entity to complete the link.
 			Cel_ReplyToCommand(iClient, "%t", "CreatingLink");
 			return Plugin_Handled;
@@ -131,19 +131,19 @@ public Action Command_Link(int iClient, int iArgs)
 			{
 				g_iLinkedEntity[g_iLinkingEntity[iClient]] = iEntity;
 				g_bHasLink[g_iLinkingEntity[iClient]] = true;
-
+				
 				g_bCreatingLink[iClient] = false;
 				g_iLinkStage[iClient] = 0;
-
+				
 				Cel_GetEntityOrigin(g_iLinkingEntity[iClient], fLinkOrigin[0]);
 				Cel_GetEntityOrigin(iEntity, fLinkOrigin[1]);
-
+				
 				TE_SetupBeamPoints(fLinkOrigin[0], fLinkOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.60, 1.0, 1.0, 1, 0.0, g_iOrange, 10); TE_SendToAll();
-
+				
 				PrecacheSound("buttons/button19.wav");
 				EmitSoundToAll("buttons/button19.wav", g_iLinkingEntity[iClient], 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 				EmitSoundToAll("buttons/button19.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
-
+				
 				//Created trigger link.
 				Cel_ReplyToCommand(iClient, "%t", "CreatedLink");
 				return Plugin_Handled;
@@ -155,6 +155,8 @@ public Action Command_Link(int iClient, int iArgs)
 			}
 		}
 	}
+	
+	return Plugin_Handled;
 }
 
 public Action Command_SpawnAmmoBit(int iClient, int iArgs)

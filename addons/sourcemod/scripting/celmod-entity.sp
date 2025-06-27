@@ -7,6 +7,7 @@
 const float M_PI = 3.14159265358979323846;
 const float PERIOD = 3.4;
 
+bool g_bBreakable[MAXENTITIES + 1];
 bool g_bCopyFading[MAXPLAYERS + 1];
 bool g_bCopyRainbow[MAXPLAYERS + 1];
 bool g_bMotion[MAXENTITIES + 1];
@@ -18,7 +19,7 @@ bool g_bRainbow[MAXENTITIES + 1];
 bool g_bSolid[MAXENTITIES + 1];
 
 char g_sColorDB[PLATFORM_MAX_PATH];
-char g_sCopyBuffer[MAXPLAYERS + 1][21][128];
+char g_sCopyBuffer[MAXPLAYERS + 1][22][128];
 char g_sPropName[MAXENTITIES + 1][64];
 
 float g_fCopyOrigin[MAXPLAYERS + 1][3];
@@ -43,6 +44,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_CheckRenderFX", Native_CheckRenderFX);
 	CreateNative("Cel_CopyProp", Native_CopyProp);
 	CreateNative("Cel_DissolveEntity", Native_DissolveEntity);
+	CreateNative("Cel_DropEntityToFloor", Native_DropEntityToFloor);
 	CreateNative("Cel_GetColor", Native_GetColor);
 	CreateNative("Cel_GetFadeColor", Native_GetFadeColor);
 	CreateNative("Cel_GetMotion", Native_GetMotion);
@@ -50,12 +52,14 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetRenderFX", Native_GetRenderFX);
 	CreateNative("Cel_GetRenderFXFromName", Native_GetRenderFXFromName);
 	CreateNative("Cel_GetRenderFXName", Native_GetRenderFXName);
+	CreateNative("Cel_IsBreakable", Native_IsFading);
 	CreateNative("Cel_IsFading", Native_IsFading);
 	CreateNative("Cel_IsLocked", Native_IsLocked);
 	CreateNative("Cel_IsRainbow", Native_IsRainbow);
 	CreateNative("Cel_IsSolid", Native_IsSolid);
 	CreateNative("Cel_LockEntity", Native_LockEntity);
 	CreateNative("Cel_PasteProp", Native_PasteProp);
+	CreateNative("Cel_SetBreakable", Native_SetBreakable);
 	CreateNative("Cel_SetColor", Native_SetColor);
 	CreateNative("Cel_SetColorFade", Native_SetColorFade);
 	CreateNative("Cel_SetMotion", Native_SetMotion);
@@ -101,6 +105,7 @@ public void OnPluginStart()
 		ThrowError("|CelMod| %t", "FileNotFound", g_sColorDB);
 	}
 	
+	RegAdminCmd("v_autobuild", Command_AutoBuild, ADMFLAG_SLAY, "|CelMod| Stacks props on the x, y and z axis.");
 	RegConsoleCmd("+copy", Command_StartCopy, "|CelMod| Starts copying and moving the prop you are looking at.");
 	RegConsoleCmd("+move", Command_StartGrab, "|CelMod| Starts moving the prop you are looking at.");
 	RegConsoleCmd("-copy", Command_StopCopy, "|CelMod| Stops copying and moving the prop you are looking at.");
@@ -114,6 +119,7 @@ public void OnPluginStart()
 	RegConsoleCmd("v_flip", Command_HookFlip, "|CelMod| Flips the prop you are looking at.");
 	RegConsoleCmd("v_freeze", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
 	RegConsoleCmd("v_freezeit", Command_FreezeIt, "|CelMod| Freezes the prop you are looking at.");
+	RegConsoleCmd("v_god", Command_God, "|CelMod| Enables/disables breakability on the prop you are looking at.");
 	RegConsoleCmd("v_lock", Command_Lock, "|CelMod| Locks the cel you are looking at.");
 	RegConsoleCmd("v_paint", Command_Color, "|CelMod| Colors the prop you are looking at.");
 	RegConsoleCmd("v_paste", Command_PasteProp, "|CelMod| Pastes the prop in your copy buffer where you are looking at.");
@@ -126,7 +132,7 @@ public void OnPluginStart()
 	RegConsoleCmd("v_skin", Command_Skin, "|CelMod| Changes the skin on the prop you are looking at.");
 	RegConsoleCmd("v_smove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
 	RegConsoleCmd("v_solid", Command_Solid, "|CelMod| Enables/disables solidicity on the prop you are looking at.");
-	RegConsoleCmd("v_stack", Command_Stack, "|CelMod| Stacks props on the x, y and z axis.");
+	RegConsoleCmd("v_stack", Command_Stack, "|CelMod| Stacks one prop on the x, y and z axis.");
 	RegConsoleCmd("v_stackinfo", Command_StackInfo, "|CelMod| Gets the origin difference between props for help stacking.");
 	RegConsoleCmd("v_stand", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
 	RegConsoleCmd("v_straight", Command_Stand, "|CelMod| Resets the angles on the prop you are looking at.");
@@ -178,12 +184,23 @@ public void OnMapStart()
 	
 	DispatchSpawn(g_iEntityDissolve);
 	
-	DispatchKeyValue(g_iEntityDissolve, "classname", "celmod_entity_dissolver");
+	DispatchKeyValue(g_iEntityDissolve, "classname", "cm_entity_dissolver");
 }
 
 public void OnMapEnd()
 {
 	g_iEntityDissolve = -1;
+}
+
+public void OnEntityDestroyed(int iEntity)
+{
+	if(Cel_IsEntity(iEntity))
+	{
+		if(Cel_IsPlayer(Cel_GetOwner(iEntity)))
+		{
+			(Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(Cel_GetOwner(iEntity)) : Cel_SubFromCelCount(Cel_GetOwner(iEntity));
+		}
+	}
 }
 
 public Action Command_Alpha(int iClient, int iArgs)
@@ -247,6 +264,92 @@ public Action Command_Alpha(int iClient, int iArgs)
 			Cel_NotYours(iClient, iProp);
 			return Plugin_Handled;
 		}
+	}
+	
+	return Plugin_Handled;
+}
+
+public Action Command_AutoBuild(int iClient, int iArgs)
+{
+	char sArgs[4][32], sEntity[4][64], sEntityType[32];
+	float fAngles[3], fFinalOrigin[3], fOrigin[3];
+	int iColor[4], iCount = 0;
+	
+	if (iArgs < 4)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_AutoBuild");
+		return Plugin_Handled;
+	}
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	GetCmdArg(1, sArgs[0], sizeof(sArgs[]));
+	GetCmdArg(2, sArgs[1], sizeof(sArgs[]));
+	GetCmdArg(3, sArgs[2], sizeof(sArgs[]));
+	GetCmdArg(4, sArgs[3], sizeof(sArgs[]));
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+		
+		if(Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "dynamic"))
+		{
+			Entity_GetClassName(iProp, sEntity[0], sizeof(sEntity[]));
+			Entity_GetName(iProp, sEntity[1], sizeof(sEntity[]));
+			Entity_GetModel(iProp, sEntity[2], sizeof(sEntity[]));
+			
+			Cel_GetPropName(iProp, sEntity[3], sizeof(sEntity[3]));
+			
+			Entity_GetRenderColor(iProp, iColor);
+			
+			Cel_GetEntityAngles(iProp, fAngles);
+			
+			Cel_GetEntityOrigin(iProp, fOrigin);
+			
+			for(int i = 0; i < StringToInt(sArgs[0]); i++)
+			{
+				if (!Cel_CheckPropCount(iClient))
+				{
+					Cel_ReplyToCommand(iClient, "%t", "MaxPropLimit", Cel_GetPropCount(iClient));
+					return Plugin_Handled;
+				}
+				
+				fFinalOrigin[0] = fOrigin[0] += StringToFloat(sArgs[1]);
+				fFinalOrigin[1] = fOrigin[1] += StringToFloat(sArgs[2]);
+				fFinalOrigin[2] = fOrigin[2] += StringToFloat(sArgs[3]);
+				
+				int iNewProp = Cel_SpawnProp(iClient, sEntity[3], "prop_physics_override", sEntity[2], fAngles, fFinalOrigin, iColor[0], iColor[1], iColor[2], iColor[3]);
+				
+				Entity_SetClassName(iNewProp, sEntity[0]);
+				Entity_SetName(iNewProp, sEntity[1]);
+				
+				Entity_SetSpawnFlags(iNewProp, Entity_GetSpawnFlags(iProp));
+				Entity_SetSkin(iNewProp, Entity_GetSkin(iProp));
+				Cel_SetMotion(iNewProp, Cel_GetMotion(iProp));
+				Cel_SetSolid(iNewProp, Cel_IsSolid(iProp));
+				
+				Cel_SetRenderFX(iNewProp, Cel_GetRenderFX(iProp));
+				
+				Cel_SetColorFade(iNewProp, Cel_IsFading(iProp), g_iFadeColor[iProp][0], g_iFadeColor[iProp][1], g_iFadeColor[iProp][2], g_iFadeColor[iProp][3], g_iFadeColor[iProp][4], g_iFadeColor[iProp][5]);
+				Cel_SetRainbow(iNewProp, Cel_IsRainbow(iProp));
+				
+				iCount++;
+			}
+			
+			Cel_ReplyToCommand(iClient, "%t", "StackedProps", iCount, sEntityType);
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
+			return Plugin_Handled;
+		}
+	} else {
+		Cel_NotYours(iClient, iProp);
+		return Plugin_Handled;
 	}
 	
 	return Plugin_Handled;
@@ -438,8 +541,6 @@ public Action Command_CopyProp(int iClient, int iArgs)
 //Thanks instakill for the direction.
 public Action Command_Drop(int iClient, int iArgs)
 {
-	float fBounds[3], fDropOrigin[3], fEntityOrigin[3];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -450,21 +551,7 @@ public Action Command_Drop(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityOrigin(iProp, fEntityOrigin);
-		Entity_GetMinSize(iProp, fBounds);
-		
-		Handle hTraceRay = TR_TraceRayFilterEx(fEntityOrigin, g_fDown, (MASK_SHOT_HULL|MASK_SHOT), RayType_Infinite, Cel_FilterPlayer, iProp);
-		
-		if (TR_DidHit(hTraceRay))
-		{
-			TR_GetEndPosition(fDropOrigin, hTraceRay);
-			
-			CloseHandle(hTraceRay);
-		}
-		
-		fEntityOrigin[2] = fDropOrigin[2] - fBounds[2];
-		
-		TeleportEntity(iProp, fEntityOrigin, NULL_VECTOR, NULL_VECTOR);
+		Cel_DropEntityToFloor(iProp);
 	} else {
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
@@ -596,18 +683,58 @@ public Action Command_FreezeIt(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
+		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
+			return Plugin_Handled;
+		}
+		
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
-		if (Cel_CheckEntityType(iProp, "door"))
+		Cel_ReplyToCommand(iClient, "%t", "DisableMotion", sEntityType);
+		
+		Cel_SetMotion(iProp, false);
+		
+		Cel_ChangeBeam(iClient, iProp);
+	} else {
+		Cel_NotYours(iClient, iProp);
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Handled;
+}
+
+public Action Command_God(int iClient, int iArgs)
+{
+	char sEntityType[128];
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
+		
+		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
 		{
-			Cel_ReplyToCommand(iClient, "%t", "DoorLock");
-			
-			AcceptEntityInput(iProp, "lock");
-		} else {
-			Cel_ReplyToCommand(iClient, "%t", "DisableMotion", sEntityType);
-			
-			Cel_SetMotion(iProp, false);
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
+			return Plugin_Handled;
 		}
+		
+		if (!Cel_CheckEntityType(iProp, "physics"))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
+			return Plugin_Handled;
+		}
+		
+		Cel_SetBreakable(iProp, !Cel_IsBreakable(iProp));
+		
+		Cel_ReplyToCommand(iClient, "%t", "SetBreakability", Cel_IsBreakable(iProp) ? "on" : "off", sEntityType);
 		
 		Cel_ChangeBeam(iClient, iProp);
 	} else {
@@ -950,6 +1077,12 @@ public Action Command_Skin(int iClient, int iArgs)
 	{
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
+		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
+			return Plugin_Handled;
+		}
+		
 		//Inspired from InkMod (https://github.com/stakillion/InkMod) and BotinTV.
 		iMaxSkins = (StudioHdr.FromEntity(iProp).numskinfamilies - 1);
 		
@@ -1043,6 +1176,12 @@ public Action Command_Solid(int iClient, int iArgs)
 	{
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
+		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
+			return Plugin_Handled;
+		}
+		
 		if (Cel_CheckEntityType(iProp, "cycler"))
 		{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
@@ -1062,112 +1201,11 @@ public Action Command_Solid(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public Action Command_StartCopy(int iClient, int iArgs)
-{
-	float fAngles[3], fOrigin[2][3];
-	
-	if (Cel_GetClientAimTarget(iClient) == -1)
-	{
-		Cel_NotLooking(iClient);
-		return Plugin_Handled;
-	}
-	
-	if(g_iMoveCopyEntity[iClient] != -1)
-	{
-		Cel_ReplyToCommand(iClient, "%t", "AlreadyCopyingProp");
-		return Plugin_Handled;
-	}
-	
-	if (!Cel_CheckPropCount(iClient))
-	{
-		Cel_ReplyToCommand(iClient, "%t", "MaxPropLimit", Cel_GetPropCount(iClient));
-		return Plugin_Handled;
-	}
-	
-	int iProp = Cel_GetClientAimTarget(iClient);
-	
-	if (Cel_CheckOwner(iClient, iProp))
-	{
-		Cel_GetEntityAngles(iProp, fAngles);
-		Cel_GetEntityOrigin(iProp, fOrigin[0]);
-		GetClientAbsOrigin(iClient, fOrigin[1]);
-		
-		g_fCopyOrigin[iClient][0] = fOrigin[0][0] - fOrigin[1][0];
-		g_fCopyOrigin[iClient][1] = fOrigin[0][1] - fOrigin[1][1];
-		g_fCopyOrigin[iClient][2] = fOrigin[0][2] - fOrigin[1][2];
-		
-		g_bCopyFading[iClient] = g_bIsFading[iProp];
-		g_bCopyRainbow[iClient] = g_bRainbow[iProp];
-		
-		Cel_CopyProp(iClient, iProp);
-		
-		g_iMoveCopyEntity[iClient] = Cel_PasteProp(iClient, fAngles, fOrigin[0]);
-		
-		g_bIsFading[g_iMoveCopyEntity[iClient]] = false;
-		g_bRainbow[g_iMoveCopyEntity[iClient]] = false;
-		
-		SetEntityRenderColor(g_iMoveCopyEntity[iClient], 32, 32, 255, 128);
-		
-		RequestFrame(Frame_CopyProp, iClient);
-	} else {
-		Cel_NotYours(iClient, iProp);
-		return Plugin_Handled;
-	}
-	
-	return Plugin_Handled;
-}
-
-public Action Command_StartGrab(int iClient, int iArgs)
-{
-	float fOrigin[2][3];
-	
-	if (Cel_GetClientAimTarget(iClient) == -1)
-	{
-		Cel_NotLooking(iClient);
-		return Plugin_Handled;
-	}
-	
-	if(g_iMoveEntity[iClient] != -1)
-	{
-		Cel_ReplyToCommand(iClient, "%t", "AlreadyGrabbingProp");
-		return Plugin_Handled;
-	}
-	
-	int iProp = Cel_GetClientAimTarget(iClient);
-	
-	if (Cel_CheckOwner(iClient, iProp))
-	{
-		Cel_GetEntityOrigin(iProp, fOrigin[0]);
-		GetClientAbsOrigin(iClient, fOrigin[1]);
-		
-		g_fCopyMoveOrigin[iClient][0] = fOrigin[0][0] - fOrigin[1][0];
-		g_fCopyMoveOrigin[iClient][1] = fOrigin[0][1] - fOrigin[1][1];
-		g_fCopyMoveOrigin[iClient][2] = fOrigin[0][2] - fOrigin[1][2];
-		
-		g_bCopyFading[iClient] = g_bIsFading[iProp];
-		g_bCopyRainbow[iClient] = g_bRainbow[iProp];
-		
-		g_bIsFading[iProp] = false;
-		g_bRainbow[iProp] = false;
-		
-		g_iMoveEntity[iClient] = iProp;
-		
-		SetEntityRenderColor(g_iMoveEntity[iClient], 32, 255, 32, 128);
-		
-		RequestFrame(Frame_MoveProp, iClient);
-	} else {
-		Cel_NotYours(iClient, iProp);
-		return Plugin_Handled;
-	}
-	
-	return Plugin_Handled;
-}
-
 public Action Command_Stack(int iClient, int iArgs)
 {
-	char sArgs[4][32], sEntity[4][64], sEntityType[32];
+	char sArgs[3][32], sEntity[4][64], sEntityType[32];
 	float fAngles[3], fFinalOrigin[3], fOrigin[3];
-	int iColor[4], iCount = 0;
+	int iColor[4];
 	
 	if (iArgs < 4)
 	{
@@ -1184,7 +1222,6 @@ public Action Command_Stack(int iClient, int iArgs)
 	GetCmdArg(1, sArgs[0], sizeof(sArgs[]));
 	GetCmdArg(2, sArgs[1], sizeof(sArgs[]));
 	GetCmdArg(3, sArgs[2], sizeof(sArgs[]));
-	GetCmdArg(4, sArgs[3], sizeof(sArgs[]));
 	
 	int iProp = Cel_GetClientAimTarget(iClient);
 	
@@ -1214,9 +1251,9 @@ public Action Command_Stack(int iClient, int iArgs)
 					return Plugin_Handled;
 				}
 				
-				fFinalOrigin[0] = fOrigin[0] += StringToFloat(sArgs[1]);
-				fFinalOrigin[1] = fOrigin[1] += StringToFloat(sArgs[2]);
-				fFinalOrigin[2] = fOrigin[2] += StringToFloat(sArgs[3]);
+				fFinalOrigin[0] = fOrigin[0] += StringToFloat(sArgs[0]);
+				fFinalOrigin[1] = fOrigin[1] += StringToFloat(sArgs[1]);
+				fFinalOrigin[2] = fOrigin[2] += StringToFloat(sArgs[2]);
 				
 				int iNewProp = Cel_SpawnProp(iClient, sEntity[3], "prop_physics_override", sEntity[2], fAngles, fFinalOrigin, iColor[0], iColor[1], iColor[2], iColor[3]);
 				
@@ -1227,16 +1264,15 @@ public Action Command_Stack(int iClient, int iArgs)
 				Entity_SetSkin(iNewProp, Entity_GetSkin(iProp));
 				Cel_SetMotion(iNewProp, Cel_GetMotion(iProp));
 				Cel_SetSolid(iNewProp, Cel_IsSolid(iProp));
+				Cel_SetBreakable(iNewProp, Cel_IsBreakable(iProp));
 				
 				Cel_SetRenderFX(iNewProp, Cel_GetRenderFX(iProp));
 				
 				Cel_SetColorFade(iNewProp, Cel_IsFading(iProp), g_iFadeColor[iProp][0], g_iFadeColor[iProp][1], g_iFadeColor[iProp][2], g_iFadeColor[iProp][3], g_iFadeColor[iProp][4], g_iFadeColor[iProp][5]);
 				Cel_SetRainbow(iNewProp, Cel_IsRainbow(iProp));
-				
-				iCount++;
 			}
 			
-			Cel_ReplyToCommand(iClient, "%t", "StackedProps", iCount, sEntityType);
+			Cel_ReplyToCommand(iClient, "%t", "StackedProps", 1, sEntityType);
 		}else{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
 			return Plugin_Handled;
@@ -1331,6 +1367,112 @@ public Action Command_Stand(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_StartCopy(int iClient, int iArgs)
+{
+	float fAngles[3], fOrigin[2][3];
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	if(g_iMoveCopyEntity[iClient] != -1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "AlreadyCopyingProp");
+		return Plugin_Handled;
+	}
+	
+	if (!Cel_CheckPropCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxPropLimit", Cel_GetPropCount(iClient));
+		return Plugin_Handled;
+	}
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		if(!Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP))
+		{
+			Cel_ReplyToCommand(iClient, "%t", "CantReplace");
+		}
+		
+		Cel_GetEntityAngles(iProp, fAngles);
+		Cel_GetEntityOrigin(iProp, fOrigin[0]);
+		GetClientAbsOrigin(iClient, fOrigin[1]);
+		
+		g_fCopyOrigin[iClient][0] = fOrigin[0][0] - fOrigin[1][0];
+		g_fCopyOrigin[iClient][1] = fOrigin[0][1] - fOrigin[1][1];
+		g_fCopyOrigin[iClient][2] = fOrigin[0][2] - fOrigin[1][2];
+		
+		g_bCopyFading[iClient] = g_bIsFading[iProp];
+		g_bCopyRainbow[iClient] = g_bRainbow[iProp];
+		
+		Cel_CopyProp(iClient, iProp);
+		
+		g_iMoveCopyEntity[iClient] = Cel_PasteProp(iClient, fAngles, fOrigin[0]);
+		
+		g_bIsFading[g_iMoveCopyEntity[iClient]] = false;
+		g_bRainbow[g_iMoveCopyEntity[iClient]] = false;
+		
+		SetEntityRenderColor(g_iMoveCopyEntity[iClient], 32, 32, 255, 128);
+		
+		RequestFrame(Frame_CopyProp, iClient);
+	} else {
+		Cel_NotYours(iClient, iProp);
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Handled;
+}
+
+public Action Command_StartGrab(int iClient, int iArgs)
+{
+	float fOrigin[2][3];
+	
+	if (Cel_GetClientAimTarget(iClient) == -1)
+	{
+		Cel_NotLooking(iClient);
+		return Plugin_Handled;
+	}
+	
+	if(g_iMoveEntity[iClient] != -1)
+	{
+		Cel_ReplyToCommand(iClient, "%t", "AlreadyGrabbingProp");
+		return Plugin_Handled;
+	}
+	
+	int iProp = Cel_GetClientAimTarget(iClient);
+	
+	if (Cel_CheckOwner(iClient, iProp))
+	{
+		Cel_GetEntityOrigin(iProp, fOrigin[0]);
+		GetClientAbsOrigin(iClient, fOrigin[1]);
+		
+		g_fCopyMoveOrigin[iClient][0] = fOrigin[0][0] - fOrigin[1][0];
+		g_fCopyMoveOrigin[iClient][1] = fOrigin[0][1] - fOrigin[1][1];
+		g_fCopyMoveOrigin[iClient][2] = fOrigin[0][2] - fOrigin[1][2];
+		
+		g_bCopyFading[iClient] = g_bIsFading[iProp];
+		g_bCopyRainbow[iClient] = g_bRainbow[iProp];
+		
+		g_bIsFading[iProp] = false;
+		g_bRainbow[iProp] = false;
+		
+		g_iMoveEntity[iClient] = iProp;
+		
+		SetEntityRenderColor(g_iMoveEntity[iClient], 32, 255, 32, 128);
+		
+		RequestFrame(Frame_MoveProp, iClient);
+	} else {
+		Cel_NotYours(iClient, iProp);
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Handled;
+}
+
 public Action Command_StopCopy(int iClient, int iArgs)
 {
 	if(g_iMoveCopyEntity[iClient] == -1)
@@ -1385,16 +1527,15 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 	{
 		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 		
-		if (Cel_CheckEntityType(iProp, "door"))
+		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
 		{
-			Cel_ReplyToCommand(iClient, "%t", "DoorUnlock");
-			
-			AcceptEntityInput(iProp, "unlock");
-		} else {
-			Cel_ReplyToCommand(iClient, "%t", "EnableMotion", sEntityType);
-			
-			Cel_SetMotion(iProp, true);
+			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
+			return Plugin_Handled;
 		}
+		
+		Cel_ReplyToCommand(iClient, "%t", "EnableMotion", sEntityType);
+		
+		Cel_SetMotion(iProp, true);
 		
 		Cel_ChangeBeam(iClient, iProp);
 	} else {
@@ -1617,6 +1758,7 @@ public int Native_CopyProp(Handle hPlugin, int iNumParams)
 	IntToString(Entity_GetSkin(iEntity), g_sCopyBuffer[iClient][4], sizeof(g_sCopyBuffer[iClient][]));
 	IntToString(view_as<int>(Cel_GetMotion(iEntity)), g_sCopyBuffer[iClient][5], sizeof(g_sCopyBuffer[iClient][]));
 	IntToString(view_as<int>(Cel_IsSolid(iEntity)), g_sCopyBuffer[iClient][6], sizeof(g_sCopyBuffer[iClient][]));
+	IntToString(view_as<int>(Cel_IsBreakable(iEntity)), g_sCopyBuffer[iClient][21], sizeof(g_sCopyBuffer[iClient][]));
 	
 	IntToString(view_as<int>(Cel_GetRenderFX(iEntity)), g_sCopyBuffer[iClient][7], sizeof(g_sCopyBuffer[iClient][]));
 	
@@ -1648,6 +1790,30 @@ public int Native_DissolveEntity(Handle hPlugin, int iNumParams)
 	DispatchKeyValue(iEntity, "classname", "deleted");
 	
 	AcceptEntityInput(g_iEntityDissolve, "dissolve");
+	
+	return true;
+}
+
+public int Native_DropEntityToFloor(Handle hPlugin, int iNumParams)
+{
+	float fBounds[3], fDropOrigin[3], fEntityOrigin[3];
+	int iEntity = GetNativeCell(1);
+	
+	Cel_GetEntityOrigin(iEntity, fEntityOrigin);
+	Entity_GetMinSize(iEntity, fBounds);
+	
+	Handle hTraceRay = TR_TraceRayFilterEx(fEntityOrigin, g_fDown, (MASK_SHOT_HULL|MASK_SHOT), RayType_Infinite, Cel_FilterPlayer, iEntity);
+	
+	if (TR_DidHit(hTraceRay))
+	{
+		TR_GetEndPosition(fDropOrigin, hTraceRay);
+		
+		CloseHandle(hTraceRay);
+	}
+	
+	fEntityOrigin[2] = fDropOrigin[2] - fBounds[2];
+	
+	TeleportEntity(iEntity, fEntityOrigin, NULL_VECTOR, NULL_VECTOR);
 	
 	return true;
 }
@@ -1788,6 +1954,13 @@ public int Native_GetPropName(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_IsBreakable(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	return g_bBreakable[iEntity];
+}
+
 public int Native_IsFading(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -1858,11 +2031,24 @@ public int Native_PasteProp(Handle hPlugin, int iNumParams)
 	Entity_SetSkin(iEntity, StringToInt(g_sCopyBuffer[iClient][4]));
 	Cel_SetMotion(iEntity, view_as<bool>(StringToInt(g_sCopyBuffer[iClient][5])));
 	Cel_SetSolid(iEntity, view_as<bool>(StringToInt(g_sCopyBuffer[iClient][6])));
+	Cel_SetBreakable(iEntity, view_as<bool>(StringToInt(g_sCopyBuffer[iClient][21])));
 	
 	Cel_SetColorFade(iEntity, view_as<bool>(StringToInt(g_sCopyBuffer[iClient][12])), StringToInt(g_sCopyBuffer[iClient][14]), StringToInt(g_sCopyBuffer[iClient][15]), StringToInt(g_sCopyBuffer[iClient][16]), StringToInt(g_sCopyBuffer[iClient][17]), StringToInt(g_sCopyBuffer[iClient][18]), StringToInt(g_sCopyBuffer[iClient][19]));
 	Cel_SetRainbow(iEntity, view_as<bool>(StringToInt(g_sCopyBuffer[iClient][13])));
 	
 	return iEntity;
+}
+
+public int Native_SetBreakable(Handle hPlugin, int iNumParams)
+{
+	bool bBreakable = view_as<bool>(GetNativeCell(2));
+	int iEntity = GetNativeCell(1);
+	
+	bBreakable ? SetEntProp(iEntity, Prop_Data, "m_takedamage", 2, 1) : SetEntProp(iEntity, Prop_Data, "m_takedamage", 0, 1);
+	
+	g_bBreakable[iEntity] = bBreakable;
+	
+	return g_bBreakable[iEntity];
 }
 
 public int Native_SetColor(Handle hPlugin, int iNumParams)

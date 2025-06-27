@@ -61,6 +61,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetLandEntity", Native_GetLandEntity);
 	CreateNative("Cel_GetLandGravity", Native_GetLandGravity);
 	CreateNative("Cel_GetLandOwner", Native_GetLandOwner);
+	CreateNative("Cel_GetLandOwnerFromEntity", Native_GetLandOwnerFromEntity);
 	CreateNative("Cel_GetLandOwnerFromPosition", Native_GetLandOwnerFromPosition);
 	CreateNative("Cel_GetLandPositions", Native_GetLandPositions);
 	CreateNative("Cel_GetMiddleOfABox", Native_GetMiddleOfBox);
@@ -567,6 +568,37 @@ public int Native_GetLandOwner(Handle hPlugin, int iNumParams)
 	return -1;
 }
 
+public int Native_GetLandOwnerFromEntity(Handle hPlugin, int iNumParams)
+{
+	float fOrigin[3], fMax[3], fMin[3];
+	int iEntity = GetNativeCell(1);
+	
+	for (int i = 1; i < MaxClients; i++)
+	{
+		if (IsClientAuthorized(i))
+		{
+			Entity_GetAbsOrigin(iEntity, fOrigin);
+			GetEntPropVector(iEntity, Prop_Send, "m_vecMins", fMin);
+			GetEntPropVector(iEntity, Prop_Send, "m_vecMaxs", fMax);
+			
+			fMin[0] = fOrigin[0] + fMin[0];
+			fMin[1] = fOrigin[1] + fMin[1];
+			fMin[2] = fOrigin[2] + fMin[2];
+			
+			fMax[0] = fOrigin[0] + fMax[0];
+			fMax[1] = fOrigin[1] + fMax[1];
+			fMax[2] = fOrigin[2] + fMax[2];
+			
+			if(Cel_IsPositionInBox(fMax, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop) || Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop) || Cel_IsPositionInBox(fMin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			{
+				return g_liLand[i].iLandOwner;
+			}
+		}
+	}
+	
+	return -1;
+}
+
 public int Native_GetLandOwnerFromPosition(Handle hPlugin, int iNumParams)
 {
 	float fOrigin[3];
@@ -697,20 +729,20 @@ public int Native_IsEntityInLand(Handle hPlugin, int iNumParams)
 		if (IsClientAuthorized(i))
 		{
 			Entity_GetAbsOrigin(iEntity, fOrigin);
-			Entity_GetMinSize(iEntity, fMin);
-			Entity_GetMaxSize(iEntity, fMax);
+			GetEntPropVector(iEntity, Prop_Send, "m_vecMins", fMin);
+			GetEntPropVector(iEntity, Prop_Send, "m_vecMaxs", fMax);
 			
-			if(Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
+			fMin[0] = fOrigin[0] + fMin[0];
+			fMin[1] = fOrigin[1] + fMin[1];
+			fMin[2] = fOrigin[2] + fMin[2];
+			
+			fMax[0] = fOrigin[0] + fMax[0];
+			fMax[1] = fOrigin[1] + fMax[1];
+			fMax[2] = fOrigin[2] + fMax[2];
+			
+			if(Cel_IsPositionInBox(fMax, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop) || Cel_IsPositionInBox(fOrigin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop) || Cel_IsPositionInBox(fMin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
 			{
 				return true;
-			}else if(Cel_IsPositionInBox(fMin, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
-			{
-				return true;
-			}else if(Cel_IsPositionInBox(fMax, g_liLand[i].fLandPosBottom, g_liLand[i].fLandPosTop))
-			{
-				return true;
-			}else {
-				return false;
 			}
 		}else{
 			return false;

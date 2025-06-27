@@ -183,6 +183,8 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 						kvLoadBuild.GetString("propname", sPropName, sizeof(sPropName));
 						
 						iProp = Cel_SpawnProp(iClient, sPropName, "prop_physics_override", sBuffer[2], fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+						
+						Cel_SetBreakable(iProp, view_as<bool>(kvLoadBuild.GetNum("breakable")));
 					}
 					case ENTTYPE_AMMO:
 					{
@@ -246,6 +248,7 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 //Natives:
 public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 {
+	bool bPropOutside = false;
 	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sFile[2][PLATFORM_MAX_PATH], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sCount[32];
 	float fEnt[2][3], fLandPos[2][3], fMiddle[3], fOrigin[3];
 	int iClient = GetNativeCell(1), iColor[4], iCount = 0, iFadeColor[2][3], iLand;
@@ -308,9 +311,7 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 		{
 			if(Cel_IsEntityInLand(i))
 			{
-				Cel_GetEntityOrigin(i, fEnt[1]);
-				
-				iLand = Cel_GetLandOwnerFromPosition(fEnt[1]);
+				iLand = Cel_GetLandOwnerFromEntity(i);
 				
 				if(iLand == iClient)
 				{
@@ -410,6 +411,7 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							Cel_GetPropName(i, sPropName, sizeof(sPropName));
 							
 							kvSaveBuild.SetString("propname", sPropName);
+							kvSaveBuild.SetNum("breakable", view_as<int>(Cel_IsBreakable(i)));
 						}
 						case ENTTYPE_AMMO:
 						{
@@ -447,6 +449,8 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 					
 					kvSaveBuild.Rewind();
 				}
+			}else{
+				bPropOutside = true;
 			}
 		}
 	}
@@ -456,6 +460,9 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 	kvSaveBuild.Close();
 	
 	g_iSaveOverride[iClient] = 0;
+	
+	if (bPropOutside)
+	Cel_ReplyToCommand(iClient, "%t", "PropOutsideLand");
 	
 	Cel_ReplyToCommand(iClient, "%t", "SavedBuild", sSaveName);
 	

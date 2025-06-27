@@ -5,738 +5,765 @@
 		"#format"		"{1:s}"
 		"en"			"Added prop {green}{1}{default} to blacklist."
 	}
-	
+
 	"AddedToCopyQueue"
 	{
 		"#format"		"{1:s}"
 		"en"			"Added {1} to copy queue."
 	}
-	
+
 	"AlreadyCopyingProp"
 	{
 		"en"			"You are already copying a prop!"
 	}
-	
+
 	"AlreadyGrabbingProp"
 	{
 		"en"			"You are already grabbing a prop!"
 	}
-	
+
 	"CannotLock"
 	{
 		"en"			"You cannot lock this entity."
 	}
-	
+
 	"CannotUnlock"
 	{
 		"en"			"You cannot unlock this entity."
 	}
-	
+
 	"CMD_Alpha"
 	{
 		"en"			"Usage: {green}[tag]alpha{default} <transparency value> <#all>"
 	}
-	
+
+	"CMD_AutoBuild"
+	{
+		"en"			"Usage: {green}[tag]autobuild{default} <amount> <x> <y> <z>"
+	}
+
 	"CMD_BitAmmo"
 	{
 		"en"			"Usage: {green}[tag]ammo{default} <type>"
 	}
-	
+
 	"CMD_BitAmmoCrate"
 	{
 		"en"			"Usage: {green}[tag]ammocrate{default} <type>"
 	}
-	
+
 	"CMD_BitCharger"
 	{
 		"en"			"Usage: {green}[tag]charger{default} <health or suit>"
 	}
-	
+
 	"CMD_BitWeapon"
 	{
 		"en"			"Usage: {green}[tag]wep{default} <type>"
 	}
-	
+
 	"CMD_Blacklist"
 	{
 		"en"			"Usage: {green}[tag]blacklist{default} <#add|#remove> <prop alias>"
 	}
-	
+
 	"CMD_Color"
 	{
 		"en"			"Usage: {green}[tag]color{default} <color name> <#all|#hud>"
 	}
-	
+
 	"CMD_Door"
 	{
 		"en"			"Usage: {green}[tag]door{default} <skin number>"
 	}
-	
+
 	"CMD_Effect"
 	{
 		"en"			"Usage: {green}[tag]effect{default} <effect type>"
 	}
-	
+
 	"CMD_FadeColor"
 	{
 		"en"			"Usage: {green}[tag]fadecolor{default} <color name> <color name> <#all>"
 	}
-	
+
 	"CMD_HookFlip"
 	{
 		"en"			"Usage: {green}[tag]flip{default} <degree>"
 	}
-	
+
 	"CMD_HookRoll"
 	{
 		"en"			"Usage: {green}[tag]roll{default} <degree>"
 	}
-	
+
 	"CMD_HookRotate"
 	{
 		"en"			"Usage: {green}[tag]r{default} <degree>"
 	}
-	
+
 	"CMD_Ladder"
 	{
 		"en"			"Usage: {green}[tag]ladder{default} <1 or 2>"
 	}
-	
+
 	"CMD_Land"
 	{
 		"en"			"Usage: {green}[tag]land{default} <#clear>"
 	}
-	
+
 	"CMD_LandGravity"
 	{
 		"en"			"Usage: {green}[tag]gravity{default} <gravity>"
 	}
-	
+
 	"CMD_LoadBuild"
 	{
 		"en"			"Usage: {green}[tag]load{default} <buildname>"
 	}
-	
+
 	"CMD_Remove"
 	{
 		"en"			"Usage: {green}[tag]delete{default} <#all|#land>"
 	}
-	
+
 	"CMD_RenderFX"
 	{
 		"en"			"Usage: {green}[tag]renderfx{default} <rendermode>"
 	}
-	
+
 	"CMD_Rotate"
 	{
 		"en"			"Usage: {green}[tag]rotate{default} <x> <y> <z>"
 	}
-	
+
 	"CMD_SaveBuild"
 	{
 		"en"			"Usage: {green}[tag]save{default} <buildname>"
 	}
-	
+
 	"CMD_SetBalance"
 	{
 		"en"			"Usage: {green}[tag]setbalance{default} <client> <balance>"
 	}
-	
+
 	"CMD_SetURL"
 	{
 		"en"			"Usage: {green}[tag]seturl{default} <url>"
 	}
-	
+
 	"CMD_Sell"
 	{
 		"en"			"Usage: {green}[tag]sell{default} <price>"
 	}
-	
+
 	"CMD_Skin"
 	{
 		"en"			"Usage: {green}[tag]skin{default} <skin number> or <prev|next>"
 	}
-	
+
 	"CMD_SMove"
 	{
 		"en"			"Usage: {green}[tag]smove{default} <x> <y> <z>"
 	}
-	
+
 	"CMD_Spawn"
 	{
-		"en"			"Usage: {green}[tag]spawn{default} <prop name>"
+		"en"			"Usage: {green}[tag]spawn{default} <prop name> <drop|unfrozen|nogod>"
 	}
-	
+
 	"CMD_Stack"
 	{
-		"en"			"Usage: {green}[tag]stack{default} <amount> <x> <y> <z>"
+		"en"			"Usage: {green}[tag]stack{default} <x> <y> <z>"
 	}
-	
+
 	"CannotSellForFree"
 	{
 		"en"			"You cannot sell an item for free!"
 	}
-	
+
 	"CantEndLandInLand"
 	{
 		"en"			"You cannot finish your land inside another players land!"
 	}
-	
+
 	"CantFindTarget"
 	{
 		"en"			"Cannot find matching client!"
 	}
-	
+
 	"CantLinkEntity"
 	{
 		"#format"		"{1:s}"
 		"en"			"You cannot make a link on a {1}."
 	}
-	
+
 	"CantStack"
 	{
 		"en"			"You cannot stack this prop!"
 	}
-	
+
 	"CantStackSame"
 	{
 		"en"			"You cannot stack the same prop!"
 	}
-	
+
 	"CantStartLandInLand"
 	{
 		"en"			"You cannot finish your land inside another players land!"
 	}
 	
+	"CantUseCommand-Entity"
+	{
+		"en"			"You cannot use this command on this entity."
+	}
+
 	"CantUseCommand-Prop"
 	{
 		"en"			"You cannot use this command on this prop."
 	}
-	
+
 	"ColorNotFound"
 	{
 		"#format"		"{1:s}"
 		"en"			"Color {green}{1}{default} not found."
 	}
-	
+
 	"Connecting"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Player {green}{1}{default} connecting from {green}{2}{default}"
 	}
-	
+
 	"CreateAxis"
 	{
 		"en"			"Created {red}X{default}, {green}Y{default}, and {blue}Z{default} axis markers."
 	}
-	
+
 	"CreatedLink"
 	{
 		"en"			"Created trigger link."
 	}
-	
+
 	"CreatingLink"
 	{
 		"en"			"Started creating link. Type {green}!link{default} on another entity to complete the link."
 	}
-	
+
 	"DeathmatchOff"
 	{
 		"en"			"Deathmatch mode off."
 	}
-	
+
 	"DeathmatchOn"
 	{
 		"en"			"Deathmatch mode on."
 	}
-	
+
 	"DisableMotion"
 	{
 		"#format"		"{1:s}"
 		"en"			"Disabled motion on {1}."
 	}
-	
+
 	"Disconnecting"
 	{
 		"#format"		"{1:s}"
 		"en"			"Player {green}{1}{default} disconnected"
 	}
-	
+
 	"DisplayColorList"
 	{
 		"en"			"Displaying color list."
 	}
-	
+
 	"DisplayCommandList"
 	{
 		"en"			"Displaying command list."
 	}
-	
+
 	"DisplayEffectList"
 	{
 		"en"			"Displaying effect list."
 	}
-	
+
 	"DisplayPropList"
 	{
 		"en"			"Displaying prop list."
 	}
-	
+
 	"DisplayUpdateList"
 	{
 		"en"			"Displaying update list."
 	}
-	
+
 	"DoorLock"
 	{
 		"en"			"Door has been locked."
 	}
-	
+
 	"DoorSpawn"
 	{
 		"en"			"Spawned {green}door{default} cel."
 	}
-	
+
 	"DoorUnlock"
 	{
 		"en"			"Door has been unlocked."
 	}
-	
+
 	"EnableMotion"
 	{
 		"#format"		"{1:s}"
 		"en"			"Enabled motion on {1}."
 	}
-	
+
 	"EnteredLand"
 	{
 		"#format"		"{1:s}"
 		"en"			"You have entered {green}{1}{default}'s land."
 	}
-	
+
 	"FileNotFound"
 	{
 		"#format"		"{1:s}"
 		"en"			"Cannot find '{1}'. Plugin cannot run!"
 	}
-	
+
 	"Flying"
 	{
 		"#format"		"{1:s}"
 		"en"			"Flying has been {1}."
 	}
-	
+
 	"GetBalance"
 	{
 		"#format"		"{1:i}"
 		"en"			"Your balance is {green}{1}{default} CL."
 	}
-	
+
 	"InsufficantFunds"
 	{
 		"en"			"You don't have enough money."
 	}
-	
+
 	"InsufficantFundsSale"
 	{
 		"en"			"You don't have enough money to sell this item."
 	}
-	
+
 	"InternetSpawn"
 	{
 		"en"			"Spawned {green}internet{default} cel."
 	}
-	
+
 	"InvalidBitAmmo"
 	{
 		"en"			"Invalid ammo type."
 	}
-	
+
 	"InvalidBitAmmoCrate"
 	{
 		"en"			"Invalid ammo crate type."
 	}
-	
+
 	"InvalidBitCharger"
 	{
 		"en"			"Invalid charger type."
 	}
-	
+
 	"InvalidBitWeapon"
 	{
 		"en"			"Invalid weapon type."
 	}
-	
+
 	"InvalidEffect"
 	{
 		"en"			"Invalid effect type."
 	}
-	
+
 	"EntityOwner"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Player {green}{1}{default} the owner of the {2}."
 	}
-	
+
 	"IsOwner"
 	{
 		"#format"		"{1:s}"
 		"en"			"You are the owner of the {1}."
 	}
-	
+
 	"LadderSpawn"
 	{
 		"en"			"Spawned {green}ladder{default} cel."
 	}
-	
+
 	"LandCleared"
 	{
 		"en"			"Land cleared."
 	}
-	
+
 	"LandFinished"
 	{
 		"en"			"Finished drawing land. Type {green}!land{default} again to clear your land."
 	}
-	
+
 	"LandMode_Deathmatch"
 	{
 		"en"			"This land has {red}deathmatch{default} mode enabled!"
 	}
-	
+
 	"LandNotStarted"
 	{
 		"en"			"Land has not yet been created!"
 	}
-	
+
 	"LandStarted"
 	{
 		"en"			"Started drawing land. Type {green}!land{default} again to complete your land."
 	}
-	
+
 	"LightSpawn"
 	{
 		"en"			"Spawned {green}light{default} cel."
 	}
-	
+
 	"LoadedBuild"
 	{
 		"#format"		"{1:s}"
 		"en"			"Successfully loaded build: {green}{1}{default}"
 	}
-	
+
 	"Locked"
 	{
 		"#format"		"{1:s}"
 		"en"			"You have locked {1}."
 	}
-	
+
+	"MaxBreakableLimit"
+	{
+		"#format"		"{1:i}"
+		"en"			"You have reached the max breakable prop limit. ({green}{1}{default})"
+	}
+
 	"MaxCelLimit"
 	{
 		"#format"		"{1:i}"
 		"en"			"You have reached the max cel limit. ({green}{1}{default})"
 	}
-	
+
 	"MaxPropLimit"
 	{
 		"#format"		"{1:i}"
 		"en"			"You have reached the max prop limit. ({green}{1}{default})"
 	}
-	
+
 	"NotCopyingProp"
 	{
 		"en"			"You aren't copying a prop already!"
 	}
-	
+
 	"NotGrabbingProp"
 	{
 		"en"			"You aren't grabbing a prop already!"
 	}
-	
+
 	"NoKill"
 	{
 		"#format"		"{1:s}"
 		"en"			"Turned nokill {1}."
 	}
-	
+
 	"NotInShop"
 	{
 		"#format"		"{1:s}"
 		"en"			"{green}{1}{default} doesn't exist in the shop!"
 	}
-	
+
 	"NotLooking"
 	{
 		"en"			"You are not looking at anything."
 	}
-	
+
 	"NotTriggerBit"
 	{
 		"en"			"You cannot make a link on a non-trigger bit."
 	}
-	
+
 	"NoPropInQueue"
 	{
 		"en"			"There are no props in the copy queue."
 	}
-	
+
 	"NotYours"
 	{
 		"#format"		"{1:s}"
 		"en"			"This {1} does not belong to you."
 	}
-	
+
 	"OnlyOnInternetCels"
 	{
 		"en"			"You can only use this command on internet cels."
 	}
-	
+
 	"OutdatedSaveSystem"
 	{
 		"en"			"This build was saved under an outdated save system, this build cannot be loaded!"
 	}
-	
+
 	"PastedFromCopyQueue"
 	{
 		"#format"		"{1:s}"
 		"en"			"Pasted {1} from the copy queue."
 	}
-	
+
 	"PropInBlacklist"
 	{
 		"#format"		"{1:s}"
 		"en"			"Prop '{green}{1}{default}' already in blacklist."
 	}
-	
+
 	"PropNotFound"
 	{
 		"#format"		"{1:s}"
 		"en"			"Prop {green}{1}{default} not found."
 	}
-	
+
 	"PropNotInBlacklist"
 	{
 		"#format"		"{1:s}"
 		"en"			"Prop '{green}{1}{default}' is not in blacklist."
 	}
 	
+	"PropOutsideLand"
+	{
+		"en"			"WARNING: You have props outside your land, they will not be saved!"
+	}
+
 	"PropsWontSave"
 	{
 		"en"			"You do not have a land area set-up. No props will be saved!"
 	}
-	
+
 	"PurchaseCommand"
 	{
 		"#format"		"{1:s},{2:i}"
 		"en"			"You have bought command {green}{1}{default} for {green}{2}{default} CL."
 	}
-	
+
 	"Remove"
 	{
 		"#format"		"{1:s}"
 		"en"			"Removed {1}."
 	}
-	
+
 	"RemoveAll"
 	{
 		"#format"		"{1:s}"
 		"en"			"Removed {1}."
 	}
-	
+
 	"RemoveFromBlacklist"
 	{
 		"#format"		"{1:s}"
 		"en"			"Removed prop {green}{1}{default} from blacklist."
 	}
-	
+
 	"SaleCanceled"
 	{
 		"#format"		"{1:s}"
 		"en"			"You have canceled the sale on {1}."
 	}
-	
+
 	"SavedBuild"
 	{
 		"#format"		"{1:s}"
 		"en"			"Successfully saved build: {green}{1}{default}"
 	}
-	
+
 	"SaveDoesntExist"
 	{
 		"#format"		"{1:s}"
 		"en"			"Build {green}{1}{default} does not exist!"
 	}
-	
+
 	"SaveOverriteConfirm"
 	{
 		"#format"		"{1:s}"
 		"en"			"Type {green}!save {1}{default} again to override the previous save."
 	}
-	
+
 	"SaveOverriteWarning"
 	{
 		"#format"		"{1:s}"
 		"en"			"Build {green}{1}{default} already exists! It will be over-written!"
 	}
-	
+
 	"SetAllColor"
 	{
 		"#format"		"{1:s}"
 		"en"			"Set color on all to {green}{1}{default}."
 	}
-	
+
 	"SetAllFadingColors"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Fading all props between {green}{1}{default} & {green}{2}{default}."
 	}
-	
+
 	"SetAllTransparency"
 	{
 		"#format"		"{1:i}"
 		"en"			"Set transparency on all to {green}{1}{default}."
 	}
-	
+
 	"SetBalanceClient"
 	{
 		"#format"		"{1:s},{2:i}"
 		"en"			"Set {green}{1}{default}'s balance to {green}{2}{default} CL."
 	}
-	
+
 	"SetColor"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Set color on {1} to {green}{2}{default}."
 	}
-	
+
 	"SetFadingColors"
 	{
 		"#format"		"{1:s},{2:s},{3:s}"
 		"en"			"Fading {1} between {green}{2}{default} & {green}{3}{default}."
 	}
-	
+
 	"SetHudColor"
 	{
 		"#format"		"{1:s}"
 		"en"			"Set hud color to {green}{1}{default}."
 	}
-	
+
 	"SetOwnerClient"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Set ownership of {green}{1}{default} to {green}{2}{default}."
 	}
-	
+
 	"SetOwnerTarget"
 	{
 		"#format"		"{1:s},{2:s},{3:s}"
 		"en"			"{green}{1}{default} set ownership of {green}{2}{default} to {green}{3}{default}."
 	}
-	
+
 	"SetRenderFX"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Set renderfx on {1} to {green}{2}{default}."
 	}
-	
+
 	"SetSkin"
 	{
 		"#format"		"{1:s},{2:i}"
 		"en"			"Set skin on {1} to {green}{2}{default}."
 	}
-	
+
+	"SetBreakability"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Turned breakability {1} on {2}."
+	}
+
 	"SetSolidicity"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Turned solidicity {1} on {2}."
 	}
-	
+
 	"SetTransparency"
 	{
 		"#format"		"{1:s},{2:i}"
 		"en"			"Set transparency on {1} to {green}{2}{default}."
 	}
-	
+
 	"SetURL"
 	{
 		"en"			"Updated url on internet cel."
 	}
-	
+
 	"SetUpLandArea"
 	{
 		"en"			"Type {green}!land{default} to set-up a land area."
 	}
-	
+
 	"SpawnBitAmmo"
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned {green}{1}{default} ammo bit."
 	}
-	
+
 	"SpawnBitAmmoCrate"
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned {green}{1}{default} ammo crate bit."
 	}
-	
+
 	"SpawnBitCharger"
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned {green}{1}{default} charger bit."
 	}
-	
+
 	"SpawnBitWeapon"
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned {green}{1}{default} weapon bit."
 	}
-	
+
 	"SpawnButton"
 	{
 		"en"			"Spawned {green}button{default} trigger bit."
 	}
-	
+
 	"SpawnEffect"
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned {green}{1}{default} effect cel."
 	}
-	
+
 	"SpawnProp"
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned prop {green}{1}{default}."
 	}
-	
+
 	"StackInfo_First"
 	{
 		"en"			"Selected first prop for stacking info, type {green}!stackinfo{default} on another prop to get the stacking info."
 	}
-	
+
 	"StackInfo_Info"
 	{
 		"#format"		"{1:f},{2:f},{3:f}"
 		"en"			"Stack Information:\nX = {green}{1}{default}\nY = {green}{2}{default}\nZ = {green}{3}{default}"
 	}
-	
+
 	"StackedProps"
 	{
 		"#format"		"{1:i},{2:s}"
 		"en"			"Stacked {green}{1}{default} {2}."
 	}
-	
+
 	"StartSale"
 	{
 		"#format"		"{1:s},{2:i}"
 		"en"			"You have put a {1} for sale for {2} CL."
 	}
-	
+
 	"SwitchedHUD"
 	{
 		"#format"		"{1:s}"
 		"en"			"Switched HUD to the {green}{1}{default} side."
 	}
-	
+
 	"Unlocked"
 	{
 		"#format"		"{1:s}"

@@ -204,12 +204,12 @@ public void OnPluginStart()
 	CreateConVar("celmod", "1", "Notifies the server that the plugin is running.");
 	g_cvBetaBranchUpdates = CreateConVar("cm_use_beta_branch", "1", "Chooses which branch to use for updates. Only changed at startup.");
 	g_cvCelLimit = CreateConVar("cm_max_player_cels", "20", "Maxiumum number of cel entities a client is allowed.");
-	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://celmod.rockzehh.net", "Default internet cel URL.");
+	g_cvDefaultInternetURL = CreateConVar("cm_default_internet_url", "https://delaware.rockzehh.net", "Default internet cel URL.");
 	g_cvDownloadPath = CreateConVar("cm_download_list_path", "data/celmod/downloads.txt", "Path for the download list for clients.");
-	g_cvPropLimit = CreateConVar("cm_max_player_props", "140", "Maxiumum number of props a player is allowed to spawn.");
+	g_cvPropLimit = CreateConVar("cm_max_player_props", "160", "Maxiumum number of props a player is allowed to spawn.");
 	g_cvOverlayPath = CreateConVar("cm_overlay_material_path", "celmod/cm_overlay2.vmt", "Default CelMod overlay path.");
 	CreateConVar("cm_version", CEL_VERSION, "The version of the plugin the server is running.");
-	
+
 	g_cvCelLimit.AddChangeHook(CM_OnConVarChanged);
 	g_cvDefaultInternetURL.AddChangeHook(CM_OnConVarChanged);
 	g_cvDownloadPath.AddChangeHook(CM_OnConVarChanged);
@@ -485,8 +485,6 @@ public Action Command_Delete(int iClient, int iArgs)
 			
 			Cel_RemovalBeam(iClient, iProp);
 			
-			(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(iClient) : Cel_SubFromCelCount(iClient);
-			
 			Cel_SetEntity(iProp, false);
 			
 			Cel_DissolveEntity(iProp);
@@ -529,8 +527,6 @@ public Action Command_DeleteAll(int iClient, int iArgs)
 				AcceptEntityInput(Cel_GetEffectAttachment(i), "TurnOff");
 				AcceptEntityInput(Cel_GetEffectAttachment(i), "kill");
 			}
-			
-			(Cel_CheckEntityCatagory(i, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(iClient) : Cel_SubFromCelCount(iClient);
 			
 			Cel_SetEntity(i, false);
 			
@@ -834,8 +830,9 @@ public Action Command_SetURL(int iClient, int iArgs)
 
 public Action Command_Spawn(int iClient, int iArgs)
 {
-	char sAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
+	char sAlias[64], sOption[64], sSpawnBuffer[2][128], sSpawnString[256];
 	float fAngles[3], fOrigin[3];
+	int iOption = 0;
 	
 	if (iArgs < 1)
 	{
@@ -844,6 +841,7 @@ public Action Command_Spawn(int iClient, int iArgs)
 	}
 	
 	GetCmdArg(1, sAlias, sizeof(sAlias));
+	GetCmdArg(2, sOption, sizeof(sOption));
 	
 	if (!Cel_CheckPropCount(iClient))
 	{
@@ -857,6 +855,23 @@ public Action Command_Spawn(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
+	if(StrEqual(sOption, "drop", false))
+	{
+		iOption = 1;
+	}else if(StrEqual(sOption, "unfrozen", false))
+	{
+		iOption = 2;
+	}else if(StrEqual(sOption, "nogod", false))
+	{
+		iOption = 3;
+	}else if(StrEqual(sOption, "", false))
+	{
+		iOption = 0;
+	}else{
+		Cel_ReplyToCommand(iClient, "%t", "CMD_Spawn");
+		return Plugin_Handled;
+	}
+	
 	if (Cel_CheckSpawnDB(sAlias, sSpawnString, sizeof(sSpawnString)))
 	{
 		ExplodeString(sSpawnString, "|", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
@@ -867,6 +882,22 @@ public Action Command_Spawn(int iClient, int iArgs)
 		int iProp = Cel_SpawnProp(iClient, sAlias, sSpawnBuffer[0], sSpawnBuffer[1], fAngles, fOrigin, 255, 255, 255, 255);
 		
 		Cel_FixSpawnPosition(iProp, fOrigin);
+		
+		switch(iOption)
+		{
+			case 1:
+			{
+				Cel_DropEntityToFloor(iProp);
+			}
+			case 2:
+			{
+				Cel_SetMotion(iProp, true);
+			}
+			case 3:
+			{
+				Cel_SetBreakable(iProp, true);
+			}
+		}
 		
 		Call_StartForward(g_hOnPropSpawn);
 		
@@ -887,8 +918,9 @@ public Action Command_Spawn(int iClient, int iArgs)
 
 public Action Handle_Spawn(int iClient, char[] sCommand, int iArgs)
 {
-	char sPropAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
+	char sOption[64], sPropAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
 	float fAngles[3], fOrigin[3];
+	int iOption = 0;
 	
 	GetCmdArg(1, sPropAlias, sizeof(sPropAlias));
 	
@@ -897,6 +929,24 @@ public Action Handle_Spawn(int iClient, char[] sCommand, int iArgs)
 	
 	if (Cel_CheckSpawnDB(sPropAlias, sSpawnString, sizeof(sSpawnString)))
 	{
+		GetCmdArg(2, sOption, sizeof(sOption));
+		
+		if(StrEqual(sOption, "drop", false))
+		{
+			iOption = 1;
+		}else if(StrEqual(sOption, "unfrozen", false))
+		{
+			iOption = 2;
+		}else if(StrEqual(sOption, "nogod", false))
+		{
+			iOption = 3;
+		}else if(StrEqual(sOption, "", false))
+		{
+			iOption = 0;
+		}else{
+			iOption = 0;
+		}
+		
 		if (!Cel_CheckPropCount(iClient))
 		{
 			Cel_ReplyToCommand(iClient, "%t", "MaxPropLimit", Cel_GetPropCount(iClient));
@@ -916,6 +966,22 @@ public Action Handle_Spawn(int iClient, char[] sCommand, int iArgs)
 		int iProp = Cel_SpawnProp(iClient, sPropAlias, sSpawnBuffer[0], sSpawnBuffer[1], fAngles, fOrigin, 255, 255, 255, 255);
 		
 		Cel_FixSpawnPosition(iProp, fOrigin);
+		
+		switch(iOption)
+		{
+			case 1:
+			{
+				Cel_DropEntityToFloor(iProp);
+			}
+			case 2:
+			{
+				Cel_SetMotion(iProp, true);
+			}
+			case 3:
+			{
+				Cel_SetBreakable(iProp, true);
+			}
+		}
 		
 		Call_StartForward(g_hOnPropSpawn);
 		
@@ -1319,7 +1385,7 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	
 	EntityType etEntityType = Cel_GetEntityType(iEntity);
 	
-	if (etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_TRIGGER)
+	if (etEntityType == ENTTYPE_AMMO || etEntityType == ENTTYPE_AMMOCRATE || etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_CHARGER || etEntityType == ENTTYPE_TRIGGER || etEntityType == ENTTYPE_WEAPONSPWNER)
 	{
 		return view_as<int>(ENTCATAGORY_BIT);
 	}else if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT)
@@ -1466,6 +1532,9 @@ public int Native_GetEntityTypeFromName(Handle hPlugin, int iNumParams)
 	} else if (StrEqual(sEntityType, "weaponspwner", false))
 	{
 		return view_as<int>(ENTTYPE_WEAPONSPWNER);
+	} else if (StrEqual(sEntityType, "trigger", false))
+	{
+		return view_as<int>(ENTTYPE_TRIGGER);
 	} else {
 		return view_as<int>(ENTTYPE_UNKNOWN);
 	}
@@ -1533,6 +1602,10 @@ public int Native_GetEntityTypeName(Handle hPlugin, int iNumParams)
 		case ENTTYPE_WEAPONSPWNER:
 		{
 			Format(sEntityType, sizeof(sEntityType), "weapon bit cel");
+		}
+		case ENTTYPE_TRIGGER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "trigger bit cel");
 		}
 		case ENTTYPE_UNKNOWN:
 		{
@@ -2072,7 +2145,7 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	if (StrEqual(sEntityType, "cycler"))
 	{
 		DispatchKeyValue(iProp, "classname", "cel_doll");
-		DispatchKeyValue(iProp, "DefaultAnim", "ragdoll");	
+		DispatchKeyValue(iProp, "DefaultAnim", "ragdoll");
 	}
 	
 	TeleportEntity(iProp, fOrigin, fAngles, NULL_VECTOR);
@@ -2096,6 +2169,8 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	Cel_SetRenderFX(iProp, RENDERFX_NONE);
 	
 	Cel_SetSolid(iProp, true);
+	
+	Cel_SetBreakable(iProp, false);
 	
 	return iProp;
 }

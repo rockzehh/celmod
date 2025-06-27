@@ -671,6 +671,7 @@ whitecontainer1b
 tvscreen
 flatscreen
 sign
+sbc
 metalplate1
 metalplate2
 metalplate3

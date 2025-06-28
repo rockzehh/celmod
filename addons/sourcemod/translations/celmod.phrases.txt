@@ -8,8 +8,7 @@
 
 	"AddedToCopyQueue"
 	{
-		"#format"		"{1:s}"
-		"en"			"Added {1} to copy queue."
+		"en"			"Added [type] to copy queue."
 	}
 
 	"AlreadyCopyingProp"
@@ -194,8 +193,7 @@
 
 	"CantLinkEntity"
 	{
-		"#format"		"{1:s}"
-		"en"			"You cannot make a link on a {1}."
+		"en"			"You cannot make a link on a [type]."
 	}
 
 	"CantStack"
@@ -262,8 +260,7 @@
 
 	"DisableMotion"
 	{
-		"#format"		"{1:s}"
-		"en"			"Disabled motion on {1}."
+		"en"			"Disabled motion on [type]."
 	}
 
 	"Disconnecting"
@@ -314,8 +311,7 @@
 
 	"EnableMotion"
 	{
-		"#format"		"{1:s}"
-		"en"			"Enabled motion on {1}."
+		"en"			"Enabled motion on [type}."
 	}
 
 	"EnteredLand"
@@ -384,14 +380,12 @@
 
 	"EntityOwner"
 	{
-		"#format"		"{1:s},{2:s}"
-		"en"			"Player {green}{1}{default} the owner of the {2}."
+		"en"			"Player {green}[owner]{default} is the owner of the [type]."
 	}
 
 	"IsOwner"
 	{
-		"#format"		"{1:s}"
-		"en"			"You are the owner of the {1}."
+		"en"			"You are the owner of the [type]."
 	}
 
 	"LadderSpawn"
@@ -437,8 +431,7 @@
 
 	"Locked"
 	{
-		"#format"		"{1:s}"
-		"en"			"You have locked {1}."
+		"en"			"You have locked [type]."
 	}
 
 	"MaxBreakableLimit"
@@ -498,8 +491,7 @@
 
 	"NotYours"
 	{
-		"#format"		"{1:s}"
-		"en"			"This {1} does not belong to you."
+		"en"			"This [type] does not belong to you."
 	}
 
 	"OnlyOnInternetCels"
@@ -514,8 +506,7 @@
 
 	"PastedFromCopyQueue"
 	{
-		"#format"		"{1:s}"
-		"en"			"Pasted {1} from the copy queue."
+		"en"			"Pasted [type] from the copy queue."
 	}
 
 	"PropInBlacklist"
@@ -554,8 +545,7 @@
 
 	"Remove"
 	{
-		"#format"		"{1:s}"
-		"en"			"Removed {1}."
+		"en"			"Removed [type]."
 	}
 
 	"RemoveAll"
@@ -572,8 +562,7 @@
 
 	"SaleCanceled"
 	{
-		"#format"		"{1:s}"
-		"en"			"You have canceled the sale on {1}."
+		"en"			"You have canceled the sale on [type]."
 	}
 
 	"SavedBuild"
@@ -626,14 +615,14 @@
 
 	"SetColor"
 	{
-		"#format"		"{1:s},{2:s}"
-		"en"			"Set color on {1} to {green}{2}{default}."
+		"#format"		"{1:s}"
+		"en"			"Set color on [type] to {green}{1}{default}."
 	}
 
 	"SetFadingColors"
 	{
-		"#format"		"{1:s},{2:s},{3:s}"
-		"en"			"Fading {1} between {green}{2}{default} & {green}{3}{default}."
+		"#format"		"{1:s},{2:s}"
+		"en"			"Fading [type] between {green}{1}{default} & {green}{2}{default}."
 	}
 
 	"SetHudColor"
@@ -644,44 +633,44 @@
 
 	"SetOwnerClient"
 	{
-		"#format"		"{1:s},{2:s}"
-		"en"			"Set ownership of {green}{1}{default} to {green}{2}{default}."
+		"#format"		"{1:s}"
+		"en"			"Set ownership of {green}[type]{default} to {green}{1}{default}."
 	}
 
 	"SetOwnerTarget"
 	{
-		"#format"		"{1:s},{2:s},{3:s}"
-		"en"			"{green}{1}{default} set ownership of {green}{2}{default} to {green}{3}{default}."
+		"#format"		"{1:s},{2:s}"
+		"en"			"{green}{1}{default} set ownership of {green}[type]{default} to {green}{2}{default}."
 	}
 
 	"SetRenderFX"
 	{
-		"#format"		"{1:s},{2:s}"
-		"en"			"Set renderfx on {1} to {green}{2}{default}."
+		"#format"		"{1:s}"
+		"en"			"Set renderfx on [type] to {green}{1}{default}."
 	}
 
 	"SetSkin"
 	{
-		"#format"		"{1:s},{2:i}"
-		"en"			"Set skin on {1} to {green}{2}{default}."
+		"#format"		"{1:i}"
+		"en"			"Set skin on [type] to {green}{1}{default}."
 	}
 
 	"SetBreakability"
 	{
-		"#format"		"{1:s},{2:s}"
-		"en"			"Turned breakability {1} on {2}."
+		"#format"		"{1:s}"
+		"en"			"Turned breakability [type] on {1}."
 	}
 
 	"SetSolidicity"
 	{
-		"#format"		"{1:s},{2:s}"
-		"en"			"Turned solidicity {1} on {2}."
+		"#format"		"{1:s}"
+		"en"			"Turned solidicity [type] on {1}."
 	}
 
 	"SetTransparency"
 	{
-		"#format"		"{1:s},{2:i}"
-		"en"			"Set transparency on {1} to {green}{2}{default}."
+		"#format"		"{1:i}"
+		"en"			"Set transparency on [type] to {green}{1}{default}."
 	}
 
 	"SetURL"
@@ -696,26 +685,22 @@
 
 	"SpawnBitAmmo"
 	{
-		"#format"		"{1:s}"
-		"en"			"Spawned {green}{1}{default} ammo bit."
+		"en"			"Spawned {green}[ammo]{default} ammo bit."
 	}
 
 	"SpawnBitAmmoCrate"
 	{
-		"#format"		"{1:s}"
-		"en"			"Spawned {green}{1}{default} ammo crate bit."
+		"en"			"Spawned {green}[ammocrate]{default} ammo crate bit."
 	}
 
 	"SpawnBitCharger"
 	{
-		"#format"		"{1:s}"
-		"en"			"Spawned {green}{1}{default} charger bit."
+		"en"			"Spawned {green}[charger]{default} charger bit."
 	}
 
 	"SpawnBitWeapon"
 	{
-		"#format"		"{1:s}"
-		"en"			"Spawned {green}{1}{default} weapon bit."
+		"en"			"Spawned {green}[weapon]{default} weapon bit."
 	}
 
 	"SpawnButton"
@@ -748,14 +733,14 @@
 
 	"StackedProps"
 	{
-		"#format"		"{1:i},{2:s}"
-		"en"			"Stacked {green}{1}{default} {2}."
+		"#format"		"{1:i}"
+		"en"			"Stacked {green}{1}{default} [type]."
 	}
 
 	"StartSale"
 	{
-		"#format"		"{1:s},{2:i}"
-		"en"			"You have put a {1} for sale for {2} CL."
+		"#format"		"{1:i}"
+		"en"			"You have put a [type] for sale for {1} CL."
 	}
 
 	"SwitchedHUD"
@@ -766,7 +751,6 @@
 
 	"Unlocked"
 	{
-		"#format"		"{1:s}"
-		"en"			"You have unlocked {1}."
+		"en"			"You have unlocked [type]."
 	}
 }

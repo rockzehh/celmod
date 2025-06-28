@@ -7,5 +7,6 @@
 		"delaware"		"blacklist"
 		"hoopie"		"blacklist"
 		"pineapple"		"blacklist"
+		"sbc"		"blacklist"
 	}
 }

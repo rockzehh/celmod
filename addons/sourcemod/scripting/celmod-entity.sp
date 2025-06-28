@@ -205,7 +205,7 @@ public void OnEntityDestroyed(int iEntity)
 
 public Action Command_Alpha(int iClient, int iArgs)
 {
-	char sAlpha[16], sEntityType[32], sOption[32];
+	char sAlpha[16], sOption[32];
 	
 	if (iArgs < 1)
 	{
@@ -250,8 +250,6 @@ public Action Command_Alpha(int iClient, int iArgs)
 		
 		if (Cel_CheckOwner(iClient, iProp))
 		{
-			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-			
 			Cel_SetColor(iProp, -1, -1, -1, iAlpha);
 			
 			if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
@@ -259,7 +257,7 @@ public Action Command_Alpha(int iClient, int iArgs)
 			
 			Cel_ChangeBeam(iClient, iProp);
 			
-			Cel_ReplyToCommand(iClient, "%t", "SetTransparency", sEntityType, iAlpha);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetTransparency", iAlpha);
 		} else {
 			Cel_NotYours(iClient, iProp);
 			return Plugin_Handled;
@@ -271,7 +269,7 @@ public Action Command_Alpha(int iClient, int iArgs)
 
 public Action Command_AutoBuild(int iClient, int iArgs)
 {
-	char sArgs[4][32], sEntity[4][64], sEntityType[32];
+	char sArgs[4][32], sEntity[4][64];
 	float fAngles[3], fFinalOrigin[3], fOrigin[3];
 	int iColor[4], iCount = 0;
 	
@@ -296,8 +294,6 @@ public Action Command_AutoBuild(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "dynamic"))
 		{
 			Entity_GetClassName(iProp, sEntity[0], sizeof(sEntity[]));
@@ -342,7 +338,7 @@ public Action Command_AutoBuild(int iClient, int iArgs)
 				iCount++;
 			}
 			
-			Cel_ReplyToCommand(iClient, "%t", "StackedProps", iCount, sEntityType);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "StackedProps", iCount);
 		}else{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
 			return Plugin_Handled;
@@ -357,7 +353,7 @@ public Action Command_AutoBuild(int iClient, int iArgs)
 
 public Action Command_Color(int iClient, int iArgs)
 {
-	char sColor[64], sColorBuffer[3][6], sColorString[16], sEntityType[32], sOption[32];
+	char sColor[64], sColorBuffer[3][6], sColorString[16], sOption[32];
 	
 	if (iArgs < 1)
 	{
@@ -442,27 +438,21 @@ public Action Command_Color(int iClient, int iArgs)
 		{
 			if(StrEqual(sColor, "rainbow", false))
 			{
-				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-				
 				Cel_SetRainbow(iProp, true);
 				
 				Cel_ChangeBeam(iClient, iProp);
 				
-				Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, "rainbow");
+				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", "rainbow");
 			}else if(StrEqual(sColor, "error", false))
 			{
-				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-				
 				Cel_SetColorFade(iProp, true, 255, 32, 0, 0, 0, 0);
 				
 				Cel_ChangeBeam(iClient, iProp);
 				
-				Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, "error");
+				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", "error");
 			}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 			{
 				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
-				
-				Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 				
 				Cel_SetRainbow(iProp, false);
 				Cel_SetColorFade(iProp, false, 0, 0, 0, 0, 0, 0);
@@ -485,7 +475,7 @@ public Action Command_Color(int iClient, int iArgs)
 				
 				Cel_ChangeBeam(iClient, iProp);
 				
-				Cel_ReplyToCommand(iClient, "%t", "SetColor", sEntityType, sColor);
+				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", sColor);
 			} else {
 				Cel_ReplyToCommand(iClient, "%t", "ColorNotFound", sColor);
 				return Plugin_Handled;
@@ -503,8 +493,6 @@ public Action Command_Color(int iClient, int iArgs)
 
 public Action Command_CopyProp(int iClient, int iArgs)
 {
-	char sEntityType[64];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -515,8 +503,6 @@ public Action Command_CopyProp(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "dynamic"))
 		{
 			Cel_CopyProp(iClient, iProp);
@@ -525,7 +511,7 @@ public Action Command_CopyProp(int iClient, int iArgs)
 			
 			Cel_ChangeBeam(iClient, iProp);
 			
-			Cel_ReplyToCommand(iClient, "%t", "AddedToCopyQueue", sEntityType);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "AddedToCopyQueue");
 		}else{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
 			return Plugin_Handled;
@@ -562,7 +548,7 @@ public Action Command_Drop(int iClient, int iArgs)
 
 public Action Command_FadeColor(int iClient, int iArgs)
 {
-	char sColor[2][64], sColorBuffer[3][6], sColorString[16], sEntityType[32], sOption[32];
+	char sColor[2][64], sColorBuffer[3][6], sColorString[16], sOption[32];
 	int iColor[6];
 	
 	if (iArgs < 2)
@@ -627,8 +613,6 @@ public Action Command_FadeColor(int iClient, int iArgs)
 		
 		if (Cel_CheckOwner(iClient, iProp))
 		{
-			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-			
 			if (Cel_CheckColorDB(sColor[0], sColorString, sizeof(sColorString)))
 			{
 				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
@@ -657,7 +641,7 @@ public Action Command_FadeColor(int iClient, int iArgs)
 			
 			Cel_ChangeBeam(iClient, iProp);
 			
-			Cel_ReplyToCommand(iClient, "%t", "SetFadingColors", sEntityType, sColor[0], sColor[1]);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetFadingColors", sColor[0], sColor[1]);
 		} else {
 			Cel_NotYours(iClient, iProp);
 			return Plugin_Handled;
@@ -671,8 +655,6 @@ public Action Command_FadeColor(int iClient, int iArgs)
 
 public Action Command_FreezeIt(int iClient, int iArgs)
 {
-	char sEntityType[32];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -689,9 +671,7 @@ public Action Command_FreezeIt(int iClient, int iArgs)
 			return Plugin_Handled;
 		}
 		
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
-		Cel_ReplyToCommand(iClient, "%t", "DisableMotion", sEntityType);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "DisableMotion");
 		
 		Cel_SetMotion(iProp, false);
 		
@@ -706,8 +686,6 @@ public Action Command_FreezeIt(int iClient, int iArgs)
 
 public Action Command_God(int iClient, int iArgs)
 {
-	char sEntityType[128];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -718,8 +696,6 @@ public Action Command_God(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
 		{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
@@ -734,7 +710,7 @@ public Action Command_God(int iClient, int iArgs)
 		
 		Cel_SetBreakable(iProp, !Cel_IsBreakable(iProp));
 		
-		Cel_ReplyToCommand(iClient, "%t", "SetBreakability", Cel_IsBreakable(iProp) ? "on" : "off", sEntityType);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetBreakability", Cel_IsBreakable(iProp) ? "on" : "off");
 		
 		Cel_ChangeBeam(iClient, iProp);
 	} else {
@@ -816,8 +792,6 @@ public Action Command_HookRoll(int iClient, int iArgs)
 
 public Action Command_Lock(int iClient, int iArgs)
 {
-	char sEntityType[32];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -828,8 +802,6 @@ public Action Command_Lock(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityType(iProp, "cycler") || Cel_CheckEntityType(iProp, "dynamic") || Cel_CheckEntityType(iProp, "ladder") || 
 			Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "cleer") || Cel_CheckEntityType(iProp, "bit") || Cel_CheckEntityType(iProp, "unknown"))
 		{
@@ -839,7 +811,7 @@ public Action Command_Lock(int iClient, int iArgs)
 		
 		Cel_LockEntity(iProp, true);
 		
-		Cel_ReplyToCommand(iClient, "%t", "Locked", sEntityType);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "Locked");
 		
 		Cel_ChangeBeam(iClient, iProp);
 	} else {
@@ -852,7 +824,6 @@ public Action Command_Lock(int iClient, int iArgs)
 
 public Action Command_PasteProp(int iClient, int iArgs)
 {
-	char sEntityType[64];
 	float fAngles[3], fOrigin[3];
 	
 	if(!g_bHasCopyEntity[iClient])
@@ -872,18 +843,16 @@ public Action Command_PasteProp(int iClient, int iArgs)
 	
 	int iProp = Cel_PasteProp(iClient, fAngles, fOrigin);
 	
-	Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-	
 	Cel_ChangeBeam(iClient, iProp);
 	
-	Cel_ReplyToCommand(iClient, "%t", "PastedFromCopyQueue", sEntityType);
+	Cel_ReplyToCommandEntity(iClient, iProp, "%t", "PastedFromCopyQueue");
 	
 	return Plugin_Handled;
 }
 
 public Action Command_Replace(int iClient, int iArgs)
 {
-	char sAlias[64], sEntityType[64], sSpawnBuffer[2][128], sSpawnString[256];
+	char sAlias[64], sSpawnBuffer[2][128], sSpawnString[256];
 	float fAngles[3], fOrigin[3];
 	int iColor[4];
 	
@@ -916,8 +885,6 @@ public Action Command_Replace(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if (Cel_CheckSpawnDB(sAlias, sSpawnString, sizeof(sSpawnString)))
 		{
 			ExplodeString(sSpawnString, "|", sSpawnBuffer, 2, sizeof(sSpawnBuffer[]));
@@ -949,7 +916,7 @@ public Action Command_Replace(int iClient, int iArgs)
 			
 			Cel_ChangeBeam(iClient, iReplaceProp);
 			
-			Cel_ReplyToCommand(iClient, "%t", "ReplacedModel", sAlias, sEntityType);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "ReplacedModel", sAlias);
 		} else {
 			Cel_ReplyToCommand(iClient, "%t", "PropNotFound", sAlias);
 			return Plugin_Handled;
@@ -1054,7 +1021,7 @@ public Action Command_Rotate(int iClient, int iArgs)
 
 public Action Command_Skin(int iClient, int iArgs)
 {
-	char sEntityType[64], sSkin[16];
+	char sSkin[16];
 	int iMaxSkins, iSkin;
 	
 	if (iArgs < 1)
@@ -1075,8 +1042,6 @@ public Action Command_Skin(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
 		{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
@@ -1114,7 +1079,7 @@ public Action Command_Skin(int iClient, int iArgs)
 		
 		Cel_ChangeBeam(iClient, iProp);
 		
-		Cel_ReplyToCommand(iClient, "%t", "SetSkin", sEntityType, iSkin);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetSkin", iSkin);
 	} else {
 		Cel_NotYours(iClient, iProp);
 		return Plugin_Handled;
@@ -1162,8 +1127,6 @@ public Action Command_SMove(int iClient, int iArgs)
 
 public Action Command_Solid(int iClient, int iArgs)
 {
-	char sEntityType[128];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -1174,8 +1137,6 @@ public Action Command_Solid(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
 		{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
@@ -1190,7 +1151,7 @@ public Action Command_Solid(int iClient, int iArgs)
 		
 		Cel_SetSolid(iProp, !Cel_IsSolid(iProp));
 		
-		Cel_ReplyToCommand(iClient, "%t", "SetSolidicity", Cel_IsSolid(iProp) ? "on" : "off", sEntityType);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetSolidicity", Cel_IsSolid(iProp) ? "on" : "off");
 		
 		Cel_ChangeBeam(iClient, iProp);
 	} else {
@@ -1203,7 +1164,7 @@ public Action Command_Solid(int iClient, int iArgs)
 
 public Action Command_Stack(int iClient, int iArgs)
 {
-	char sArgs[3][32], sEntity[4][64], sEntityType[32];
+	char sArgs[3][32], sEntity[4][64];
 	float fAngles[3], fFinalOrigin[3], fOrigin[3];
 	int iColor[4];
 	
@@ -1227,8 +1188,6 @@ public Action Command_Stack(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "dynamic"))
 		{
 			Entity_GetClassName(iProp, sEntity[0], sizeof(sEntity[]));
@@ -1272,7 +1231,7 @@ public Action Command_Stack(int iClient, int iArgs)
 				Cel_SetRainbow(iNewProp, Cel_IsRainbow(iProp));
 			}
 			
-			Cel_ReplyToCommand(iClient, "%t", "StackedProps", 1, sEntityType);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "StackedProps", 1);
 		}else{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Prop");
 			return Plugin_Handled;
@@ -1513,8 +1472,6 @@ public Action Command_StopGrab(int iClient, int iArgs)
 
 public Action Command_UnfreezeIt(int iClient, int iArgs)
 {
-	char sEntityType[32];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -1525,15 +1482,13 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityCatagory(iProp, ENTCATAGORY_BIT))
 		{
 			Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
 			return Plugin_Handled;
 		}
 		
-		Cel_ReplyToCommand(iClient, "%t", "EnableMotion", sEntityType);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "EnableMotion");
 		
 		Cel_SetMotion(iProp, true);
 		
@@ -1548,8 +1503,6 @@ public Action Command_UnfreezeIt(int iClient, int iArgs)
 
 public Action Command_Unlock(int iClient, int iArgs)
 {
-	char sEntityType[32];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -1560,18 +1513,16 @@ public Action Command_Unlock(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckEntityType(iProp, "cycler") || Cel_CheckEntityType(iProp, "dynamic") || Cel_CheckEntityType(iProp, "ladder") || 
 			Cel_CheckEntityType(iProp, "physics") || Cel_CheckEntityType(iProp, "cleer") || Cel_CheckEntityType(iProp, "bit") || Cel_CheckEntityType(iProp, "unknown"))
 		{
-			Cel_ReplyToCommand(iClient, "%t", "CannotUnlock", sEntityType);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "CannotUnlock");
 			return Plugin_Handled;
 		}
 		
 		Cel_LockEntity(iProp, false);
 		
-		Cel_ReplyToCommand(iClient, "%t", "Unlocked", sEntityType);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "Unlocked");
 		
 		Cel_ChangeBeam(iClient, iProp);
 	} else {

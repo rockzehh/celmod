@@ -209,7 +209,7 @@ public void OnPluginStart()
 	g_cvPropLimit = CreateConVar("cm_max_player_props", "160", "Maxiumum number of props a player is allowed to spawn.");
 	g_cvOverlayPath = CreateConVar("cm_overlay_material_path", "celmod/cm_overlay2.vmt", "Default CelMod overlay path.");
 	CreateConVar("cm_version", CEL_VERSION, "The version of the plugin the server is running.");
-
+	
 	g_cvCelLimit.AddChangeHook(CM_OnConVarChanged);
 	g_cvDefaultInternetURL.AddChangeHook(CM_OnConVarChanged);
 	g_cvDownloadPath.AddChangeHook(CM_OnConVarChanged);
@@ -428,7 +428,7 @@ public Action Command_Blacklist(int iClient, int iArgs)
 
 public Action Command_Delete(int iClient, int iArgs)
 {
-	char sEntityType[32], sOption[32];
+	char sOption[32];
 	
 	GetCmdArg(1, sOption, sizeof(sOption));
 	
@@ -461,8 +461,6 @@ public Action Command_Delete(int iClient, int iArgs)
 		
 		if (Cel_CheckOwner(iClient, iProp))
 		{
-			Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-			
 			Call_StartForward(g_hOnEntityRemove);
 			
 			Call_PushCell(iProp);
@@ -487,9 +485,9 @@ public Action Command_Delete(int iClient, int iArgs)
 			
 			Cel_SetEntity(iProp, false);
 			
-			Cel_DissolveEntity(iProp);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "Remove");
 			
-			Cel_ReplyToCommand(iClient, "%t", "Remove", sEntityType);
+			Cel_DissolveEntity(iProp);
 		} else {
 			Cel_NotYours(iClient, iProp);
 			return Plugin_Handled;
@@ -711,8 +709,6 @@ public Action Command_NoKill(int iClient, int iArgs)
 
 public Action Command_Owner(int iClient, int iArgs)
 {
-	char sEntityType[64], sOwner[64];
-	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
 		Cel_NotLooking(iClient);
@@ -723,15 +719,11 @@ public Action Command_Owner(int iClient, int iArgs)
 	
 	if(Cel_IsEntity(iProp))
 	{
-		Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-		
 		if(Cel_CheckOwner(iClient, iProp))
 		{
-			Cel_ReplyToCommand(iClient, "%t", "IsOwner", sEntityType);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "IsOwner");
 		}else{
-			GetClientName(Cel_GetOwner(iProp), sOwner, sizeof(sOwner));
-			
-			Cel_ReplyToCommand(iClient, "%t", "EntityOwner", sOwner, sEntityType);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "EntityOwner");
 		}
 	}
 	
@@ -740,7 +732,7 @@ public Action Command_Owner(int iClient, int iArgs)
 
 public Action Command_SetOwner(int iClient, int iArgs)
 {
-	char sEntityType[64], sNames[2][PLATFORM_MAX_PATH], sTarget[PLATFORM_MAX_PATH];
+	char sNames[2][PLATFORM_MAX_PATH], sTarget[PLATFORM_MAX_PATH];
 	
 	if (Cel_GetClientAimTarget(iClient) == -1)
 	{
@@ -754,15 +746,13 @@ public Action Command_SetOwner(int iClient, int iArgs)
 	
 	GetClientName(iClient, sNames[0], sizeof(sNames[]));
 	
-	Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
-	
 	if (StrEqual(sTarget, ""))
 	{
 		Cel_SetOwner(iClient, iProp);
 		
 		Cel_ChangeBeam(iClient, iProp);
 		
-		Cel_ReplyToCommand(iClient, "%t", "SetOwnerClient", sEntityType, sNames[0]);
+		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetOwnerClient", sNames[0]);
 		
 		return Plugin_Handled;
 	}
@@ -781,8 +771,8 @@ public Action Command_SetOwner(int iClient, int iArgs)
 	
 	Cel_ChangeBeam(iClient, iProp);
 	
-	Cel_ReplyToCommand(iClient, "%t", "SetOwnerClient", sEntityType, sNames[1]);
-	Cel_ReplyToCommand(iTarget, "%t", "SetOwnerTarget", sNames[0], sEntityType, sNames[1]);
+	Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetOwnerClient", sNames[1]);
+	Cel_ReplyToCommandEntity(iClient, iProp,  "%t", "SetOwnerTarget", sNames[0], sNames[1]);
 	
 	return Plugin_Handled;
 }
@@ -1329,7 +1319,7 @@ public int Native_GetCelLimit(Handle hPlugin, int iNumParams)
 
 public int Native_GetClientAimTarget(Handle hPlugin, int iNumParams)
 {
-	float fEyeAngles[3], fEyeOrigin[3];
+	float fEyeAngles[3], fEyeOrigin[3], fHitPoint[3];
 	int iClient = GetNativeCell(1), iTarget = -1;
 	
 	GetClientEyeAngles(iClient, fEyeAngles);
@@ -1342,6 +1332,16 @@ public int Native_GetClientAimTarget(Handle hPlugin, int iNumParams)
 		iTarget = TR_GetEntityIndex(hTraceRay);
 		
 		if(iTarget == 0) iTarget = -1;
+		
+		if(iTarget == -1)
+		{
+			TR_GetEndPosition(fHitPoint, hTraceRay);
+			
+			TR_GetPointContents(fHitPoint, iTarget);
+			
+			TR_GetPlaneNormal(hTraceRay, fHitPoint);
+			TR_GetPointContents(fHitPoint, iTarget);
+		}
 		
 		CloseHandle(hTraceRay);
 	}
@@ -2141,6 +2141,9 @@ public int Native_SpawnProp(Handle hPlugin, int iNumParams)
 	
 	DispatchKeyValue(iProp, "model", sModel);
 	DispatchKeyValue(iProp, "classname", "cel_physics");
+	
+	Entity_SetSolidType(iProp, SOLID_VPHYSICS);
+	Entity_SetCollisionGroup(iProp, COLLISION_GROUP_NONE);
 	
 	if (StrEqual(sEntityType, "cycler"))
 	{

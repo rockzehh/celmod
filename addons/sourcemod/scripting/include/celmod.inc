@@ -909,6 +909,8 @@ native void Cel_RemoveFromBlacklist(char[] sAlias);
  */
 native void Cel_ReplyToCommand(int iClient, const char[] sMessage, any ...);
 
+native void Cel_ReplyToCommandEntity(int iClient, int iEntity, const char[] sMessage, any ...);
+
 /**
  * Saves a client's current build.
  *

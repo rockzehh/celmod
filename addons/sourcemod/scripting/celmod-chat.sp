@@ -17,6 +17,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_PrintToChat", Native_PrintToChat);
 	CreateNative("Cel_PrintToChatAll", Native_PrintToChatAll);
 	CreateNative("Cel_ReplyToCommand", Native_ReplyToCommand);
+	CreateNative("Cel_ReplyToCommandEntity", Native_ReplyToCommandEntity);
 	
 	return APLRes_Success;
 }
@@ -123,11 +124,7 @@ public int Native_NotYours(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	int iEntity = GetNativeCell(2);
 	
-	char sEntityType[32];
-	
-	Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sEntityType, sizeof(sEntityType));
-	
-	Cel_ReplyToCommand(iClient, "%t", "NotYours", sEntityType);
+	Cel_ReplyToCommandEntity(iClient, iEntity, "%t", "NotYours");
 	
 	return true;
 }
@@ -193,6 +190,32 @@ public int Native_ReplyToCommand(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_ReplyToCommandEntity(Handle hPlugin, int iNumParams)
+{
+	char sBuffer[MAX_MESSAGE_LENGTH];
+	
+	int iEntity = GetNativeCell(2), iPlayer = GetNativeCell(1), iWritten;
+	
+	FormatNativeString(0, 3, 4, sizeof(sBuffer), iWritten, sBuffer);
+	
+	ReplaceString(sBuffer, sizeof(sBuffer), "[tag]", GetCmdReplySource() == SM_REPLY_TO_CONSOLE ? "v_" : "!", true);
+	
+	Cel_UpdateEntityMessageTags(iEntity, sBuffer, sizeof(sBuffer));
+	
+	if (GetCmdReplySource() == SM_REPLY_TO_CONSOLE)
+	{
+		CRemoveTags(sBuffer, sizeof(sBuffer));
+		
+		PrintToConsole(iPlayer, "|CelMod| %s", sBuffer);
+	} else {
+		CPrintToChat(iPlayer, "{blue}|CelMod|{default} %s", sBuffer);
+		
+		Cel_PlayChatMessageSound(iPlayer);
+	}
+	
+	return true;
+}
+
 //Stocks:
 stock void Cel_PopulateCelCommands()
 {
@@ -211,4 +234,49 @@ stock void Cel_PopulateCelCommands()
 	}
 	
 	CloseHandle(hCommandIter);
+}
+
+stock void Cel_UpdateEntityMessageTags(int iEntity, char[] sBuffer, int iMaxLength)
+{
+	char sName[128];
+	
+	if(Cel_CheckEntityType(iEntity, "ammo"))
+	{
+		Cel_GetAmmoTypeName(Cel_GetAmmoType(iEntity), sName, sizeof(sName));
+		ReplaceString(sBuffer, iMaxLength, "[ammo]", sName, false);
+	}
+	if(Cel_CheckEntityType(iEntity, "ammocrate"))
+	{
+		Cel_GetAmmoCrateTypeName(Cel_GetAmmoCrateType(iEntity), sName, sizeof(sName));
+		ReplaceString(sBuffer, iMaxLength, "[ammocrate]", sName, false);
+	}
+	if(Cel_CheckEntityType(iEntity, "charger"))
+	{
+		Cel_GetChargerTypeName(Cel_GetChargerType(iEntity), sName, sizeof(sName));
+		ReplaceString(sBuffer, iMaxLength, "[charger]", sName, false);
+	}
+	if(Cel_CheckEntityType(iEntity, "weaponspwner"))
+	{
+		Cel_GetWeaponTypeName(Cel_GetWeaponType(iEntity), sName, sizeof(sName));
+		ReplaceString(sBuffer, iMaxLength, "[weapon]", sName, false);
+	}
+	if(Cel_CheckEntityType(iEntity, "physics") || Cel_CheckEntityType(iEntity, "dynamic") || Cel_CheckEntityType(iEntity, "doll"))
+	{
+		Cel_GetPropName(iEntity, sName, sizeof(sName));
+		ReplaceString(sBuffer, iMaxLength, "[propname]", sName, false);
+	}
+	if(Cel_CheckEntityType(iEntity, "internet"))
+	{
+		Cel_GetWeaponTypeName(Cel_GetWeaponType(iEntity), sName, sizeof(sName));
+		ReplaceString(sBuffer, iMaxLength, "[url]", sName, false);
+	}
+	
+	Cel_GetEntityCatagoryName(iEntity, sName, sizeof(sName));
+	ReplaceString(sBuffer, iMaxLength, "[catagory]", sName, false);
+	
+	Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sName, sizeof(sName));
+	ReplaceString(sBuffer, iMaxLength, "[type]", sName, false);
+	
+	GetClientName(Cel_GetOwner(iEntity), sName, sizeof(sName));
+	ReplaceString(sBuffer, iMaxLength, "[owner]", sName, false);
 }

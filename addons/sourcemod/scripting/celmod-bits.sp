@@ -92,7 +92,7 @@ public void OnClientDisconnect(int iClient)
 
 public Action Command_Link(int iClient, int iArgs)
 {
-	char sOption[64], sType[64];
+	char sOption[64];
 	float fLinkOrigin[2][3];
 	
 	GetCmdArg(1, sOption, sizeof(sOption));
@@ -148,9 +148,8 @@ public Action Command_Link(int iClient, int iArgs)
 				Cel_ReplyToCommand(iClient, "%t", "CreatedLink");
 				return Plugin_Handled;
 			}else{
-				Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sType, sizeof(sType));
 				//You cannot make a link on a physics prop.
-				Cel_ReplyToCommand(iClient, "%t", "CantLinkEntity", sType);
+				Cel_ReplyToCommandEntity(iClient, iEntity, "%t", "CantLinkEntity");
 				return Plugin_Handled;
 			}
 		}
@@ -161,7 +160,7 @@ public Action Command_Link(int iClient, int iArgs)
 
 public Action Command_SpawnAmmoBit(int iClient, int iArgs)
 {
-	char sOption[64], sType[64];
+	char sOption[64];
 	float fAngles[3], fOrigin[3];
 	
 	if (iArgs < 1)
@@ -193,16 +192,14 @@ public Action Command_SpawnAmmoBit(int iClient, int iArgs)
 	
 	Cel_TeleportInfrontOfClient(iClient, iBit, 20.0);
 	
-	Cel_GetAmmoTypeName(abtType, sType, sizeof(sType));
-	
-	Cel_ReplyToCommand(iClient, "%t", "SpawnBitAmmo", sType);
+	Cel_ReplyToCommandEntity(iClient, iBit, "%t", "SpawnBitAmmo");
 	
 	return Plugin_Handled;
 }
 
 public Action Command_SpawnAmmoCrateBit(int iClient, int iArgs)
 {
-	char sOption[64], sType[64];
+	char sOption[64];
 	float fAngles[3], fOrigin[3];
 	
 	if (iArgs < 1)
@@ -234,9 +231,7 @@ public Action Command_SpawnAmmoCrateBit(int iClient, int iArgs)
 	
 	Cel_TeleportInfrontOfClient(iClient, iBit, 12.5);
 	
-	Cel_GetAmmoCrateTypeName(actType, sType, sizeof(sType));
-	
-	Cel_ReplyToCommand(iClient, "%t", "SpawnBitAmmoCrate", sType);
+	Cel_ReplyToCommandEntity(iClient, iBit, "%t", "SpawnBitAmmoCrate");
 	
 	return Plugin_Handled;
 }
@@ -268,7 +263,7 @@ public Action Command_SpawnButton(int iClient, int iArgs)
 
 public Action Command_SpawnChargerBit(int iClient, int iArgs)
 {
-	char sOption[64], sType[64];
+	char sOption[64];
 	float fAngles[3], fOrigin[3];
 	
 	if (iArgs < 1)
@@ -300,16 +295,14 @@ public Action Command_SpawnChargerBit(int iClient, int iArgs)
 	
 	Cel_TeleportInfrontOfClient(iClient, iBit, 45.0);
 	
-	Cel_GetChargerTypeName(ctType, sType, sizeof(sType));
-	
-	Cel_ReplyToCommand(iClient, "%t", "SpawnBitCharger", sType);
+	Cel_ReplyToCommandEntity(iClient, iBit, "%t", "SpawnBitCharger");
 	
 	return Plugin_Handled;
 }
 
 public Action Command_SpawnWeaponBit(int iClient, int iArgs)
 {
-	char sOption[64], sType[64];
+	char sOption[64];
 	float fAngles[3], fOrigin[3];
 	
 	if (iArgs < 1)
@@ -341,9 +334,7 @@ public Action Command_SpawnWeaponBit(int iClient, int iArgs)
 	
 	Cel_TeleportInfrontOfClient(iClient, iBit, 20.0);
 	
-	Cel_GetWeaponTypeName(wbtType, sType, sizeof(sType));
-	
-	Cel_ReplyToCommand(iClient, "%t", "SpawnBitWeapon", sType);
+	Cel_ReplyToCommandEntity(iClient, iBit, "%t", "SpawnBitWeapon");
 	
 	return Plugin_Handled;
 }

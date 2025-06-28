@@ -9,6 +9,7 @@
 
 #include <smlib/arrays>
 #include <smlib/clients>
+#include <smlib/colors>
 #include <smlib/concommands>
 #include <smlib/convars>
 #include <smlib/crypt>
@@ -21,6 +22,7 @@
 #include <smlib/game>
 #include <smlib/math>
 #include <smlib/menus>
+//#include <smlib/pluginmanager>
 #include <smlib/server>
 #include <smlib/strings>
 #include <smlib/sql>

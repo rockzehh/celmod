@@ -1,5 +1,5 @@
 #if defined _smlib_client_included
-#endinput
+	#endinput
 #endif
 #define _smlib_client_included
 
@@ -30,6 +30,7 @@
 #include <sdktools_trace>
 #include <sdktools_voice>
 #include <smlib/general>
+#include <smlib/colors>
 #include <smlib/edicts>
 #include <smlib/math>
 #include <smlib/teams>
@@ -1799,6 +1800,330 @@ stock void Client_PrintKeyHintTextToAll(const char[] format, any ...)
 	}
 }
 
+/**
+ * Prints a reliable raw chat message to a client in the chat area.
+ * If the client == 0, the message will printed to server console.
+ *
+ * @param client		Client Index.
+ * @param message		String Message.
+ * @param subject		Client Index/Subject (normally used for teamcolors)
+ * @param isChat		Tells the game to handle the chat as normal (false) or chat message (true, plays a sound), only works if SayText2 is supported.
+ */
+stock void Client_PrintToChatRaw(int client, const char[] message, int subject=0, bool isChat=false)
+{
+	if (client == 0) {
+		char buffer[253];
+		Color_StripFromChatText(message, buffer, sizeof(buffer));
+		PrintToServer(buffer);
+		return;
+	}
+
+	static bool sayText2_supported	= true;
+	static bool sayText2_checked		= false;
+
+	if (!sayText2_checked) {
+
+		if (GetUserMessageId("SayText2") == INVALID_MESSAGE_ID) {
+			sayText2_supported = false;
+		}
+
+		sayText2_checked = true;
+	}
+
+	Handle userMessage = INVALID_HANDLE;
+
+	if (sayText2_supported) {
+		userMessage = StartMessageOne("SayText2", client, USERMSG_RELIABLE);
+
+		if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available
+			&& GetUserMessageType() == UM_Protobuf) {
+
+			PbSetInt(userMessage,    "ent_idx",  subject);
+			PbSetBool(userMessage,   "chat",     isChat);
+			PbSetString(userMessage, "msg_name", message);
+
+			// psychonic: Furthermore, some usermessages with repeated field,
+			// such as the commonly-used SayText2, expected an undocumented
+			// specific number of values added, else the client will crash when receiving.
+			PbAddString(userMessage, "params", "");
+			PbAddString(userMessage, "params", "");
+			PbAddString(userMessage, "params", "");
+			PbAddString(userMessage, "params", "");
+		}
+		else {
+			BfWriteByte(userMessage		, subject);
+			BfWriteByte(userMessage		, isChat);
+			BfWriteString(userMessage	, message);
+		}
+	}
+	else {
+		userMessage = StartMessageOne("SayText", client, USERMSG_RELIABLE);
+
+		if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available
+			&& GetUserMessageType() == UM_Protobuf) {
+
+			PbSetInt(userMessage, "ent_idx", subject);
+			PbSetString(userMessage, "text", message);
+			PbSetBool(userMessage, "chat", isChat);
+		}
+		else {
+			BfWriteByte(userMessage		, subject);
+			BfWriteString(userMessage	, message);
+			// For DoD:S nickname coloring
+			BfWriteByte(userMessage		, -1);
+		}
+	}
+
+	EndMessage();
+}
+
+/**
+ * Prints a reliable chat message to one client in the chat area.
+ * Allows up to 253 Characters (including \0) to be printed.
+ * Supports chat color tags (see: colors.inc).
+ *
+ * @param client		Client Index.
+ * @param isChat		Tells the game to handle the chat as normal (false) or chat message (true, plays a sound), only works if SayText2 is supported.
+ * @param format		Formatting rules String.
+ * @param ...			Variable number of format parameters.
+ */
+stock void Client_PrintToChat(int client, bool isChat, const char[] format, any ...)
+{
+	char
+		buffer[512],
+		buffer2[253];
+
+	SetGlobalTransTarget(client);
+	VFormat(buffer, sizeof(buffer), format, 4);
+	int subject = Color_ParseChatText(buffer, buffer2, sizeof(buffer2));
+
+	Client_PrintToChatRaw(client, buffer2, subject, isChat);
+
+	Color_ChatClearSubject();
+}
+
+static int printToChat_excludeclient = -1;
+
+/**
+ * Exclude a client from the next call to a Client_PrintToChat function.
+ *
+ * @param client		Client Index.
+ * @noreturn
+ */
+stock void Client_PrintToChatExclude(int client)
+{
+	printToChat_excludeclient = client;
+}
+
+/**
+ * Prints a reliable chat message to all clients in the chat area.
+ * Allows up to 253 Characters (including \0) to be printed.
+ * Supports chat color tags (see: colors.inc).
+ *
+ * @param isChat		Tells the game to handle the chat as normal (false) or chat message (true, plays a sound), only works if SayText2 is supported.
+ * @param format		Formatting rules String.
+ * @param ...			Variable number of format parameters.
+ */
+stock void Client_PrintToChatAll(bool isChat, const char[] format, any ...)
+{
+	char
+		buffer[512],
+		buffer2[253];
+	int
+		subject,
+		language,
+		lastLanguage = -1;
+
+	for (int client=1; client <= MaxClients; client++) {
+
+		if (!IsClientInGame(client)) {
+			continue;
+		}
+
+		if (client == printToChat_excludeclient) {
+			printToChat_excludeclient = -1;
+			continue;
+		}
+
+		language = GetClientLanguage(client);
+
+		if (language != lastLanguage) {
+			SetGlobalTransTarget(client);
+			VFormat(buffer, sizeof(buffer), format, 3);
+			subject = Color_ParseChatText(buffer, buffer2, sizeof(buffer2));
+
+			lastLanguage = language;
+		}
+
+		Client_PrintToChatRaw(client, buffer2, subject, isChat);
+	}
+
+	Color_ChatClearSubject();
+}
+
+/**
+ * Prints a reliable chat message to the specified clients in the chat area.
+ * Allows up to 253 Characters (including \0) to be print.
+ * Supports chat color tags (see: colors.inc).
+ *
+ * @param clients		Client Array.
+ * @param numClients	Number of clients in the client array.
+ * @param isChat		Tells the game to handle the chat as normal (false) or chat message (true, plays a sound), only works if SayText2 is supported.
+ * @param format		Formatting rules.
+ * @param ...			Variable number of format parameters.
+ */
+stock void Client_PrintToChatEx(int[] clients, int numClients, bool isChat, const char[] format, any ...)
+{
+	char
+		buffer[512],
+		buffer2[253];
+	int
+		client,
+		subject,
+		language,
+		lastLanguage = -1;
+
+	for (int i=0; i < numClients; i++) {
+
+		client = clients[i];
+
+		if (!IsClientInGame(client)) {
+			continue;
+		}
+
+		if (client == printToChat_excludeclient) {
+			printToChat_excludeclient = -1;
+			continue;
+		}
+
+		language = GetClientLanguage(client);
+
+		if (language != lastLanguage) {
+			SetGlobalTransTarget(client);
+			VFormat(buffer, sizeof(buffer), format, 5);
+			subject = Color_ParseChatText(buffer, buffer2, sizeof(buffer2));
+
+			lastLanguage = language;
+		}
+
+		Client_PrintToChatRaw(client, buffer2, subject, isChat);
+	}
+
+	Color_ChatClearSubject();
+}
+
+enum ClientHudPrint {
+	ClientHudPrint_Notify = 1,
+	ClientHudPrint_Console,
+	ClientHudPrint_Talk,
+	Client_HudPrint_Center
+};
+
+/**
+ * Prints a relieable message to the client's console.
+ * Allows up to 254 Characters (including \0) to be print (253 for talk).
+ * Supports chat color tags (see: colors.inc, only available in Left 4 Dead (2) or higher).
+ * Chat colors are stripped automatically if not supported.
+ *
+ * @param clients		Client Array.
+ * @param format		Formatting rules.
+ * @param ...			Variable number of format parameters.
+ */
+stock void Client_PrintToConsole(int client, const char[] format, any ...)
+{
+	char buffer[512];
+
+	SetGlobalTransTarget(client);
+	VFormat(buffer, sizeof(buffer), format, 3);
+
+	Client_Print(client, ClientHudPrint_Console, buffer);
+}
+
+/**
+ * Prints a relieable message to the client's console.
+ * Allows up to 254 Characters (including \0) to be print.
+ * Supports chat color tags in chat & console (see: colors.inc).
+ * Chat colors are stripped automatically if not supported in the destination.
+ *
+ * @param clients		Client Array.
+ * @param destination	Destination place (use onf of the ClientHudPrint_)
+ * @param format		Formatting rules.
+ * @param ...			Variable number of format parameters.
+ */
+stock void Client_Print(int client, ClientHudPrint destination, const char[] format, any ...)
+{
+	char buffer[512], buffer2[254];
+
+	SetGlobalTransTarget(client);
+	VFormat(buffer, sizeof(buffer), format, 4);
+
+	int subject = Color_ParseChatText(buffer, buffer2, sizeof(buffer2));
+
+	if (destination == ClientHudPrint_Talk) {
+		Client_PrintToChatRaw(client, buffer2, subject, false);
+		return;
+	}
+
+	EngineVersion engineVersion = GetEngineVersion();
+	if (client == 0 ||
+		destination != ClientHudPrint_Console ||
+		(destination == ClientHudPrint_Console
+			&& engineVersion != Engine_Left4Dead && engineVersion != Engine_Left4Dead2))
+	{
+		Color_StripFromChatText(buffer2, buffer2, sizeof(buffer2));
+
+		if (client == 0) {
+			PrintToServer(buffer2);
+			return;
+		}
+	}
+
+	Handle userMessage = INVALID_HANDLE;
+	userMessage = StartMessageOne("TextMsg", client, USERMSG_RELIABLE);
+
+	if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available
+		&& GetUserMessageType() == UM_Protobuf) {
+
+		PbSetInt(userMessage,    "msg_dst", view_as<int>(destination));
+		PbAddString(userMessage, "params",  buffer2);
+		PbAddString(userMessage, "params",  "");
+		PbAddString(userMessage, "params",  "");
+		PbAddString(userMessage, "params",  "");
+		PbAddString(userMessage, "params",  "");
+	}
+	else {
+		BfWriteByte(userMessage		, view_as<int>(destination));
+		BfWriteString(userMessage	, buffer2);
+	}
+
+	EndMessage();
+}
+
+/**
+ * Replies to a message in a command.
+ * A client index of 0 will use PrintToServer().
+ * If the command was from the console, Client_PrintToConsole() is used.
+ * If the command was from chat, Client_PrintToChat() is used.
+ *
+ * @param client		Client Index.
+ * @param format		Formatting rules String.
+ * @param ...			Variable number of format parameters.
+ */
+stock void Client_Reply(int client, const char[] format, any ...)
+{
+	char buffer[255];
+
+	SetGlobalTransTarget(client);
+	VFormat(buffer, sizeof(buffer), format, 3);
+
+	if (GetCmdReplySource() == SM_REPLY_TO_CONSOLE) {
+		Client_PrintToConsole(client, buffer);
+	}
+	else {
+		Client_PrintToChat(client, false, buffer);
+	}
+}
+
 #define	SHAKE_START					0			// Starts the screen shake for all players within the radius.
 #define	SHAKE_STOP					1			// Stops the screen shake for all players within the radius.
 #define	SHAKE_AMPLITUDE				2			// Modifies the amplitude of an active screen shake for all players within the radius.
@@ -2650,8 +2975,8 @@ stock void Client_PrintToTopAll(int r=255, int g=255, int b=255, int a=255, floa
 {
 	char buffer[150];
 	int
-	language,
-	lastLanguage = -1;
+		language,
+		lastLanguage = -1;
 
 	for (int client=1; client <= MaxClients; client++) {
 
@@ -2696,9 +3021,9 @@ stock void Client_PrintToTopEx(int[] clients, int numClients, int r=255, int g=2
 {
 	char buffer[150];
 	int
-	client,
-	language,
-	lastLanguage = -1;
+		client,
+		language,
+		lastLanguage = -1;
 
 	for (int i=0; i < numClients; i++) {
 
@@ -2737,7 +3062,7 @@ stock void Client_ShowScoreboard(int client, int flags=USERMSG_RELIABLE | USERMS
 	Handle handle = StartMessageOne("VGUIMenu", client, flags);
 
 	if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available &&
-		GetUserMessageType() == UM_Protobuf) {
+			GetUserMessageType() == UM_Protobuf) {
 
 		PbSetString(handle, "name", "scores");
 		PbSetBool(handle, "show", true);

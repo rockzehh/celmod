@@ -10,7 +10,7 @@
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3.0, as published by the
  * Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
@@ -106,7 +106,7 @@ public void OnPluginStart()
 	{
 		ThrowError("This plugin replaces basefuncommands.  You cannot run both at once.");
 	}
-	
+
 	LoadTranslations("common.phrases");
 	LoadTranslations("funcommands.phrases");
 	g_GameEngine = GetEngineVersion();
@@ -115,7 +115,7 @@ public void OnPluginStart()
 	RegisterCvars();
 	RegisterCmds();
 	HookEvents();
-	
+
 	/* Account for late loading */
 	TopMenu topmenu;
 	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
@@ -133,19 +133,21 @@ void RegisterCvars()
 	g_Cvar_TimeBombTicks = CreateConVar("sm_timebomb_ticks", "10.0", "Sets how long the timebomb fuse is.", 0, true, 5.0, true, 120.0);
 	g_Cvar_TimeBombRadius = CreateConVar("sm_timebomb_radius", "600", "Sets the bomb blast radius.", 0, true, 50.0, true, 3000.0);
 	g_Cvar_TimeBombMode = CreateConVar("sm_timebomb_mode", "0", "Who is killed by the timebomb? 0 = Target only, 1 = Target's team, 2 = Everyone", 0, true, 0.0, true, 2.0);
-	
+
 	// fire
 	g_Cvar_BurnDuration = CreateConVar("sm_burn_duration", "20.0", "Sets the default duration of sm_burn and firebomb victims.", 0, true, 0.5, true, 20.0);
 	g_Cvar_FireBombTicks = CreateConVar("sm_firebomb_ticks", "10.0", "Sets how long the FireBomb fuse is.", 0, true, 5.0, true, 120.0);
 	g_Cvar_FireBombRadius = CreateConVar("sm_firebomb_radius", "600", "Sets the bomb blast radius.", 0, true, 50.0, true, 3000.0);
 	g_Cvar_FireBombMode = CreateConVar("sm_firebomb_mode", "0", "Who is targetted by the FireBomb? 0 = Target only, 1 = Target's team, 2 = Everyone", 0, true, 0.0, true, 2.0);
-	
+
 	// ice
-	g_Cvar_FreezeDuration = CreateConVar("sm_freezeplayer_duration", "10.0", "Sets the default duration for sm_freeze and freezebomb victims", 0, true, 1.0, true, 120.0);	
+	//CelMod
+	g_Cvar_FreezeDuration = CreateConVar("sm_freeze_duration", "10.0", "Sets the default duration for sm_freezeplayer and freezebomb victims", 0, true, 1.0, true, 120.0);
+	//CelMod
 	g_Cvar_FreezeBombTicks = CreateConVar("sm_freezebomb_ticks", "10.0", "Sets how long the freezebomb fuse is.", 0, true, 5.0, true, 120.0);
 	g_Cvar_FreezeBombRadius = CreateConVar("sm_freezebomb_radius", "600", "Sets the freezebomb blast radius.", 0, true, 50.0, true, 3000.0);
 	g_Cvar_FreezeBombMode = CreateConVar("sm_freezebomb_mode", "0", "Who is targetted by the freezebomb? 0 = Target only, 1 = Target's team, 2 = Everyone", 0, true, 0.0, true, 2.0);
-	
+
 	AutoExecConfig(true, "funcommands");
 }
 
@@ -155,11 +157,13 @@ void RegisterCmds()
 	RegAdminCmd("sm_timebomb", Command_TimeBomb, ADMFLAG_SLAY, "sm_timebomb <#userid|name> [0/1]");
 	RegAdminCmd("sm_burn", Command_Burn, ADMFLAG_SLAY, "sm_burn <#userid|name> [time]");
 	RegAdminCmd("sm_firebomb", Command_FireBomb, ADMFLAG_SLAY, "sm_firebomb <#userid|name> [0/1]");
+	//CelMod
 	RegAdminCmd("sm_freezeplayer", Command_Freeze, ADMFLAG_SLAY, "sm_freezeplayer <#userid|name> [time]");
+	//CelMod
 	RegAdminCmd("sm_freezebomb", Command_FreezeBomb, ADMFLAG_SLAY, "sm_freezebomb <#userid|name> [0/1]");
-	RegAdminCmd("sm_playergravity", Command_Gravity, ADMFLAG_SLAY, "sm_playergravity <#userid|name> [amount] - Leave amount off to reset. Amount is 0.0 through 5.0");
+	RegAdminCmd("sm_gravity", Command_Gravity, ADMFLAG_SLAY, "sm_gravity <#userid|name> [amount] - Leave amount off to reset. Amount is 0.0 through 5.0");
 	RegAdminCmd("sm_blind", Command_Blind, ADMFLAG_SLAY, "sm_blind <#userid|name> [amount] - Leave amount off to reset.");
-	RegAdminCmd("sm_adminnoclip", Command_NoClip, ADMFLAG_SLAY|ADMFLAG_CHEATS, "sm_adminnoclip <#userid|name>");
+	RegAdminCmd("sm_noclip", Command_NoClip, ADMFLAG_SLAY|ADMFLAG_CHEATS, "sm_noclip <#userid|name>");
 	RegAdminCmd("sm_drug", Command_Drug, ADMFLAG_SLAY, "sm_drug <#userid|name> [0/1]");
 }
 
@@ -181,7 +185,7 @@ void HookEvents()
 	else
 	{
 		HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
-	}	
+	}
 }
 
 public void OnMapStart()
@@ -192,88 +196,88 @@ public void OnMapStart()
 		SetFailState("Unable to load game config funcommands.games");
 		return;
 	}
-	
+
 	if (gameConfig.GetKeyValue("SoundBlip", g_BlipSound, sizeof(g_BlipSound)) && g_BlipSound[0])
 	{
 		PrecacheSound(g_BlipSound, true);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SoundBeep", g_BeepSound, sizeof(g_BeepSound)) && g_BeepSound[0])
 	{
 		PrecacheSound(g_BeepSound, true);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SoundFinal", g_FinalSound, sizeof(g_FinalSound)) && g_FinalSound[0])
 	{
 		PrecacheSound(g_FinalSound, true);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SoundBoom", g_BoomSound, sizeof(g_BoomSound)) && g_BoomSound[0])
 	{
 		PrecacheSound(g_BoomSound, true);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SoundFreeze", g_FreezeSound, sizeof(g_FreezeSound)) && g_FreezeSound[0])
 	{
 		PrecacheSound(g_FreezeSound, true);
 	}
-	
+
 	char buffer[PLATFORM_MAX_PATH];
 	if (gameConfig.GetKeyValue("SpriteBeam", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_BeamSprite = PrecacheModel(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SpriteBeam2", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_BeamSprite2 = PrecacheModel(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SpriteExplosion", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_ExplosionSprite = PrecacheModel(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SpriteGlow", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_GlowSprite = PrecacheModel(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("SpriteHalo", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_HaloSprite = PrecacheModel(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("ExternalBeaconColor", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_ExternalBeaconColor = ParseColor(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("Team1BeaconColor", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_Team1BeaconColor = ParseColor(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("Team2BeaconColor", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_Team2BeaconColor = ParseColor(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("Team3BeaconColor", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_Team3BeaconColor = ParseColor(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("Team4BeaconColor", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_Team4BeaconColor = ParseColor(buffer);
 	}
-	
+
 	if (gameConfig.GetKeyValue("TeamUnknownBeaconColor", buffer, sizeof(buffer)) && buffer[0])
 	{
 		g_TeamUnknownBeaconColor = ParseColor(buffer);
 	}
-	
+
 	delete gameConfig;
 }
 
@@ -306,10 +310,10 @@ public void OnAdminMenuReady(Handle aTopMenu)
 	{
 		return;
 	}
-	
+
 	/* Save the Handle */
 	hTopMenu = topmenu;
-	
+
 	/* Find the "Player Commands" category */
 	TopMenuObject player_commands = hTopMenu.FindCategory(ADMINMENU_PLAYERCOMMANDS);
 
@@ -319,11 +323,13 @@ public void OnAdminMenuReady(Handle aTopMenu)
 		hTopMenu.AddItem("sm_timebomb", AdminMenu_TimeBomb, player_commands, "sm_timebomb", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_burn", AdminMenu_Burn, player_commands, "sm_burn", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_firebomb", AdminMenu_FireBomb, player_commands, "sm_firebomb", ADMFLAG_SLAY);
+		//CelMod
 		hTopMenu.AddItem("sm_freezeplayer", AdminMenu_Freeze, player_commands, "sm_freezeplayer", ADMFLAG_SLAY);
+		//CelMod
 		hTopMenu.AddItem("sm_freezebomb", AdminMenu_FreezeBomb, player_commands, "sm_freezebomb", ADMFLAG_SLAY);
-		hTopMenu.AddItem("sm_playergravity", AdminMenu_Gravity, player_commands, "sm_playergravity", ADMFLAG_SLAY);
+		hTopMenu.AddItem("sm_gravity", AdminMenu_Gravity, player_commands, "sm_gravity", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_blind", AdminMenu_Blind, player_commands, "sm_blind", ADMFLAG_SLAY);
-		hTopMenu.AddItem("sm_adminnoclip", AdminMenu_NoClip, player_commands, "sm_adminnoclip", ADMFLAG_SLAY);
+		hTopMenu.AddItem("sm_noclip", AdminMenu_NoClip, player_commands, "sm_noclip", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_drug", AdminMenu_Drug, player_commands, "sm_drug", ADMFLAG_SLAY);
 	}
 }
@@ -339,7 +345,7 @@ int[] ParseColor(const char[] buffer)
 {
 	char sColor[16][4];
 	ExplodeString(buffer, ",", sColor, sizeof(sColor), sizeof(sColor[]));
-	
+
 	int iColor[4];
 	iColor[0] = StringToInt(sColor[0]);
 	iColor[1] = StringToInt(sColor[1]);

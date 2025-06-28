@@ -10,7 +10,7 @@
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3.0, as published by the
  * Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
@@ -74,14 +74,14 @@ void UnfreezeClient(int client)
 		{
 			float vec[3];
 			GetClientAbsOrigin(client, vec);
-			vec[2] += 10;	
-			
+			vec[2] += 10;
+
 			GetClientEyePosition(client, vec);
 			EmitAmbientSound(g_FreezeSound, vec, client, SNDLEVEL_RAIDSIREN);
 		}
 
 		SetEntityMoveType(client, MOVETYPE_WALK);
-		
+
 		SetEntityRenderColor(client, 255, 255, 255, 255);
 	}
 }
@@ -161,7 +161,7 @@ public Action Timer_Freeze(Handle timer, any value)
 	if (g_FreezeTime[client] == 0)
 	{
 		UnfreezeClient(client);
-		
+
 		/* HintText doesn't work on Dark Messiah */
 		if (g_GameEngine != Engine_DarkMessiah)
 		{
@@ -171,7 +171,7 @@ public Action Timer_Freeze(Handle timer, any value)
 		{
 			PrintCenterText(client, "%t", "Unfrozen");
 		}
-		
+
 		return Plugin_Stop;
 	}
 
@@ -183,7 +183,7 @@ public Action Timer_Freeze(Handle timer, any value)
 	{
 		PrintCenterText(client, "%t", "You will be unfrozen", g_FreezeTime[client]);
 	}
-	
+
 	g_FreezeTime[client]--;
 	SetEntityMoveType(client, MOVETYPE_NONE);
 	SetEntityRenderColor(client, 0, 128, 255, 135);
@@ -243,7 +243,7 @@ public Action Timer_FreezeBomb(Handle timer, any value)
 				EmitAmbientSound(g_FinalSound, vec, client, SNDLEVEL_RAIDSIREN);
 			}
 		}
-		
+
 		SetEntityRenderColor(client, color, color, 255, 255);
 
 		char name[MAX_NAME_LENGTH];
@@ -277,33 +277,33 @@ public Action Timer_FreezeBomb(Handle timer, any value)
 
 		KillFreezeBomb(client);
 		FreezeClient(client, g_Cvar_FreezeDuration.IntValue);
-		
+
 		if (g_Cvar_FreezeBombMode.IntValue > 0)
 		{
 			bool teamOnly = ((g_Cvar_FreezeBombMode.IntValue == 1) ? true : false);
-			
+
 			for (int i = 1; i <= MaxClients; i++)
 			{
 				if (!IsClientInGame(i) || !IsPlayerAlive(i) || i == client)
 				{
 					continue;
 				}
-				
+
 				if (teamOnly && GetClientTeam(i) != GetClientTeam(client))
 				{
 					continue;
 				}
-				
+
 				float pos[3];
 				GetClientEyePosition(i, pos);
-				
+
 				float distance = GetVectorDistance(vec, pos);
-				
+
 				if (distance > g_Cvar_FreezeBombRadius.FloatValue)
 				{
 					continue;
 				}
-				
+
 				if (g_HaloSprite > -1)
 				{
 					if (g_BeamSprite2 > -1)
@@ -317,15 +317,15 @@ public Action Timer_FreezeBomb(Handle timer, any value)
 						TE_SendToAll();
 					}
 				}
-				
+
 				FreezeClient(i, g_Cvar_FreezeDuration.IntValue);
-			}		
+			}
 		}
 		return Plugin_Stop;
 	}
 }
 
-public void AdminMenu_Freeze(TopMenu topmenu, 
+public void AdminMenu_Freeze(TopMenu topmenu,
 					  TopMenuAction action,
 					  TopMenuObject object_id,
 					  int param,
@@ -342,7 +342,7 @@ public void AdminMenu_Freeze(TopMenu topmenu,
 	}
 }
 
-public void AdminMenu_FreezeBomb(TopMenu topmenu, 
+public void AdminMenu_FreezeBomb(TopMenu topmenu,
 					  TopMenuAction action,
 					  TopMenuObject object_id,
 					  int param,
@@ -362,28 +362,28 @@ public void AdminMenu_FreezeBomb(TopMenu topmenu,
 void DisplayFreezeMenu(int client)
 {
 	Menu menu = new Menu(MenuHandler_Freeze);
-	
+
 	char title[100];
 	Format(title, sizeof(title), "%T:", "Freeze player", client);
 	menu.SetTitle(title);
 	menu.ExitBackButton = true;
-	
+
 	AddTargetsToMenu(menu, client, true, true);
-	
+
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
 void DisplayFreezeBombMenu(int client)
 {
 	Menu menu = new Menu(MenuHandler_FreezeBomb);
-	
+
 	char title[100];
 	Format(title, sizeof(title), "%T:", "FreezeBomb player", client);
 	menu.SetTitle(title);
 	menu.ExitBackButton = true;
-	
+
 	AddTargetsToMenu(menu, client, true, true);
-	
+
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
@@ -404,7 +404,7 @@ public int MenuHandler_Freeze(Menu menu, MenuAction action, int param1, int para
 	{
 		char info[32];
 		int userid, target;
-		
+
 		menu.GetItem(param2, info, sizeof(info));
 		userid = StringToInt(info);
 
@@ -420,11 +420,11 @@ public int MenuHandler_Freeze(Menu menu, MenuAction action, int param1, int para
 		{
 			char name[MAX_NAME_LENGTH];
 			GetClientName(target, name, sizeof(name));
-			
+
 			PerformFreeze(param1, target, g_Cvar_FreezeDuration.IntValue);
 			ShowActivity2(param1, "[SM] ", "%t", "Froze target", "_s", name);
 		}
-		
+
 		/* Re-draw the menu if they're still valid */
 		if (IsClientInGame(param1) && !IsClientInKickQueue(param1))
 		{
@@ -452,7 +452,7 @@ public int MenuHandler_FreezeBomb(Menu menu, MenuAction action, int param1, int 
 	{
 		char info[32];
 		int userid, target;
-		
+
 		menu.GetItem(param2, info, sizeof(info));
 		userid = StringToInt(info);
 
@@ -468,11 +468,11 @@ public int MenuHandler_FreezeBomb(Menu menu, MenuAction action, int param1, int 
 		{
 			char name[MAX_NAME_LENGTH];
 			GetClientName(target, name, sizeof(name));
-			
+
 			PerformFreezeBomb(param1, target);
 			ShowActivity2(param1, "[SM] ", "%t", "Toggled FreezeBomb on target", "_s", name);
 		}
-		
+
 		/* Re-draw the menu if they're still valid */
 		if (IsClientInGame(param1) && !IsClientInKickQueue(param1))
 		{
@@ -487,25 +487,27 @@ public Action Command_Freeze(int client, int args)
 {
 	if (args < 1)
 	{
+		//CelMod
 		ReplyToCommand(client, "[SM] Usage: sm_freezeplayer <#userid|name> [time]");
+		//CelMod
 		return Plugin_Handled;
 	}
 
 	char arg[65];
 	GetCmdArg(1, arg, sizeof(arg));
-	
+
 	int seconds = g_Cvar_FreezeDuration.IntValue;
-	
+
 	if (args > 1 && !GetCmdArgIntEx(2, seconds))
 	{
 		ReplyToCommand(client, "[SM] %t", "Invalid Amount");
 		return Plugin_Handled;
-	}	
+	}
 
 	char target_name[MAX_TARGET_LENGTH];
 	int target_list[MAXPLAYERS], target_count;
 	bool tn_is_ml;
-	
+
 	if ((target_count = ProcessTargetString(
 			arg,
 			client,
@@ -519,12 +521,12 @@ public Action Command_Freeze(int client, int args)
 		ReplyToTargetError(client, target_count);
 		return Plugin_Handled;
 	}
-	
+
 	for (int i = 0; i < target_count; i++)
 	{
 		PerformFreeze(client, target_list[i], seconds);
 	}
-	
+
 	if (tn_is_ml)
 	{
 		ShowActivity2(client, "[SM] ", "%t", "Froze target", target_name);
@@ -533,7 +535,7 @@ public Action Command_Freeze(int client, int args)
 	{
 		ShowActivity2(client, "[SM] ", "%t", "Froze target", "_s", target_name);
 	}
-	
+
 	return Plugin_Handled;
 }
 
@@ -551,7 +553,7 @@ public Action Command_FreezeBomb(int client, int args)
 	char target_name[MAX_TARGET_LENGTH];
 	int target_list[MAXPLAYERS], target_count;
 	bool tn_is_ml;
-	
+
 	if ((target_count = ProcessTargetString(
 			arg,
 			client,
@@ -565,12 +567,12 @@ public Action Command_FreezeBomb(int client, int args)
 		ReplyToTargetError(client, target_count);
 		return Plugin_Handled;
 	}
-	
+
 	for (int i = 0; i < target_count; i++)
 	{
 		PerformFreezeBomb(client, target_list[i]);
 	}
-	
+
 	if (tn_is_ml)
 	{
 		ShowActivity2(client, "[SM] ", "%t", "Toggled FreezeBomb on target", target_name);
@@ -579,6 +581,6 @@ public Action Command_FreezeBomb(int client, int args)
 	{
 		ShowActivity2(client, "[SM] ", "%t", "Toggled FreezeBomb on target", "_s", target_name);
 	}
-	
+
 	return Plugin_Handled;
 }

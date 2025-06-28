@@ -4,19 +4,18 @@
 	{
 		"Version"
 		{
-			"Latest"		"2.1.4"
-			"Previously"	"2.1.3"
+			"Latest"		"2.0.0"
+			"Previously"	"1.0.1.1"
 		}
 		
-		"Notes"	"Added +move, +copy, !skin, !copy and !paste."
-		"Notes" "Update rainbow and sm_fadecolor to use HSV to RGB for a better and more consistant color."
-		"Notes"	"Added a blacklist to blacklist props without altering the prop list."
-		"Notes" "Updated all commands from sm_ to v_."
-		"Notes" "Accuratly scrolling through skins is now achieved by using StudioHdr."
-		"Notes" "Started work on buttons/triggers. ALPHA"
-		"Notes" "Added !owner, !drop, !replace, !lock and !unlock."
+		"Notes"	"Went through and updated celmod-lands to fix missed small bugs and clean up some functions."
+		"Notes" "Added descriptions to all the natives. Was generated with AI so may be a little messy."
+		"Notes" "Created celmod-clientstorage to hold functions with client settings/purchases/bank storage."
+		"Notes" "Started working on the economy aspect of CelMod."
+		"Notes"	"Added a handful of new commands."
+		"Notes" "Hopefully fixed a bug involving coloring effects."
 	}
-	
+
 	"Files"
 	{
 		"Plugin"	"Path_SM/data/celmod/colors.txt"
@@ -25,9 +24,7 @@
 		"Plugin"	"Path_SM/data/celmod/spawns.txt"
 		"Plugin"	"Path_SM/plugins/funcommands.smx"
 		"Plugin"	"Path_SM/plugins/celmod.smx"
-		"Plugin"	"Path_SM/plugins/celmod-bits.smx"
 		"Plugin"	"Path_SM/plugins/celmod-buildsaving.smx"
-		"Plugin"	"Path_SM/plugins/celmod-chat.smx"
 		"Plugin"	"Path_SM/plugins/celmod-clientstorage.smx"
 		"Plugin"	"Path_SM/plugins/celmod-economy.smx"
 		"Plugin"	"Path_SM/plugins/celmod-effects.smx"
@@ -35,16 +32,12 @@
 		"Plugin"	"Path_SM/plugins/celmod-help.smx"
 		"Plugin"	"Path_SM/plugins/celmod-hud.smx"
 		"Plugin"	"Path_SM/plugins/celmod-land.smx"
-		"Plugin"	"Path_SM/scripting/include/celmod.inc"
-		"Source"	"Path_SM/scripting/include/updater.inc"
+		"Plugin"	"Path_SM/scripting/celmod.inc"
 		"Plugin"	"Path_SM/translations/celmod.phrases.txt"
-		"Plugin"	"Path_SM/gamedata/studio_hdr.games.txt"
-		
+
 		"Source"	"Path_SM/scripting/funcommands.sp"
 		"Source"	"Path_SM/scripting/celmod.sp"
-		"Source"	"Path_SM/scripting/celmod-bits.sp"
 		"Source"	"Path_SM/scripting/celmod-buildsaving.sp"
-		"Source"	"Path_SM/scripting/celmod-chat.sp"
 		"Source"	"Path_SM/scripting/celmod-clientstorage.sp"
 		"Source"	"Path_SM/scripting/celmod-economy.sp"
 		"Source"	"Path_SM/scripting/celmod-effects.sp"
@@ -55,9 +48,6 @@
 		"Source"	"Path_SM/scripting/funcommands/ice.sp"
 		"Source"	"Path_SM/scripting/include/celmod.inc"
 		"Source"	"Path_SM/scripting/include/morecolors.inc"
-		"Source"	"Path_SM/scripting/include/updater.inc"
-		"Source"	"Path_SM/scripting/include/studio_hdr.inc"
 		"Source"	"Path_SM/translations/celmod.phrases.txt"
-		"Source"	"Path_SM/gamedata/studio_hdr.games.txt"
 	}
 }

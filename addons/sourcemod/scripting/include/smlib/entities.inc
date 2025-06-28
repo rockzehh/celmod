@@ -1,5 +1,5 @@
 #if defined _smlib_entities_included
-#endinput
+	#endinput
 #endif
 #define _smlib_entities_included
 
@@ -44,11 +44,11 @@ stock int Entity_FindByName(const char[] name, const char[] className="")
 		// Hack: Double the limit to gets none-networked entities too.
 		int realMaxEntities = GetMaxEntities() * 2;
 		for (int entity=0; entity < realMaxEntities; entity++) {
-			
+
 			if (!IsValidEntity(entity)) {
 				continue;
 			}
-			
+
 			if (Entity_NameMatches(entity, name)) {
 				return entity;
 			}
@@ -57,13 +57,13 @@ stock int Entity_FindByName(const char[] name, const char[] className="")
 	else {
 		int entity = INVALID_ENT_REFERENCE;
 		while ((entity = FindEntityByClassname(entity, className)) != INVALID_ENT_REFERENCE) {
-			
+
 			if (Entity_NameMatches(entity, name)) {
 				return entity;
 			}
 		}
 	}
-	
+
 	return INVALID_ENT_REFERENCE;
 }
 
@@ -87,11 +87,11 @@ stock int Entity_FindByHammerId(int hammerId, const char[] className="")
 		// Hack: Double the limit to gets none-networked entities too.
 		int realMaxEntities = GetMaxEntities() * 2;
 		for (int entity=0; entity < realMaxEntities; entity++) {
-			
+
 			if (!IsValidEntity(entity)) {
 				continue;
 			}
-			
+
 			if (Entity_GetHammerId(entity) == hammerId) {
 				return entity;
 			}
@@ -100,13 +100,13 @@ stock int Entity_FindByHammerId(int hammerId, const char[] className="")
 	else {
 		int entity = INVALID_ENT_REFERENCE;
 		while ((entity = FindEntityByClassname(entity, className)) != INVALID_ENT_REFERENCE) {
-			
+
 			if (Entity_GetHammerId(entity) == hammerId) {
 				return entity;
 			}
 		}
 	}
-	
+
 	return INVALID_ENT_REFERENCE;
 }
 
@@ -137,11 +137,11 @@ stock bool Entity_ClassNameMatches(int entity, const char[] className, bool part
 {
 	char entity_className[64];
 	Entity_GetClassName(entity, entity_className, sizeof(entity_className));
-	
+
 	if (partialMatch) {
 		return (StrContains(entity_className, className) != -1);
 	}
-	
+
 	return StrEqual(entity_className, className);
 }
 
@@ -156,20 +156,8 @@ stock bool Entity_NameMatches(int entity, const char[] name)
 {
 	char entity_name[128];
 	Entity_GetName(entity, entity_name, sizeof(entity_name));
-	
+
 	return StrEqual(name, entity_name);
-}
-
-stock int Entity_GetEntityAttachment(int entity)
-{
-	return GetEntPropEnt(entity, Prop_Data, "m_hMoveChild");
-}
-
-stock void Entity_SetEntityAttachment(int parent, int child)
-{
-	SetVariantString("!activator");
-	
-	AcceptEntityInput(child, "setparent", parent);
 }
 
 /**
@@ -196,7 +184,7 @@ stock bool Entity_SetName(int entity, const char[] name, any ...)
 {
 	char format[128];
 	VFormat(format, sizeof(format), name, 3);
-	
+
 	return DispatchKeyValue(entity, "targetname", format);
 }
 
@@ -251,7 +239,7 @@ stock bool Entity_SetTargetName(int entity, const char[] name, any ...)
 {
 	char format[128];
 	VFormat(format, sizeof(format), name, 3);
-	
+
 	return DispatchKeyValue(entity, "target", format);
 }
 
@@ -279,7 +267,7 @@ stock bool Entity_SetGlobalName(int entity, const char[] name, any ...)
 {
 	char format[128];
 	VFormat(format, sizeof(format), name, 3);
-	
+
 	return DispatchKeyValue(entity, "globalname", format);
 }
 
@@ -307,7 +295,7 @@ stock bool Entity_SetParentName(int entity, const char[] name, any ...)
 {
 	char format[128];
 	VFormat(format, sizeof(format), name, 3);
-	
+
 	return DispatchKeyValue(entity, "parentname", format);
 }
 
@@ -449,27 +437,27 @@ stock void Entity_SetMinMaxSize(int entity, float vecMins[3], float vecMaxs[3])
 	// Taken from hl2sdk-ob-valve\game\server\util.cpp SetMinMaxSize()
 	// Todo: Replace this by a SDK call
 	for (int i=0; i<3; i++) {
-		
+
 		if (vecMins[i] > vecMaxs[i]) {
 			ThrowError("Error: mins[%d] > maxs[%d] of entity %d", i, i, EntRefToEntIndex(entity));
 		}
 	}
-	
+
 	float m_vecMins[3], m_vecMaxs[3];
 	Entity_GetMinSize(entity, m_vecMins);
 	Entity_GetMaxSize(entity, m_vecMaxs);
-	
+
 	if (Math_VectorsEqual(m_vecMins, vecMins) && Math_VectorsEqual(m_vecMaxs, vecMaxs)) {
 		return;
 	}
-	
+
 	Entity_SetMinSize(entity, vecMins);
 	Entity_SetMaxSize(entity, vecMaxs);
-	
+
 	float vecSize[3];
 	SubtractVectors(vecMaxs, vecMins, vecSize);
 	Entity_SetRadius(entity, GetVectorLength(vecSize) * 0.5);
-	
+
 	Entity_MarkSurrBoundsDirty(entity);
 }
 
@@ -617,22 +605,22 @@ enum Entity_Flags
 	EFL_NOCLIP_ACTIVE =						(1<<2),	// Lets us know when the noclip command is active.
 	EFL_SETTING_UP_BONES =					(1<<3),	// Set while a model is setting up its bones.
 	EFL_KEEP_ON_RECREATE_ENTITIES = 		(1<<4), // This is a special entity that should not be deleted when we restart entities only
-	
+
 	EFL_HAS_PLAYER_CHILD=					(1<<4),	// One of the child entities is a player.
-	
+
 	EFL_DIRTY_SHADOWUPDATE =				(1<<5),	// Client only- need shadow manager to update the shadow...
 	EFL_NOTIFY =							(1<<6),	// Another entity is watching events on this entity (used by teleport)
-	
+
 	// The default behavior in ShouldTransmit is to not send an entity if it doesn't
 	// have a model. Certain entities want to be sent anyway because all the drawing logic
 	// is in the client DLL. They can set this flag and the engine will transmit them even
 	// if they don't have a model.
 	EFL_FORCE_CHECK_TRANSMIT =				(1<<7),
-	
+
 	EFL_BOT_FROZEN =						(1<<8),	 // This is set on bots that are frozen.
 	EFL_SERVER_ONLY =						(1<<9),	 // Non-networked entity.
 	EFL_NO_AUTO_EDICT_ATTACH =				(1<<10), // Don't attach the edict; we're doing it explicitly
-	
+
 	// Some dirty bits with respect to abs computations
 	EFL_DIRTY_ABSTRANSFORM =				(1<<11),
 	EFL_DIRTY_ABSVELOCITY =					(1<<12),
@@ -640,18 +628,18 @@ enum Entity_Flags
 	EFL_DIRTY_SURR_COLLISION_BOUNDS =		(1<<14),
 	EFL_DIRTY_SPATIAL_PARTITION = 			(1<<15),
 //	UNUSED						=			(1<<16),
-	
+
 	EFL_IN_SKYBOX =							(1<<17), // This is set if the entity detects that it's in the skybox.
 													 // This forces it to pass the "in PVS" for transmission.
 	EFL_USE_PARTITION_WHEN_NOT_SOL = 		(1<<18), // Entities with this flag set show up in the partition even when not solid
 	EFL_TOUCHING_FLUID =					(1<<19), // Used to determine if an entity is floating
-	
+
 	// FIXME: Not really sure where I should add this...
 	EFL_IS_BEING_LIFTED_BY_BARNACLE =		(1<<20),
 	EFL_NO_ROTORWASH_PUSH =					(1<<21), // I shouldn't be pushed by the rotorwash
 	EFL_NO_THINK_FUNCTION =					(1<<22),
 	EFL_NO_GAME_PHYSICS_SIMULATION =		(1<<23),
-	
+
 	EFL_CHECK_UNTOUCH =						(1<<24),
 	EFL_DONTBLOCKLOS =						(1<<25), // I shouldn't block NPC line-of-sight
 	EFL_DONTWALKON =						(1<<26), // NPC;s should not walk on this entity
@@ -720,7 +708,7 @@ stock void Entity_RemoveEFlags(int entity, Entity_Flags flags)
 stock bool Entity_HasEFlags(int entity, Entity_Flags flags)
 {
 	Entity_Flags currentEFlags = Entity_GetEFlags(entity);
-	
+
 	return currentEFlags & flags == flags;
 }
 
@@ -839,7 +827,7 @@ enum SolidFlags_t
 	FSOLID_USE_TRIGGER_BOUNDS	= 0x0080,	// Uses a special trigger bounds separate from the normal OBB
 	FSOLID_ROOT_PARENT_ALIGNED	= 0x0100,	// Collisions are defined in root parent's local coordinate space
 	FSOLID_TRIGGER_TOUCH_DEBRIS	= 0x0200,	// This trigger will touch debris objects
-	
+
 	FSOLID_MAX_BITS	= 10
 };
 
@@ -864,13 +852,13 @@ stock void Entity_SetSolidFlags(int entity, SolidFlags_t flags)
 {
 	SolidFlags_t oldFlags = Entity_GetSolidFlags(entity);
 	flags = flags & view_as<SolidFlags_t>(0xFFFF);
-	
+
 	if (oldFlags == flags) {
 		return;
 	}
-	
+
 	SetEntProp(entity, Prop_Data, "m_usSolidFlags", flags, 2);
-	
+
 	// These two flags, if changed, can produce different surrounding bounds
 	if ((oldFlags & (FSOLID_FORCE_WORLD_ALIGNED | FSOLID_USE_TRIGGER_BOUNDS)) !=
 			(flags & (FSOLID_FORCE_WORLD_ALIGNED | FSOLID_USE_TRIGGER_BOUNDS)))
@@ -971,7 +959,7 @@ stock void Entity_SetSolidType(int entity, SolidType_t value)
 stock bool Entity_IsSolid(int entity)
 {
 	return (Entity_GetSolidType(entity) != SOLID_NONE &&
-		!Entity_SolidFlagsSet(entity, FSOLID_NOT_SOLID));
+			!Entity_SolidFlagsSet(entity, FSOLID_NOT_SOLID));
 }
 
 /**
@@ -1060,7 +1048,7 @@ enum Collision_Group_t
 	COLLISION_GROUP_PASSABLE_DOOR,		// Doors that the player shouldn't collide with
 	COLLISION_GROUP_DISSOLVING,			// Things that are dissolving are in this group
 	COLLISION_GROUP_PUSHAWAY,			// Nonsolid on client and server, pushaway in player code
-	
+
 	COLLISION_GROUP_NPC_ACTOR,			// Used so NPCs in scripts ignore the player.
 	COLLISION_GROUP_NPC_SCRIPTED		// USed for NPCs in scripts that should not collide with each other
 };
@@ -1287,25 +1275,25 @@ stock int Entity_GetHealth(int entity)
 stock int Entity_SetHealth(int entity, int value, bool ignoreMax=false, bool kill=true)
 {
 	int health = value;
-	
+
 	if (!ignoreMax) {
 		int maxHealth = Entity_GetMaxHealth(entity);
-		
+
 		if (health > maxHealth) {
 			health = maxHealth;
 		}
 	}
-	
+
 	if (health < 0) {
 		health = 0;
 	}
-	
+
 	SetEntProp(entity, Prop_Data, "m_iHealth", health);
-	
+
 	if (health <= 0 && kill) {
 		Entity_Kill(entity);
 	}
-	
+
 	return health;
 }
 
@@ -1321,9 +1309,9 @@ stock int Entity_SetHealth(int entity, int value, bool ignoreMax=false, bool kil
 stock int Entity_AddHealth(int entity, int value, bool ignoreMax=false, bool kill=true)
 {
 	int health = Entity_GetHealth(entity);
-	
+
 	health += value;
-	
+
 	return Entity_SetHealth(entity, health, ignoreMax, kill);
 }
 
@@ -1337,9 +1325,9 @@ stock int Entity_AddHealth(int entity, int value, bool ignoreMax=false, bool kil
 stock int Entity_TakeHealth(int entity, int value, bool ignoreMax=false, bool kill=true)
 {
 	int health = Entity_GetHealth(entity);
-	
+
 	health -= value;
-	
+
 	return Entity_SetHealth(entity, health, ignoreMax, kill);
 }
 
@@ -1378,7 +1366,7 @@ stock float Entity_GetDistanceOrigin(int entity, const float vec[3])
 {
 	float entityVec[3];
 	Entity_GetAbsOrigin(entity, entityVec);
-	
+
 	return GetVectorDistance(entityVec, vec);
 }
 
@@ -1394,7 +1382,7 @@ stock float Entity_GetDistance(int entity, int target)
 {
 	float targetVec[3];
 	Entity_GetAbsOrigin(target, targetVec);
-	
+
 	return Entity_GetDistanceOrigin(entity, targetVec);
 }
 
@@ -1411,7 +1399,7 @@ stock bool Entity_InRange(int entity, int target, float distance)
 	if (Entity_GetDistance(entity, target) > distance) {
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -1471,9 +1459,9 @@ stock void Entity_PointAtTarget(int entity, int target, const char[] name="")
 {
 	char targetName[128];
 	Entity_GetTargetName(entity, targetName, sizeof(targetName));
-	
+
 	if (name[0] == '\0') {
-		
+
 		if (targetName[0] == '\0') {
 			// Let's generate our own name
 			Format(
@@ -1487,7 +1475,7 @@ stock void Entity_PointAtTarget(int entity, int target, const char[] name="")
 	else {
 		strcopy(targetName, sizeof(targetName), name);
 	}
-	
+
 	Entity_SetTargetName(entity, targetName);
 	Entity_SetName(target, targetName);
 }
@@ -1505,9 +1493,9 @@ stock void Entity_PointHurtAtTarget(int entity, int target, const char[] name=""
 {
 	char targetName[128];
 	Entity_GetTargetName(entity, targetName, sizeof(targetName));
-	
+
 	if (name[0] == '\0') {
-		
+
 		if (targetName[0] == '\0') {
 			// Let's generate our own name
 			Format(
@@ -1521,7 +1509,7 @@ stock void Entity_PointHurtAtTarget(int entity, int target, const char[] name=""
 	else {
 		strcopy(targetName, sizeof(targetName), name);
 	}
-	
+
 	DispatchKeyValue(entity, "DamageTarget", targetName);
 	Entity_SetName(target, targetName);
 }
@@ -1539,7 +1527,7 @@ stock bool Entity_IsPlayer(int entity)
 	if (entity < 1 || entity > MaxClients) {
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -1555,7 +1543,7 @@ stock int Entity_Create(const char[] className, int ForceEdictIndex=-1)
 	if (ForceEdictIndex != -1 && Entity_IsValid(ForceEdictIndex)) {
 		return INVALID_ENT_REFERENCE;
 	}
-	
+
 	return CreateEntityByName(className, ForceEdictIndex);
 }
 
@@ -1575,7 +1563,7 @@ stock bool Entity_Kill(int kenny, bool killChildren=false)
 		ForcePlayerSuicide(kenny);
 		return true;
 	}
-	
+
 	if(killChildren){
 		return AcceptEntityInput(kenny, "KillHierarchy");
 	}
@@ -1595,13 +1583,13 @@ stock bool Entity_Kill(int kenny, bool killChildren=false)
 stock int Entity_KillAllByClassName(const char[] className)
 {
 	int x = 0;
-	
+
 	int entity = INVALID_ENT_REFERENCE;
 	while ((entity = FindEntityByClassname(entity, className)) != INVALID_ENT_REFERENCE) {
 		AcceptEntityInput(entity, "kill");
 		x++;
 	}
-	
+
 	return x;
 }
 
@@ -1711,17 +1699,17 @@ stock int Entity_GetGroundEntity(int entity)
 stock bool Entity_Hurt(int entity, int damage, int attacker=0, int damageType=DMG_GENERIC, const char[] fakeClassName="", float customOrigin[3]={0.0, 0.0, 0.0})
 {
 	static int point_hurt = INVALID_ENT_REFERENCE;
-	
+
 	if (point_hurt == INVALID_ENT_REFERENCE || !IsValidEntity(point_hurt)) {
 		point_hurt = EntIndexToEntRef(Entity_Create("point_hurt"));
-		
+
 		if (point_hurt == INVALID_ENT_REFERENCE) {
 			return false;
 		}
-		
+
 		DispatchSpawn(point_hurt);
 	}
-	
+
 	AcceptEntityInput(point_hurt, "TurnOn");
 	SetEntProp(point_hurt, Prop_Data, "m_nDamage", damage);
 	SetEntProp(point_hurt, Prop_Data, "m_bitsDamageType", damageType);
@@ -1729,16 +1717,16 @@ stock bool Entity_Hurt(int entity, int damage, int attacker=0, int damageType=DM
 	char orignalTargetName[128];
 	Entity_GetName(entity, orignalTargetName, sizeof(orignalTargetName));
 	Entity_PointHurtAtTarget(point_hurt, entity);
-	
+
 	if (fakeClassName[0] != '\0') {
 		Entity_SetClassName(point_hurt, fakeClassName);
 	}
-	
+
 	TeleportEntity(point_hurt, customOrigin, NULL_VECTOR, NULL_VECTOR);
-	
+
 	AcceptEntityInput(point_hurt, "Hurt", attacker);
 	AcceptEntityInput(point_hurt, "TurnOff");
-	
+
 	if (fakeClassName[0] != '\0') {
 		Entity_SetClassName(point_hurt, "point_hurt");
 	}
@@ -1818,22 +1806,22 @@ public Action __smlib_Timer_ChangeOverTime(Handle Timer, DataPack dataPack)
 	if(!Entity_IsValid(entity)){
 		return Plugin_Stop;
 	}
-	
+
 	float interval = ReadPackFloat(dataPack);
 	int currentCall = ReadPackCell(dataPack);
 	Function callback = ReadPackFunction(dataPack);
-	
+
 	any result;
 	Call_StartFunction(INVALID_HANDLE, callback);
 	Call_PushCellRef(entity);
 	Call_PushFloatRef(interval);
 	Call_PushCellRef(currentCall);
 	Call_Finish(result);
-	
+
 	if(result == false){
 		return Plugin_Stop;
 	}
-	
+
 	ResetPack(dataPack,true);
 	WritePackCell(dataPack, EntIndexToEntRef(entity));
 	WritePackFloat(dataPack, interval);
@@ -1856,20 +1844,20 @@ stock int Entity_GetNextChild(int parent, int start=0)
 {
 	int maxEntities = GetMaxEntities();
 	for (int entity=start; entity < maxEntities; entity++) {
-		
+
 		if (!Entity_IsValid(entity)) {
 			continue;
 		}
-		
+
 		if (entity > 0 && entity <= MaxClients && !IsClientConnected(entity)) {
 			continue;
 		}
-		
+
 		if (Entity_GetParent(entity) == parent) {
 			return entity;
 		}
 	}
-	
+
 	return INVALID_ENT_REFERENCE;
 }
 /**
@@ -2062,25 +2050,25 @@ stock void Entity_GetRenderColor(int entity, int color[4])
 {
 	static bool gotconfig = false;
 	static char prop[32];
-	
+
 	if (!gotconfig) {
 		Handle gc = LoadGameConfigFile("core.games");
 		bool exists = GameConfGetKeyValue(gc, "m_clrRender", prop, sizeof(prop));
 		delete gc;
-		
+
 		if (!exists) {
 			strcopy(prop, sizeof(prop), "m_clrRender");
 		}
-		
+
 		gotconfig = true;
 	}
-	
+
 	int offset = GetEntSendPropOffs(entity, prop);
-	
+
 	if (offset <= 0) {
 		ThrowError("SetEntityRenderColor not supported by this mod");
 	}
-	
+
 	for (int i=0; i < 4; i++) {
 		color[i] = GetEntData(entity, offset + i, 1);
 	}
@@ -2101,37 +2089,37 @@ stock void Entity_SetRenderColor(int entity, int r=-1, int g=-1, int b=-1, int a
 {
 	static bool gotconfig = false;
 	static char prop[32];
-	
+
 	if (!gotconfig) {
 		Handle gc = LoadGameConfigFile("core.games");
 		bool exists = GameConfGetKeyValue(gc, "m_clrRender", prop, sizeof(prop));
 		delete gc;
-		
+
 		if (!exists) {
 			strcopy(prop, sizeof(prop), "m_clrRender");
 		}
-		
+
 		gotconfig = true;
 	}
-	
+
 	int offset = GetEntSendPropOffs(entity, prop);
-	
+
 	if (offset <= 0) {
 		ThrowError("SetEntityRenderColor not supported by this mod");
 	}
-	
+
 	if(r != -1) {
 		SetEntData(entity, offset, r, 1, true);
 	}
-	
+
 	if(g != -1) {
 		SetEntData(entity, offset + 1, g, 1, true);
 	}
-	
+
 	if(b != -1) {
 		SetEntData(entity, offset + 2, b, 1, true);
 	}
-	
+
 	if(a != -1) {
 		SetEntData(entity, offset + 3, a, 1, true);
 	}

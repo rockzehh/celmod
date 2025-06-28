@@ -81,14 +81,12 @@ public void OnPluginStart()
 	
 	g_cvCleerModel.GetString(g_sCleerModel, sizeof(g_sCleerModel));
 	
-	AutoExecConfig(true, "celmod.economy");
-	
-	RegAdminCmd("v_setbalance", Command_SetBalance, ADMFLAG_SLAY, "|CelMod| Sets the balance of the client you are specifing.");
-	RegConsoleCmd("v_balance", Command_Balance, "|CelMod| Gets the players current balance.");
-	RegConsoleCmd("v_buy", Command_Buy, "|CelMod| Purchases the current entity you are looking at or command you specified.");
-	//RegConsoleCmd("v_give", Command_Give, "|CelMod| Gives the entity you are looking at to another client.");
-	RegConsoleCmd("v_sell", Command_Sell, "|CelMod| Sells the entity you are looking at.");
-	//RegConsoleCmd("v_cl", Command_CleerBox, "|CelMod| Creates a box containing cleers that you can deposit/withdraw from.");
+	RegAdminCmd("sm_setbalance", Command_SetBalance, ADMFLAG_SLAY, "|CelMod| Sets the balance of the client you are specifing.");
+	RegConsoleCmd("sm_balance", Command_Balance, "|CelMod| Gets the players current balance.");
+	RegConsoleCmd("sm_buy", Command_Buy, "|CelMod| Purchases the current entity you are looking at or command you specified.");
+	//RegConsoleCmd("sm_give", Command_Give, "|CelMod| Gives the entity you are looking at to another client.");
+	RegConsoleCmd("sm_sell", Command_Sell, "|CelMod| Sells the entity you are looking at.");
+	//RegConsoleCmd("sm_cl", Command_CleerBox, "|CelMod| Creates a box containing cleers that you can deposit/withdraw from.");
 }
 
 public void OnClientPutInServer(int iClient)
@@ -310,8 +308,8 @@ public int Native_BuyEntity(Handle hPlugin, int iNumParams)
 	
 	Cel_SubFromClientBalance(iBuyer, iPrice);
 	
-	Cel_ReplyToCommandEntity(iBuyer, iProp, "%t", "BoughtEntity", iPrice);
-	Cel_ReplyToCommandEntity(iOwner, iProp, "%t", "SoldEntity", sBuyer, iPrice);
+	Cel_ReplyToCommand(iBuyer, "%t", "BoughtEntity", sEntityType, sOwner, iPrice);
+	Cel_ReplyToCommand(iOwner, "%t", "SoldEntity", sEntityType, sBuyer, iPrice);
 	
 	return true;
 }
@@ -325,7 +323,7 @@ public int Native_CancelSale(Handle hPlugin, int iNumParams)
 	
 	Cel_GetEntityTypeName(Cel_GetEntityType(iProp), sEntityType, sizeof(sEntityType));
 	
-	Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SaleCanceled");
+	Cel_ReplyToCommand(iClient, "%t", "SaleCanceled", sEntityType);
 	
 	return true;
 }
@@ -445,11 +443,14 @@ public int Native_SetClientBalance(Handle hPlugin, int iNumParams)
 
 public int Native_StartSale(Handle hPlugin, int iNumParams)
 {
+	char sEntityType[32];
 	int iClient = GetNativeCell(1), iEntity = GetNativeCell(2), iPrice = GetNativeCell(3);
 	
 	g_iEntityPrice[iEntity] = iPrice;
 	
-	Cel_ReplyToCommandEntity(iClient, iEntity, "%t", "StartSale", iPrice);
+	Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sEntityType, sizeof(sEntityType));
+	
+	Cel_ReplyToCommand(iClient, "%t", "StartSale", sEntityType, iPrice);
 	
 	return true;
 }

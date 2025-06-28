@@ -43,8 +43,8 @@ public void OnPluginStart()
 	
 	g_hOnEffectSpawn = CreateGlobalForward("Cel_OnEffectSpawn", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 	
-	RegConsoleCmd("sm_effect", Command_Effect, "|CelMod| Spawns a working effect cel.");
-	RegConsoleCmd("sm_emitter", Command_Effect, "|CelMod| Spawns a working effect cel.");
+	RegConsoleCmd("v_effect", Command_Effect, "|CelMod| Spawns a working effect cel.");
+	RegConsoleCmd("v_emitter", Command_Effect, "|CelMod| Spawns a working effect cel.");
 }
 
 //Plugin Commands:
@@ -66,6 +66,12 @@ public Action Command_Effect(int iClient, int iArgs)
 	if (etEffectType == EFFECT_UNKNOWN)
 	{
 		Cel_ReplyToCommand(iClient, "%t", "InvalidEffect");
+		return Plugin_Handled;
+	}
+	
+	if (!Cel_CheckCelCount(iClient))
+	{
+		Cel_ReplyToCommand(iClient, "%t", "MaxCelLimit", Cel_GetCelCount(iClient));
 		return Plugin_Handled;
 	}
 	
@@ -266,12 +272,13 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 	Cel_AddToCelCount(iClient);
 	Cel_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
 	Cel_SetRainbow(iBase, false);
-	Cel_SetColorFade(iBase, false, 0, 0, 0, 0, 0, 0);
 	Cel_SetEntity(iBase, true);
 	Cel_SetMotion(iBase, false);
 	Cel_SetOwner(iClient, iBase);
 	Cel_SetSolid(iBase, true);
 	Cel_SetRenderFX(iBase, RENDERFX_NONE);
+	
+	SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 	
 	switch (etEffect)
 	{
@@ -295,15 +302,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
-			
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectActive(iBase, bActivate);
 			
@@ -337,15 +335,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 
 			Cel_SetEffectAttachment(iBase, iEffect);
 
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-				Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
-			
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
-
 			Cel_SetEffectType(iBase, etEffect);
 
 			return iBase;
@@ -375,15 +364,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
-			
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectActive(iBase, bActivate);
 			
@@ -416,15 +396,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
-			
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectType(iBase, etEffect);
 			
@@ -461,11 +432,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
 			
 			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
-			
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectActive(iBase, bActivate);
 			
@@ -478,39 +444,37 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 		case EFFECT_SPOTLIGHT:
 		{
 			iEffect = CreateEntityByName("point_spotlight");
-
+			
 			fAngles[0] = -90.0, fAngles[1] = 0.0, fAngles[2] = 0.0;
-
+			
 			fFinalOrigin = fOrigin;
 			fFinalOrigin[2] += 12.0;
-
+			
 			DispatchKeyValue(iEffect, "disablereceiveshadows", "1");
 			DispatchKeyValue(iEffect, "HDRColorScale", "1.0");
 			DispatchKeyValue(iEffect, "spawnflags", "2");
 			DispatchKeyValue(iEffect, "spotlightlength", "50");
 			DispatchKeyValue(iEffect, "spotlightwidth", "10");
-
+			
 			DispatchSpawn(iEffect);
-
+			
 			TeleportEntity(iEffect, fFinalOrigin, fAngles, NULL_VECTOR);
-
+			
 			SetVariantString("!activator");
 			AcceptEntityInput(iEffect, "SetParent", iBase);
-
-			Cel_SetEffectAttachment(iBase, iEffect);
-
-			Cel_SetColor(iEffect, iColor[0], iColor[1], iColor[2], iColor[3]);
 			
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
-
+			Cel_SetEffectAttachment(iBase, iEffect);
+			
+			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
+			
+			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
+			
 			Cel_SetEffectActive(iBase, bActivate);
-
+			
 			Cel_SetEffectType(iBase, etEffect);
-
+			
 			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOff" : "LightOn");
-
+			
 			return iBase;
 		}
 		case EFFECT_STEAM:
@@ -539,15 +503,6 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(iEffect, "SetParent", iBase);
 			
 			Cel_SetEffectAttachment(iBase, iEffect);
-			
-			Cel_SetColor(Cel_GetEffectAttachment(iBase), iColor[0], iColor[1], iColor[2], iColor[3]);
-			
-			Cel_SetRainbow(Cel_GetEffectAttachment(iBase), false);
-			Cel_SetColorFade(Cel_GetEffectAttachment(iBase), false, 0, 0, 0, 0, 0, 0);
-			
-			Cel_SetOwner(iClient, Cel_GetEffectAttachment(iBase));
-			
-			SDKHook(iBase, SDKHook_UsePost, Hook_EffectUse);
 			
 			Cel_SetEffectActive(iBase, bActivate);
 			

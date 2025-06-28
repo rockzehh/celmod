@@ -11,12 +11,12 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	return APLRes_Success;
 }
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
-	name = "|CelMod| ", 
-	author = CEL_AUTHOR, 
-	description = "", 
-	version = CEL_VERSION, 
+	name = "|CelMod| ",
+	author = CEL_AUTHOR,
+	description = "",
+	version = CEL_VERSION,
 	url = CEL_URL
 };
 

@@ -1,61 +1,96 @@
++copy - Client - Starts copying and moving the prop you are looking at.
++move - Client - Starts moving the prop you are looking at.
+-copy - Client - Stops copying and moving the prop you are looking at.
+-move - Client - Stops moving the prop you are looking at.
 cm_exportcolorlist - Server - Exports the color list into a text or html file in 'data/celmod/exports'.
 cm_exportcommandlist - Server - Exports the command list into a text or html file in 'data/celmod/exports'.
 cm_exportproplist - Server - Exports the prop list into a text or html file in 'data/celmod/exports'.
-sm_alpha - Client - Changes the transparency on the prop you are looking at.
-sm_amt - Client - Changes the transparency on the prop you are looking at.
-sm_axis - Client - Creates a marker to the player showing every axis.
-sm_balance - Client - Gets the players current balance.
-sm_buy - Client - Purchases the current entity you are looking at or command you specified.
-sm_cmds - Client - Displays the command list.
-sm_color - Client - Colors the prop you are looking at.
-sm_colorlist - Client - Displays the color list.
-sm_colors - Client - Displays the color list.
-sm_commandlist - Client - Displays the command list.
-sm_commands - Client - Displays the command list.
-sm_del - Client - Removes the prop you are looking at.
-sm_delete - Client - Removes the prop you are looking at.
-sm_door - Client - Spawns a working door cel.
-sm_effect - Client - Spawns a working effect cel.
-sm_effectlist - Client - Displays the effect list.
-sm_effects - Client - Displays the effect list.
-sm_emitter - Client - Spawns a working effect cel.
-sm_fadecolor - Client - Fades the prop you are looking at between two colors.
-sm_fly - Client - Enables/disables noclip on the player.
-sm_freeze - Client - Freezes the prop you are looking at.
-sm_freezeit - Client - Freezes the prop you are looking at.
-sm_internet - Client - Creates a working internet cel.
-sm_land - Client - Creates a building zone.
-sm_landdeathmatch - Client - Changes the deathmatch setting within the land.
-sm_landgravity - Client - Changes the gravity within the land.
-sm_landskin - Client - Changes the skin within the land.
-sm_load - Client - Loads entities from a save file.
-sm_mark - Client - Creates a marker to the player showing every axis.
-sm_marker - Client - Creates a marker to the player showing every axis.
-sm_nokill - Client - Enables/disables godmode on the player.
-sm_p - Client - Spawns a prop by name.
-sm_paint - Client - Colors the prop you are looking at.
-sm_pmove - Client - Moves the prop you are looking at on it's origin.
-sm_proplist - Client - Displays the prop list.
-sm_props - Client - Displays the prop list.
-sm_remove - Client - Removes the prop you are looking at.
-sm_renderfx - Client - Changes the RenderFX on the prop you are looking at.
-sm_rotate - Client - Rotates the prop you are looking at.
-sm_s - Client - Spawns a prop by name.
-sm_save - Client - Saves all server entities that are in your land.
-sm_sell - Client - Sells the entity you are looking at.
-sm_setbalance - Admin - Sets the balance of the client you are specifing.
-sm_setowner - Admin - Sets the owner of the prop you are looking at.
-sm_seturl - Client - Sets the url of the internet cel you are looking at.
-sm_smove - Client - Moves the prop you are looking at on it's origin.
-sm_solid - Client - Enables/disables solidicity on the prop you are looking at.
-sm_spawn - Client - Spawns a prop by name.
-sm_stack - Client - Stacks props on the x, y and z axis.
-sm_stackinfo - Client - Gets the origin difference between props for help stacking.
-sm_stand - Client - Resets the angles on the prop you are looking at.
-sm_straight - Client - Resets the angles on the prop you are looking at.
-sm_straighten - Client - Resets the angles on the prop you are looking at.
-sm_switch - Client - Switches the side the hud is on the screen.
-sm_unfreeze - Client - Unfreezes the prop you are looking at.
-sm_unfreezeit - Client - Unfreezes the prop you are looking at.
-sm_updatelist - Client - Displays the update list.
-sm_updates - Client - Displays the update list.
+v_alpha - Client - Changes the transparency on the prop you are looking at.
+v_ammo - Client - Creates a ammo bit that will give ammo when the player touches it.
+v_ammocrate - Client - Creates a ammo crate bit that will give ammo to the player.
+v_amt - Client - Changes the transparency on the prop you are looking at.
+v_autobuild - Admin - Stacks props on the x, y and z axis.
+v_axis - Client - Creates a marker to the player showing every axis.
+v_balance - Client - Gets the players current balance.
+v_blacklist - Admin - Adds/removes a prop from the spawn blacklist.
+v_button - Client - Spawns a button trigger bit.
+v_buy - Client - Purchases the current entity you are looking at or command you specified.
+v_charger - Client - Creates a health/suit charger bit that will give health/suit to the player.
+v_cmds - Client - Displays the command list.
+v_color - Client - Colors the prop you are looking at.
+v_colorlist - Client - Displays the color list.
+v_colors - Client - Displays the color list.
+v_commandlist - Client - Displays the command list.
+v_commands - Client - Displays the command list.
+v_coop - Client - Changes the mode to co-op within the land.
+v_copy - Client - Copies the prop you are looking at into your copy buffer.
+v_deathmatch - Client - Changes the mode to deathmatch within the land.
+v_del - Client - Removes the prop you are looking at.
+v_delall - Client - Removes all the entities that you own.
+v_delete - Client - Removes the prop you are looking at.
+v_deleteall - Client - Removes all the entities that you own.
+v_dm - Client - Changes the mode to deathmatch within the land.
+v_door - Client - Spawns a working door cel.
+v_drop - Client - Teleports the entity you are looking at to the floor.
+v_effect - Client - Spawns a working effect cel.
+v_effectlist - Client - Displays the effect list.
+v_effects - Client - Displays the effect list.
+v_emitter - Client - Spawns a working effect cel.
+v_fadecolor - Client - Fades the prop you are looking at between two colors.
+v_flip - Client - Flips the prop you are looking at.
+v_fly - Client - Enables/disables noclip on the player.
+v_freeze - Client - Freezes the prop you are looking at.
+v_freezeit - Client - Freezes the prop you are looking at.
+v_god - Client - Enables/disables breakability on the prop you are looking at.
+v_gravity - Client - Changes the gravity within the land.
+v_internet - Client - Creates a working internet cel.
+v_ladder - Client - Creates a working ladder cel.
+v_land - Client - Creates a building zone.
+v_landcoop - Client - Changes the mode to co-op within the land.
+v_landdeathmatch - Client - Changes the mode to deathmatch within the land.
+v_landgravity - Client - Changes the gravity within the land.
+v_landshop - Client - Changes the mode to shop (merchant) within the land.
+v_light - Client - Creates a working light cel.
+v_link - Client - Creates a link between a trigger bit and an entity.
+v_load - Client - Loads entities from a save file.
+v_lock - Client - Locks the cel you are looking at.
+v_mark - Client - Creates a marker to the player showing every axis.
+v_marker - Client - Creates a marker to the player showing every axis.
+v_nokill - Client - Enables/disables godmode on the player.
+v_owner - Client - Gets the owner of the entity you are looking at.
+v_p - Client - Spawns a prop by name.
+v_paint - Client - Colors the prop you are looking at.
+v_paste - Client - Pastes the prop in your copy buffer where you are looking at.
+v_pmove - Client - Moves the prop you are looking at on it's origin.
+v_proplist - Client - Displays the prop list.
+v_props - Client - Displays the prop list.
+v_r - Client - Rotates the prop you are looking at.
+v_remove - Client - Removes the prop you are looking at.
+v_removeall - Client - Removes all the entities that you own.
+v_renderfx - Client - Changes the RenderFX on the prop you are looking at.
+v_replace - Client - Replaces the model on the entity you are looking at.
+v_roll - Client - Rolls the prop you are looking at.
+v_rotate - Client - Flips, rotates and rolls the prop you are looking at.
+v_s - Client - Spawns a prop by name.
+v_save - Client - Saves all server entities that are in your land.
+v_sell - Client - Sells the entity you are looking at.
+v_setbalance - Admin - Sets the balance of the client you are specifing.
+v_setowner - Admin - Sets the owner of the prop you are looking at.
+v_seturl - Client - Sets the url of the internet cel you are looking at.
+v_shop - Client - Changes the mode to shop (merchant) within the land.
+v_skin - Client - Changes the skin on the prop you are looking at.
+v_smove - Client - Moves the prop you are looking at on it's origin.
+v_solid - Client - Enables/disables solidicity on the prop you are looking at.
+v_spawn - Client - Spawns a prop by name.
+v_stack - Client - Stacks one prop on the x, y and z axis.
+v_stackinfo - Client - Gets the origin difference between props for help stacking.
+v_stand - Client - Resets the angles on the prop you are looking at.
+v_straight - Client - Resets the angles on the prop you are looking at.
+v_straighten - Client - Resets the angles on the prop you are looking at.
+v_switch - Client - Switches the side the hud is on the screen.
+v_unfreeze - Client - Unfreezes the prop you are looking at.
+v_unfreezeit - Client - Unfreezes the prop you are looking at.
+v_unlock - Client - Unlocks the cel you are looking at.
+v_updatelist - Client - Displays the update list.
+v_updates - Client - Displays the update list.
+v_wep - Client - Creates a weapon bit that will give a weapon when the player touches it.

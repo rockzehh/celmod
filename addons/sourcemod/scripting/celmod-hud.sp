@@ -45,10 +45,12 @@ public void OnPluginStart()
 	
 	g_bHudEnable = view_as<bool>(g_cvHudEnable.IntValue);
 	
+	AutoExecConfig(true, "celmod.hud");
+	
 	AddCommandListener(Handle_Chat, "say");
 	AddCommandListener(Handle_Chat, "say_team");
 	
-	RegConsoleCmd("sm_switch", Command_Switch, "|CelMod| Switches the side the hud is on the screen.");
+	RegConsoleCmd("v_switch", Command_Switch, "|CelMod| Switches the side the hud is on the screen.");
 }
 
 public void OnMapStart()
@@ -261,7 +263,7 @@ public Action Timer_CommandHUD(Handle hTimer)
 	char sBalance[64], sBuffer[128], sBufferArray[2][128], sMessage[MAX_MESSAGE_LENGTH], sPropname[128];
 	float fOrigin[3];
 	int iColor[4], iLand;
-	
+
 	if (g_bHudEnable)
 	{
 		for (int i = 1; i < MaxClients; i++)
@@ -269,7 +271,7 @@ public Action Timer_CommandHUD(Handle hTimer)
 			if (Cel_IsPlayer(i))
 			{
 				int iEntity = Cel_GetClientAimTarget(i);
-				
+
 				if (iEntity != -1)
 				{
 					if(Cel_IsEntityForSale(iEntity))
@@ -277,60 +279,60 @@ public Action Timer_CommandHUD(Handle hTimer)
 						if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
 						{
 							Cel_GetPropName(iEntity, sPropname, sizeof(sPropname));
-							
+
 							if (Cel_CheckOwner(i, iEntity))
 							{
 								Format(sMessage, sizeof(sMessage), "Prop: %s\nPrice: %i", sPropname, Cel_GetEntityPrice(iEntity));
-								
+
 								Cel_GetHudColor(i, iColor);
 							} else {
 								Format(sMessage, sizeof(sMessage), "Owner: %N\nProp: %s\nPrice: %i", Cel_GetOwner(iEntity), sPropname, Cel_GetEntityPrice(iEntity));
-								
+
 								Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 							}
 						} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_CEL)) {
 							if (Cel_GetEntityType(iEntity) == ENTTYPE_EFFECT)
 							{
 								Cel_GetEffectTypeName(Cel_GetEffectType(iEntity), sPropname, sizeof(sPropname));
-								
+
 								if (Cel_CheckOwner(i, iEntity))
 								{
 									Format(sMessage, sizeof(sMessage), "Effect: %s\nPrice: %i", sPropname, Cel_GetEntityPrice(iEntity));
-									
+
 									Cel_GetHudColor(i, iColor);
 								} else {
 									Format(sMessage, sizeof(sMessage), "Owner: %N\nEffect: %s\nPrice: %i", Cel_GetOwner(iEntity), sPropname, Cel_GetEntityPrice(iEntity));
-									
+
 									Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 								}
 							} else {
 								Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sBuffer, sizeof(sBuffer));
-								
+
 								ExplodeString(sBuffer, " ", sBufferArray, 2, 128, true);
-								
+
 								strcopy(sPropname, sizeof(sPropname), sBufferArray[0]);
-								
+
 								if (Cel_CheckOwner(i, iEntity))
 								{
 									Format(sMessage, sizeof(sMessage), "Cel: %s\nPrice: %i", sPropname, Cel_GetEntityPrice(iEntity));
-									
+
 									Cel_GetHudColor(i, iColor);
 								} else {
 									Format(sMessage, sizeof(sMessage), "Owner: %N\nCel: %s\nPrice: %i", Cel_GetOwner(iEntity), sPropname, Cel_GetEntityPrice(iEntity));
-									
+
 									Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 								}
 							}
-							
+
 						} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_UNKNOWN)) {
 							if (Cel_CheckOwner(i, iEntity))
 							{
 								Format(sMessage, sizeof(sMessage), "Cel: ???\nPrice: %i", Cel_GetEntityPrice(iEntity));
-								
+
 								Cel_GetHudColor(i, iColor);
 							} else {
 								Format(sMessage, sizeof(sMessage), "Owner: %N\nCel: ???\nPrice: %i", Cel_GetOwner(iEntity), Cel_GetEntityPrice(iEntity));
-								
+
 								Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 							}
 						}
@@ -338,102 +340,102 @@ public Action Timer_CommandHUD(Handle hTimer)
 						if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
 						{
 							Cel_GetPropName(iEntity, sPropname, sizeof(sPropname));
-							
+
 							if (Cel_CheckOwner(i, iEntity))
 							{
 								Format(sMessage, sizeof(sMessage), "Prop: %s", sPropname);
-								
+
 								Cel_GetHudColor(i, iColor);
 							} else {
 								Format(sMessage, sizeof(sMessage), "Owner: %N\nProp: %s", Cel_GetOwner(iEntity), sPropname);
-								
+
 								Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 							}
 						} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_CEL)) {
 							if (Cel_GetEntityType(iEntity) == ENTTYPE_EFFECT)
 							{
 								Cel_GetEffectTypeName(Cel_GetEffectType(iEntity), sPropname, sizeof(sPropname));
-								
+
 								if (Cel_CheckOwner(i, iEntity))
 								{
 									Format(sMessage, sizeof(sMessage), "Effect: %s", sPropname);
-									
+
 									Cel_GetHudColor(i, iColor);
 								} else {
 									Format(sMessage, sizeof(sMessage), "Owner: %N\nEffect: %s", Cel_GetOwner(iEntity), sPropname);
-									
+
 									Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 								}
 							} else {
 								Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sBuffer, sizeof(sBuffer));
-								
+
 								ExplodeString(sBuffer, " ", sBufferArray, 2, 128, true);
-								
+
 								strcopy(sPropname, sizeof(sPropname), sBufferArray[0]);
-								
+
 								if (Cel_CheckOwner(i, iEntity))
 								{
 									Format(sMessage, sizeof(sMessage), "Cel: %s", sPropname);
-									
+
 									Cel_GetHudColor(i, iColor);
 								} else {
 									Format(sMessage, sizeof(sMessage), "Owner: %N\nCel: %s", Cel_GetOwner(iEntity), sPropname);
-									
+
 									Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 								}
 							}
-							
+
 						} else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_UNKNOWN)) {
 							if (Cel_CheckOwner(i, iEntity))
 							{
 								Format(sMessage, sizeof(sMessage), "Entity: Unknown");
-								
+
 								Cel_GetHudColor(i, iColor);
 							} else {
 								Format(sMessage, sizeof(sMessage), "Owner: %N\nCel: ???", Cel_GetOwner(iEntity));
-								
+
 								Cel_GetHudColor(Cel_GetOwner(iEntity), iColor);
 							}
 						}
 					}
 					if (Cel_IsPlayer(iEntity)) {
 						Cel_GetClientBalanceTranslated(iEntity, sBalance, sizeof(sBalance));
-						
+
 						Format(sMessage, sizeof(sMessage), "%N\nBalance: %s | Spawned: %d", iEntity, sBalance, Cel_GetCombinedCount(iEntity));
-						
+
 						Cel_GetHudColor(iEntity, iColor);
 					} else {
 						Cel_GetClientBalanceTranslated(i, sBalance, sizeof(sBalance));
-						
+
 						Format(sMessage, sizeof(sMessage), "Balance: %s\nSpawned: %d", sBalance, Cel_GetCombinedCount(i));
-						
+
 						Cel_GetHudColor(i, iColor);
 					}
 				} else if(Cel_IsClientCrosshairInLand(i)){
 				}else {
 					Cel_GetCrosshairHitOrigin(i, fOrigin);
-					
+
 					iLand = Cel_GetLandOwnerFromPosition(fOrigin);
-					
+
 					if(iLand != -1)
 					{
 						Format(sMessage, sizeof(sMessage), "Land: %N", iLand);
-						
+
 						Cel_GetHudColor(iLand, iColor);
 					}else{
 						Cel_GetClientBalanceTranslated(i, sBalance, sizeof(sBalance));
-						
+
 						Format(sMessage, sizeof(sMessage), "Balance: %s\nSpawned: %d", sBalance, Cel_GetCombinedCount(i));
-						 
+
 						Cel_GetHudColor(i, iColor);
 					}
 				}
-				
+
 				Cel_SendHudMessage(i, 1, 2.010, -0.110, iColor[0], iColor[1], iColor[2], iColor[3], 0, 0.6, 0.01, 0.2, 0.01, sMessage);
 			}
 		}
 	}
-	
+
 	return Plugin_Continue;
 }*/
 
@@ -453,7 +455,88 @@ public Action Timer_HUD(Handle hTimer)
 				
 				if (iEntity != -1)
 				{
-					if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
+					if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_BIT)) {
+						if(Cel_GetEntityType(iEntity) == ENTTYPE_AMMO)
+						{
+							Cel_GetAmmoTypeName(Cel_GetAmmoType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Ammo: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nAmmo: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_AMMOCRATE)
+						{
+							Cel_GetAmmoCrateTypeName(Cel_GetAmmoCrateType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Ammocrate: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nAmmocrate: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_CHARGER)
+						{
+							Cel_GetChargerTypeName(Cel_GetChargerType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Charger: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nCharger: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_TRIGGER)
+						{
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Cel: %s", "trigger");
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nCel: %s", Cel_GetOwner(iEntity), "trigger");
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else if(Cel_GetEntityType(iEntity) == ENTTYPE_WEAPONSPWNER)
+						{
+							Cel_GetWeaponTypeName(Cel_GetWeaponType(iEntity), sCelBuffer, sizeof(sCelBuffer));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Weapon: %s", sCelBuffer);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nWeapon: %s", Cel_GetOwner(iEntity), sCelBuffer);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}else{
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Cel: %s", "bit");
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nCel: %s", Cel_GetOwner(iEntity), "bit");
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
+						}
+					}else if (Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP))
 					{
 						Cel_GetPropName(iEntity, sPropName, sizeof(sPropName));
 						

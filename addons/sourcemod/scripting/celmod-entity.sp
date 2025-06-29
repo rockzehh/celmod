@@ -27,6 +27,8 @@ float g_fCopyMoveOrigin[MAXPLAYERS + 1][3];
 float g_fFadeTime[MAXENTITIES + 1];
 float g_fRainbowTime[MAXENTITIES + 1];
 
+Handle g_hOnEntityRemove;
+
 int g_iColor[MAXENTITIES + 1][4];
 int g_iFadeColor[MAXENTITIES + 1][6];
 int g_iEntityDissolve;
@@ -41,18 +43,28 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 {
 	CreateNative("Cel_ChangePositionRelativeToOrigin", Native_ChangePositionRelativeToOrigin);
 	CreateNative("Cel_CheckColorDB", Native_CheckColorDB);
+	CreateNative("Cel_CheckEntityCatagory", Native_CheckEntityCatagory);
+	CreateNative("Cel_CheckEntityType", Native_CheckEntityType);
+	CreateNative("Cel_CheckOwner", Native_CheckOwner);
 	CreateNative("Cel_CheckRenderFX", Native_CheckRenderFX);
 	CreateNative("Cel_CopyProp", Native_CopyProp);
 	CreateNative("Cel_DissolveEntity", Native_DissolveEntity);
 	CreateNative("Cel_DropEntityToFloor", Native_DropEntityToFloor);
 	CreateNative("Cel_GetColor", Native_GetColor);
+	CreateNative("Cel_GetEntityCatagory", Native_GetEntityCatagory);
+	CreateNative("Cel_GetEntityCatagoryName", Native_GetEntityCatagoryName);
+	CreateNative("Cel_GetEntityType", Native_GetEntityType);
+	CreateNative("Cel_GetEntityTypeFromName", Native_GetEntityTypeFromName);
+	CreateNative("Cel_GetEntityTypeName", Native_GetEntityTypeName);
 	CreateNative("Cel_GetFadeColor", Native_GetFadeColor);
 	CreateNative("Cel_GetMotion", Native_GetMotion);
+	CreateNative("Cel_GetOwner", Native_GetOwner);
 	CreateNative("Cel_GetPropName", Native_GetPropName);
 	CreateNative("Cel_GetRenderFX", Native_GetRenderFX);
 	CreateNative("Cel_GetRenderFXFromName", Native_GetRenderFXFromName);
 	CreateNative("Cel_GetRenderFXName", Native_GetRenderFXName);
 	CreateNative("Cel_IsBreakable", Native_IsFading);
+	CreateNative("Cel_IsEntity", Native_IsEntity);
 	CreateNative("Cel_IsFading", Native_IsFading);
 	CreateNative("Cel_IsLocked", Native_IsLocked);
 	CreateNative("Cel_IsRainbow", Native_IsRainbow);
@@ -62,7 +74,9 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SetBreakable", Native_SetBreakable);
 	CreateNative("Cel_SetColor", Native_SetColor);
 	CreateNative("Cel_SetColorFade", Native_SetColorFade);
+	CreateNative("Cel_SetEntity", Native_SetEntity);
 	CreateNative("Cel_SetMotion", Native_SetMotion);
+	CreateNative("Cel_SetOwner", Native_SetOwner);
 	CreateNative("Cel_SetPropName", Native_SetPropName);
 	CreateNative("Cel_SetRainbow", Native_SetRainbow);
 	CreateNative("Cel_SetRenderFX", Native_SetRenderFX);
@@ -105,6 +119,8 @@ public void OnPluginStart()
 		ThrowError("|CelMod| %t", "FileNotFound", g_sColorDB);
 	}
 	
+	g_hOnEntityRemove = CreateGlobalForward("Cel_OnEntityRemove", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
+	
 	RegAdminCmd("v_autobuild", Command_AutoBuild, ADMFLAG_SLAY, "|CelMod| Stacks props on the x, y and z axis.");
 	RegConsoleCmd("+copy", Command_StartCopy, "|CelMod| Starts copying and moving the prop you are looking at.");
 	RegConsoleCmd("+move", Command_StartGrab, "|CelMod| Starts moving the prop you are looking at.");
@@ -114,6 +130,10 @@ public void OnPluginStart()
 	RegConsoleCmd("v_amt", Command_Alpha, "|CelMod| Changes the transparency on the prop you are looking at.");
 	RegConsoleCmd("v_color", Command_Color, "|CelMod| Colors the prop you are looking at.");
 	RegConsoleCmd("v_copy", Command_CopyProp, "|CelMod| Copies the prop you are looking at into your copy buffer.");
+	RegConsoleCmd("v_del", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("v_delall", Command_DeleteAll, "|CelMod| Removes all the entities that you own.");
+	RegConsoleCmd("v_delete", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("v_deleteall", Command_DeleteAll, "|CelMod| Removes all the entities that you own.");
 	RegConsoleCmd("v_drop", Command_Drop, "|CelMod| Teleports the entity you are looking at to the floor.");
 	RegConsoleCmd("v_fadecolor", Command_FadeColor, "|CelMod| Fades the prop you are looking at between two colors.");
 	RegConsoleCmd("v_flip", Command_HookFlip, "|CelMod| Flips the prop you are looking at.");
@@ -124,8 +144,10 @@ public void OnPluginStart()
 	RegConsoleCmd("v_paint", Command_Color, "|CelMod| Colors the prop you are looking at.");
 	RegConsoleCmd("v_paste", Command_PasteProp, "|CelMod| Pastes the prop in your copy buffer where you are looking at.");
 	RegConsoleCmd("v_pmove", Command_SMove, "|CelMod| Moves the prop you are looking at on it's origin.");
-	RegConsoleCmd("v_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on the prop you are looking at.");
 	RegConsoleCmd("v_r", Command_HookRotate, "|CelMod| Rotates the prop you are looking at.");
+	RegConsoleCmd("v_remove", Command_Delete, "|CelMod| Removes the prop you are looking at.");
+	RegConsoleCmd("v_removeall", Command_DeleteAll, "|CelMod| Removes all the entities that you own.");
+	RegConsoleCmd("v_renderfx", Command_RenderFX, "|CelMod| Changes the RenderFX on the prop you are looking at.");
 	RegConsoleCmd("v_replace", Command_Replace, "|CelMod| Replaces the model on the entity you are looking at.");
 	RegConsoleCmd("v_roll", Command_HookRoll, "|CelMod| Rolls the prop you are looking at.");
 	RegConsoleCmd("v_rotate", Command_Rotate, "|CelMod| Flips, rotates and rolls the prop you are looking at.");
@@ -200,6 +222,20 @@ public void OnEntityDestroyed(int iEntity)
 		{
 			(Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(Cel_GetOwner(iEntity)) : Cel_SubFromCelCount(Cel_GetOwner(iEntity));
 		}
+		
+		Call_StartForward(g_hOnEntityRemove);
+		
+		Call_PushCell(iEntity);
+		Call_PushCell(Cel_GetOwner(iEntity));
+		Call_PushCell(view_as<int>(Cel_GetEntityCatagory(iEntity)));
+		Call_PushCell(view_as<int>(Cel_GetEntityType(iEntity)));
+		
+		Call_Finish();
+		
+		Cel_SetColorFade(iEntity, false, 0, 0, 0, 0, 0, 0);
+		Cel_SetOwner(-1, iEntity);
+		Cel_SetRainbow(iEntity, false);
+		Cel_SetEntity(iEntity, false);
 	}
 }
 
@@ -524,6 +560,97 @@ public Action Command_CopyProp(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
+public Action Command_Delete(int iClient, int iArgs)
+{
+	char sOption[32];
+	
+	GetCmdArg(1, sOption, sizeof(sOption));
+	
+	if (iArgs == 1)
+	{
+		if(StrContains(sOption, "#land", false) !=-1)
+		{
+			if(Cel_IsLandCreated(iClient))
+			{
+				Cel_ClearLand(iClient);
+				
+				Cel_ReplyToCommand(iClient, "%t", "LandCleared");
+			}else{
+				Cel_ReplyToCommand(iClient, "%t", "LandNotStarted");
+			}
+			
+			return Plugin_Handled;
+		}else{
+			Cel_ReplyToCommand(iClient, "%t", "CMD_Remove");
+			return Plugin_Handled;
+		}
+	}else{
+		if (Cel_GetClientAimTarget(iClient) == -1)
+		{
+			Cel_NotLooking(iClient);
+			return Plugin_Handled;
+		}
+		
+		int iProp = Cel_GetClientAimTarget(iClient);
+		
+		if (Cel_CheckOwner(iClient, iProp))
+		{
+			if (Cel_CheckEntityType(iProp, "effect"))
+			{
+				Cel_SetRainbow(Cel_GetEffectAttachment(iProp), false);
+				Cel_SetColorFade(Cel_GetEffectAttachment(iProp), false, 0, 0, 0, 0, 0, 0);
+				
+				AcceptEntityInput(Cel_GetEffectAttachment(iProp), "TurnOff");
+				AcceptEntityInput(Cel_GetEffectAttachment(iProp), "kill");
+			}
+			
+			Cel_RemovalBeam(iClient, iProp);
+			
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "Remove");
+			
+			Cel_DissolveEntity(iProp);
+		} else {
+			Cel_NotYours(iClient, iProp);
+			return Plugin_Handled;
+		}
+	}
+	
+	return Plugin_Handled;
+}
+
+public Action Command_DeleteAll(int iClient, int iArgs)
+{
+	char sRemoveCount[64];
+	int iRemoveCount = 0;
+	
+	for (int i = 0; i < GetMaxEntities(); i++)
+	{
+		if (Cel_CheckOwner(iClient, i) && Cel_IsEntity(i) && IsValidEntity(i))
+		{
+			if (Cel_CheckEntityType(i, "effect"))
+			{
+				Cel_SetRainbow(Cel_GetEffectAttachment(i), false);
+				Cel_SetColorFade(Cel_GetEffectAttachment(i), false, 0, 0, 0, 0, 0, 0);
+				
+				AcceptEntityInput(Cel_GetEffectAttachment(i), "TurnOff");
+				AcceptEntityInput(Cel_GetEffectAttachment(i), "kill");
+			}
+			
+			AcceptEntityInput(i, "kill");
+			
+			iRemoveCount++;
+		}
+	}
+	
+	Format(sRemoveCount, sizeof(sRemoveCount), "{green}%i{default} %s", iRemoveCount, iRemoveCount == 1 ? "entity" : "entities");
+	
+	Cel_ReplyToCommand(iClient, "%t", "RemoveAll", sRemoveCount);
+	
+	iRemoveCount = 0;
+	
+	return Plugin_Handled;
+}
+
 //Thanks instakill for the direction.
 public Action Command_Drop(int iClient, int iArgs)
 {
@@ -641,7 +768,7 @@ public Action Command_FadeColor(int iClient, int iArgs)
 			
 			Cel_ChangeBeam(iClient, iProp);
 			
-		Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetFadingColors", sColor[0], sColor[1]);
+			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetFadingColors", sColor[0], sColor[1]);
 		} else {
 			Cel_NotYours(iClient, iProp);
 			return Plugin_Handled;
@@ -1683,6 +1810,32 @@ public int Native_CheckColorDB(Handle hPlugin, int iNumParams)
 	return (StrEqual(sColorLine, "null")) ? false : true;
 }
 
+public int Native_CheckEntityCatagory(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	return (Cel_GetEntityCatagory(iEntity) == view_as<EntityCatagory>(GetNativeCell(2))) ? true : false;
+}
+
+public int Native_CheckEntityType(Handle hPlugin, int iNumParams)
+{
+	char sPropCheck[PLATFORM_MAX_PATH];
+	
+	int iEntity = GetNativeCell(1);
+	
+	GetNativeString(2, sPropCheck, sizeof(sPropCheck));
+	
+	return (Cel_GetEntityType(iEntity) == Cel_GetEntityTypeFromName(sPropCheck)) ? true : false;
+}
+
+public int Native_CheckOwner(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	int iEntity = GetNativeCell(2);
+	
+	return (Cel_GetOwner(iEntity) == iClient && Cel_IsEntity(iEntity)) ? true : false;
+}
+
 public int Native_CheckRenderFX(Handle hPlugin, int iNumParams)
 {
 	char sCheck[PLATFORM_MAX_PATH], sType[PLATFORM_MAX_PATH];
@@ -1787,6 +1940,245 @@ public int Native_GetColor(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	EntityType etEntityType = Cel_GetEntityType(iEntity);
+	
+	if (etEntityType == ENTTYPE_AMMO || etEntityType == ENTTYPE_AMMOCRATE || etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_CHARGER || etEntityType == ENTTYPE_TRIGGER || etEntityType == ENTTYPE_WEAPONSPWNER)
+	{
+		return view_as<int>(ENTCATAGORY_BIT);
+	}else if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT)
+	{
+		return view_as<int>(ENTCATAGORY_CEL);
+	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS || etEntityType == ENTTYPE_CLEER)
+	{
+		return view_as<int>(ENTCATAGORY_PROP);
+	} else {
+		return view_as<int>(ENTCATAGORY_UNKNOWN);
+	}
+}
+
+public int Native_GetEntityCatagoryName(Handle hPlugin, int iNumParams)
+{
+	char sEntityCatagory[PLATFORM_MAX_PATH];
+	int iMaxLength = GetNativeCell(3);
+	
+	switch (view_as<EntityCatagory>(GetNativeCell(1)))
+	{
+		case ENTCATAGORY_BIT:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "bit entity");
+		}
+		case ENTCATAGORY_CEL:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "cel entity");
+		}
+		case ENTCATAGORY_PROP:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "prop entity");
+		}
+		case ENTCATAGORY_UNKNOWN:
+		{
+			Format(sEntityCatagory, sizeof(sEntityCatagory), "unknown entity");
+		}
+	}
+	
+	SetNativeString(2, sEntityCatagory, iMaxLength);
+	
+	return true;
+}
+
+public int Native_GetEntityType(Handle hPlugin, int iNumParams)
+{
+	char sClassname[64];
+	
+	int iEntity = GetNativeCell(1);
+	
+	GetEntityClassname(iEntity, sClassname, sizeof(sClassname));
+	
+	if (StrEqual(sClassname, "cel_doll", false))
+	{
+		return view_as<int>(ENTTYPE_CYCLER);
+	} else if (StrEqual(sClassname, "cel_door", false))
+	{
+		return view_as<int>(ENTTYPE_DOOR);
+	} else if (StrEqual(sClassname, "cel_internet", false))
+	{
+		return view_as<int>(ENTTYPE_INTERNET);
+	} else if (StrEqual(sClassname, "cel_ladder", false))
+	{
+		return view_as<int>(ENTTYPE_LADDER);
+	} else if (StrEqual(sClassname, "cel_light", false))
+	{
+		return view_as<int>(ENTTYPE_LIGHT);
+	} else if (StrContains(sClassname, "effect_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_EFFECT);
+	} else if (StrEqual(sClassname, "cel_cleerbox", false))
+	{
+		return view_as<int>(ENTTYPE_CLEER);
+	} else if (StrEqual(sClassname, "cel_dynamic", false))
+	{
+		return view_as<int>(ENTTYPE_DYNAMIC);
+	} else if (StrEqual(sClassname, "cel_physics", false))
+	{
+		return view_as<int>(ENTTYPE_PHYSICS);
+	} else if (StrContains(sClassname, "bit_ammo_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_AMMO);
+	} else if (StrEqual(sClassname, "bit_ammocrate", false))
+	{
+		return view_as<int>(ENTTYPE_AMMOCRATE);
+	} else if (StrContains(sClassname, "bit_charger_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_CHARGER);
+	} else if (StrContains(sClassname, "bit_wep_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_WEAPONSPWNER);
+	} else if (StrContains(sClassname, "bit_trigger_", false) != -1)
+	{
+		return view_as<int>(ENTTYPE_TRIGGER);
+	} else {
+		return view_as<int>(ENTTYPE_UNKNOWN);
+	}
+}
+
+public int Native_GetEntityTypeFromName(Handle hPlugin, int iNumParams)
+{
+	char sEntityType[PLATFORM_MAX_PATH];
+	
+	GetNativeString(1, sEntityType, sizeof(sEntityType));
+	
+	if (StrEqual(sEntityType, "cleer", false))
+	{
+		return view_as<int>(ENTTYPE_CLEER);
+	} else if (StrEqual(sEntityType, "cycler", false))
+	{
+		return view_as<int>(ENTTYPE_CYCLER);
+	} else if (StrEqual(sEntityType, "door", false))
+	{
+		return view_as<int>(ENTTYPE_DOOR);
+	} else if (StrEqual(sEntityType, "dynamic", false))
+	{
+		return view_as<int>(ENTTYPE_DYNAMIC);
+	} else if (StrEqual(sEntityType, "effect", false))
+	{
+		return view_as<int>(ENTTYPE_EFFECT);
+	} else if (StrEqual(sEntityType, "internet", false))
+	{
+		return view_as<int>(ENTTYPE_INTERNET);
+	} else if (StrEqual(sEntityType, "ladder", false))
+	{
+		return view_as<int>(ENTTYPE_LADDER);
+	} else if (StrEqual(sEntityType, "light", false))
+	{
+		return view_as<int>(ENTTYPE_LIGHT);
+	} else if (StrEqual(sEntityType, "physics", false))
+	{
+		return view_as<int>(ENTTYPE_PHYSICS);
+	} else if (StrEqual(sEntityType, "bit", false))
+	{
+		return view_as<int>(ENTTYPE_BIT);
+	} else if (StrEqual(sEntityType, "ammo", false))
+	{
+		return view_as<int>(ENTTYPE_AMMO);
+	} else if (StrEqual(sEntityType, "ammocrate", false))
+	{
+		return view_as<int>(ENTTYPE_AMMOCRATE);
+	} else if (StrEqual(sEntityType, "charger", false))
+	{
+		return view_as<int>(ENTTYPE_CHARGER);
+	} else if (StrEqual(sEntityType, "weaponspwner", false))
+	{
+		return view_as<int>(ENTTYPE_WEAPONSPWNER);
+	} else if (StrEqual(sEntityType, "trigger", false))
+	{
+		return view_as<int>(ENTTYPE_TRIGGER);
+	} else {
+		return view_as<int>(ENTTYPE_UNKNOWN);
+	}
+}
+
+public int Native_GetEntityTypeName(Handle hPlugin, int iNumParams)
+{
+	char sEntityType[PLATFORM_MAX_PATH];
+	int iMaxLength = GetNativeCell(3);
+	
+	switch (view_as<EntityType>(GetNativeCell(1)))
+	{
+		case ENTTYPE_CYCLER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "cycler prop");
+		}
+		case ENTTYPE_CLEER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "cleer deposit box");
+		}
+		case ENTTYPE_DOOR:
+		{
+			Format(sEntityType, sizeof(sEntityType), "door cel");
+		}
+		case ENTTYPE_DYNAMIC:
+		{
+			Format(sEntityType, sizeof(sEntityType), "dynamic prop");
+		}
+		case ENTTYPE_EFFECT:
+		{
+			Format(sEntityType, sizeof(sEntityType), "effect cel");
+		}
+		case ENTTYPE_INTERNET:
+		{
+			Format(sEntityType, sizeof(sEntityType), "internet cel");
+		}
+		case ENTTYPE_LADDER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "ladder cel");
+		}
+		case ENTTYPE_LIGHT:
+		{
+			Format(sEntityType, sizeof(sEntityType), "light cel");
+		}
+		case ENTTYPE_PHYSICS:
+		{
+			Format(sEntityType, sizeof(sEntityType), "physics prop");
+		}
+		case ENTTYPE_BIT:
+		{
+			Format(sEntityType, sizeof(sEntityType), "bit cel");
+		}
+		case ENTTYPE_AMMO:
+		{
+			Format(sEntityType, sizeof(sEntityType), "ammo bit cel");
+		}
+		case ENTTYPE_AMMOCRATE:
+		{
+			Format(sEntityType, sizeof(sEntityType), "ammo crate bit cel");
+		}
+		case ENTTYPE_CHARGER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "charger bit cel");
+		}
+		case ENTTYPE_WEAPONSPWNER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "weapon bit cel");
+		}
+		case ENTTYPE_TRIGGER:
+		{
+			Format(sEntityType, sizeof(sEntityType), "trigger bit cel");
+		}
+		case ENTTYPE_UNKNOWN:
+		{
+			Format(sEntityType, sizeof(sEntityType), "unknown prop type");
+		}
+	}
+	
+	SetNativeString(2, sEntityType, iMaxLength);
+	
+	return true;
+}
+
 public int Native_GetFadeColor(Handle hPlugin, int iNumParams)
 {
 	int iColor[2][3];
@@ -1811,6 +2203,23 @@ public int Native_GetMotion(Handle hPlugin, int iNumParams)
 	int iEntity = GetNativeCell(1);
 	
 	return g_bMotion[iEntity];
+}
+
+public int Native_GetOwner(Handle hPlugin, int iNumParams)
+{
+	char sOwnerString[128];
+	int iEntity = GetNativeCell(1);
+	
+	if(Cel_IsEntity(iEntity))
+	{
+		Entity_GetGlobalName(iEntity, sOwnerString, sizeof(sOwnerString));
+		
+		ReplaceString(sOwnerString, sizeof(sOwnerString), "CelMod:", "");
+		
+		return GetClientFromSerial(StringToInt(sOwnerString));
+	}
+	
+	return -1;
 }
 
 public int Native_GetRenderFX(Handle hPlugin, int iNumParams)
@@ -1910,6 +2319,24 @@ public int Native_IsBreakable(Handle hPlugin, int iNumParams)
 	int iEntity = GetNativeCell(1);
 	
 	return g_bBreakable[iEntity];
+}
+
+public int Native_IsEntity(Handle hPlugin, int iNumParams)
+{
+	char sOwnerString[128];
+	int iEntity = GetNativeCell(1);
+	
+	if(IsValidEntity(iEntity) && iEntity != -1)
+	{
+		Entity_GetGlobalName(iEntity, sOwnerString, sizeof(sOwnerString));
+		
+		if(StrContains(sOwnerString, "CelMod:", true) != -1)
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 public int Native_IsFading(Handle hPlugin, int iNumParams)
@@ -2050,6 +2477,24 @@ public int Native_SetColorFade(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_SetEntity(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	bool bEntity = view_as<bool>(GetNativeCell(2));
+	
+	if(IsValidEntity(iEntity) && iEntity != -1)
+	{
+		if(bEntity)
+		{
+			Entity_SetGlobalName(iEntity, "CelMod:-1");
+		}else{
+			Entity_SetGlobalName(iEntity, "");
+		}
+	}
+	
+	return true;
+}
+
 public int Native_SetMotion(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
@@ -2058,6 +2503,16 @@ public int Native_SetMotion(Handle hPlugin, int iNumParams)
 	bMotion ? AcceptEntityInput(iEntity, "enablemotion") : AcceptEntityInput(iEntity, "disablemotion");
 	
 	g_bMotion[iEntity] = bMotion;
+	
+	return true;
+}
+
+public int Native_SetOwner(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	int iEntity = GetNativeCell(2);
+	
+	Entity_SetGlobalName(iEntity, "CelMod:%i", GetClientSerial(iClient));
 	
 	return true;
 }

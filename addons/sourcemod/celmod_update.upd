@@ -15,6 +15,7 @@
 		"Notes" "Accuratly scrolling through skins is now achieved by using StudioHdr."
 		"Notes" "Started work on buttons/triggers. ALPHA"
 		"Notes" "Added !owner, !drop, !replace, !lock and !unlock."
+		"Notes"	"v2.1.4 is now released!"
 	}
 	
 	"Files"
@@ -27,6 +28,7 @@
 		"Plugin"	"Path_SM/plugins/celmod.smx"
 		"Plugin"	"Path_SM/plugins/celmod-bits.smx"
 		"Plugin"	"Path_SM/plugins/celmod-buildsaving.smx"
+		"Plugin"	"Path_SM/plugins/celmod-cels.smx"
 		"Plugin"	"Path_SM/plugins/celmod-chat.smx"
 		"Plugin"	"Path_SM/plugins/celmod-clientstorage.smx"
 		"Plugin"	"Path_SM/plugins/celmod-economy.smx"
@@ -44,6 +46,7 @@
 		"Source"	"Path_SM/scripting/celmod.sp"
 		"Source"	"Path_SM/scripting/celmod-bits.sp"
 		"Source"	"Path_SM/scripting/celmod-buildsaving.sp"
+		"Source"	"Path_SM/scripting/celmod-cels.sp"
 		"Source"	"Path_SM/scripting/celmod-chat.sp"
 		"Source"	"Path_SM/scripting/celmod-clientstorage.sp"
 		"Source"	"Path_SM/scripting/celmod-economy.sp"

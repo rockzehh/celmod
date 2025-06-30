@@ -1,4 +1,4 @@
-# |CelMod|
+![alt text](https://raw.githubusercontent.com/rockzehh/celmod/refs/heads/main/images/gh-logo.png "CelMod Logo")
 
 **|CelMod|** is a fully customized building experience, and extra features to enhance the standard gameplay.
 

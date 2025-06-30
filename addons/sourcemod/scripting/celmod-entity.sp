@@ -2040,6 +2040,12 @@ public int Native_GetEntityType(Handle hPlugin, int iNumParams)
 	} else if (StrContains(sClassname, "bit_trigger_", false) != -1)
 	{
 		return view_as<int>(ENTTYPE_TRIGGER);
+	} else if (StrEqual(sClassname, "cel_music", false))
+	{
+		return view_as<int>(ENTTYPE_MUSIC);
+	} else if (StrEqual(sClassname, "cel_sound", false))
+	{
+		return view_as<int>(ENTTYPE_SOUND);
 	} else {
 		return view_as<int>(ENTTYPE_UNKNOWN);
 	}
@@ -2096,6 +2102,12 @@ public int Native_GetEntityTypeFromName(Handle hPlugin, int iNumParams)
 	} else if (StrEqual(sEntityType, "trigger", false))
 	{
 		return view_as<int>(ENTTYPE_TRIGGER);
+	} else if (StrEqual(sEntityType, "music", false))
+	{
+		return view_as<int>(ENTTYPE_MUSIC);
+	} else if (StrEqual(sEntityType, "sound", false))
+	{
+		return view_as<int>(ENTTYPE_SOUND);
 	} else {
 		return view_as<int>(ENTTYPE_UNKNOWN);
 	}
@@ -2167,6 +2179,14 @@ public int Native_GetEntityTypeName(Handle hPlugin, int iNumParams)
 		case ENTTYPE_TRIGGER:
 		{
 			Format(sEntityType, sizeof(sEntityType), "trigger bit cel");
+		}
+		case ENTTYPE_MUSIC:
+		{
+			Format(sEntityType, sizeof(sEntityType), "music cel");
+		}
+		case ENTTYPE_SOUND:
+		{
+			Format(sEntityType, sizeof(sEntityType), "sound cel");
 		}
 		case ENTTYPE_UNKNOWN:
 		{

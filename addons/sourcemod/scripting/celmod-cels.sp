@@ -5,22 +5,33 @@
 #pragma newdecls required
 
 bool g_bLate;
+bool g_bMusicActive[MAXENTITIES + 1];
 
 char g_sDefaultInternetURL[PLATFORM_MAX_PATH];
 char g_sInternetURL[MAXENTITIES + 1][PLATFORM_MAX_PATH];
+char g_sMusicPath[MAXENTITIES + 1][PLATFORM_MAX_PATH];
+char g_sSoundPath[MAXENTITIES + 1][PLATFORM_MAX_PATH];
 
 ConVar g_cvDefaultInternetURL;
 
+float g_fLoop[MAXENTITIES + 1];
+
 Handle g_hOnCelSpawn;
+Handle g_hMusicLoop[MAXENTITIES + 1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_GetInternetURL", Native_GetInternetURL);
+	CreateNative("Cel_GetMusicLoopTime", Native_GetMusicLoopTime);
+	CreateNative("Cel_GetMusicPath", Native_GetMusicPath);
+	CreateNative("Cel_GetSoundPath", Native_GetSoundPath);
 	CreateNative("Cel_SetInternetURL", Native_SetInternetURL);
 	CreateNative("Cel_SpawnDoor", Native_SpawnDoor);
 	CreateNative("Cel_SpawnInternet", Native_SpawnInternet);
 	CreateNative("Cel_SpawnLadder", Native_SpawnLadder);
 	CreateNative("Cel_SpawnLight", Native_SpawnLight);
+	CreateNative("Cel_SpawnMusic", Native_SpawnMusic);
+	CreateNative("Cel_SpawnSound", Native_SpawnSound);
 	
 	return APLRes_Success;
 }
@@ -533,4 +544,59 @@ public int Native_SpawnLight(Handle hPlugin, int iNumParams)
 	Cel_SetRenderFX(iProp, RENDERFX_NONE);
 	
 	return iProp;
+}
+
+public int Native_SpawnMusic(Handle hPlugin, int iNumParams)
+{
+	char sMusicPath[PLATFORM_MAX_PATH];
+	float fAngles[3], fOrigin[3];
+	int iClient = GetNativeCell(1), iColor[4];
+	
+	GetNativeString(2, sMusicPath, sizeof(sMusicPath));
+	
+	GetNativeArray(3, fAngles, 3);
+	GetNativeArray(4, fOrigin, 3);
+	
+	iColor[0] = GetNativeCell(5);
+	iColor[1] = GetNativeCell(6);
+	iColor[2] = GetNativeCell(7);
+	iColor[3] = GetNativeCell(8);
+	
+	int iInternet = CreateEntityByName("prop_physics_override");
+	
+	if (iInternet == -1)
+	return -1;
+	
+	PrecacheModel("models/props_lab/monitor02.mdl");
+	
+	DispatchKeyValue(iInternet, "model", "models/props_lab/monitor02.mdl");
+	DispatchKeyValue(iInternet, "classname", "cel_internet");
+	DispatchKeyValue(iInternet, "skin", "1");
+	DispatchKeyValue(iInternet, "spawnflags", "256");
+	
+	TeleportEntity(iInternet, fOrigin, fAngles, NULL_VECTOR);
+	
+	DispatchSpawn(iInternet);
+	
+	Cel_AddToCelCount(iClient);
+	
+	Cel_SetColor(iInternet, iColor[0], iColor[1], iColor[2], iColor[3]);
+	
+	Cel_SetRainbow(iInternet, false);
+	
+	Cel_SetEntity(iInternet, true);
+	
+	Cel_SetMotion(iInternet, false);
+	
+	Cel_SetInternetURL(iInternet, sURL);
+	
+	Cel_SetOwner(iClient, iInternet);
+	
+	Cel_SetSolid(iInternet, true);
+	
+	Cel_SetRenderFX(iInternet, RENDERFX_NONE);
+	
+	SDKHook(iInternet, SDKHook_Use, Hook_InternetUse);
+	
+	return iInternet;
 }

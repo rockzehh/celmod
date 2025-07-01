@@ -285,9 +285,7 @@ public Action Command_Music(int iClient, int iArgs)
 		fVolume = 0.9;
 	}else if(StringToInt(sVolume) > 50 || StringToInt(sVolume) < 90)
 	{
-		Format(sVolume, sizeof(sVolume), "0.%s", StringToInt(sVolume));
-		
-		fVolume = StringToFloat(sVolume);
+		fVolume = float(StringToInt(sVolume)) / 100.0;
 	}else if(StrEqual(sVolume, "", false))
 	{
 		fVolume = 0.9;

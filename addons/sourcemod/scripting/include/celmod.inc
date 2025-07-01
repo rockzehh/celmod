@@ -37,7 +37,7 @@ enum EntityType
 	ENTTYPE_TRIGGER = 14,
 	ENTTYPE_LINK = 15,
 	ENTTYPE_MUSIC = 16,
-	ENTTYPE_SOUND = 17
+	ENTTYPE_SOUND = 17,
 	ENTTYPE_UNKNOWN = 18,
 };
 
@@ -146,14 +146,7 @@ forward void Cel_OnCelSpawn(int iCel, int iOwner, EntityType etEntityType);
  */
 forward void Cel_OnEffectSpawn(int iEffect, int iOwner, EffectType etEffectType);
 
-/**
- * Called when an entity is removed from the game.
- *
- * @param iEntity  The entity index of the removed entity.
- * @param iOwner   The client index of the player who owned the entity, if applicable.
- * @param bCel	 True if the entity was a Cel entity, false otherwise.
- */
-forward void Cel_OnEntityRemove(int iEntity, int iOwner, bool bCel);
+forward void Cel_OnEntityRemove(int iEntity, int iOwner, EntityCatagory ecEntityCatagory, EntityType etEntityType);
 
 /**
  * Called when a prop entity is spawned.
@@ -266,6 +259,8 @@ native bool Cel_CheckEntityType(int iEntity, const char[] sTypeCheck);
  */
 native char Cel_CheckInputURL(const char[] sInput, char[] sOutput, int iMaxLength);
 
+native bool Cel_CheckMusicDB(const char[] sMusic, char[] sMusicString, int iMaxLength);
+
 /**
  * Verifies whether a client is the owner of a given entity.
  *
@@ -293,6 +288,8 @@ native bool Cel_CheckPropCount(int iClient);
 native bool Cel_CheckRenderFX(const int iEntity, const char[] sType);
 
 native bool Cel_CheckShopDB(char[] sCommand, int iPrice, char[] sDisplayText, int iMaxLength);
+
+native bool Cel_CheckSoundDB(const char[] sSound, char[] sSoundString, int iMaxLength);
 
 /**
  * Validates an alias against the internal spawn database.
@@ -674,6 +671,12 @@ native void Cel_GetMiddleOfABox(float fMin[3], float fMax[3], float fBuffer[3]);
  */
 native bool Cel_GetMotion(int iEntity);
 
+native float Cel_GetMusicLoopTime(int iEntity);
+
+native void Cel_GetMusicPath(int iEntity, char[] sMusicPath, int iMaxLength);
+
+native float Cel_GetMusicVolume(int iEntity);
+
 /**
  * Retrieves the NoKill status of a client.
  *
@@ -750,6 +753,10 @@ native char Cel_GetRenderFXName(RenderFx rfRenderFX, char[] sRenderFX, int iMaxL
 
 native int Cel_GetSaveSystemVersion();
 
+native void Cel_GetSoundPath(int iEntity, char[] sSoundPath, int iMaxLength);
+
+native int Cel_GetSoundSpeed(int iEntity);
+
 native int Cel_GetTriggerType(iEntity);
 
 native WeaponBitType Cel_GetWeaponType(int iEntity);
@@ -765,6 +772,8 @@ native bool Cel_IsCelCommand(char sCommandString[MAX_MESSAGE_LENGTH]);
 native bool Cel_IsClientCrosshairInLand(int iClient);
 
 native bool Cel_IsClientInLand(int iClient);
+
+native bool Cel_IsDeleting(int iEntity);
 
 /**
  * Checks if an effect entity is currently active.
@@ -791,6 +800,10 @@ native bool Cel_IsFading(int iEntity);
 native bool Cel_IsLandCreated(int iClient);
 
 native bool Cel_IsLocked(int iEntity);
+
+native bool Cel_IsMusicActive(int iEntity);
+
+native bool Cel_IsMusicLooping(int iEntity);
 
 /**
  * Checks if a client is a valid player.
@@ -821,6 +834,8 @@ native bool Cel_IsRainbow(int iEntity);
 native bool Cel_IsSolid(int iEntity);
 
 native bool Cel_IsTrigger(iEntity);
+
+native void Cel_KillSound(int iEntity);
 
 /**
  * Loads a saved build for a client.
@@ -1221,6 +1236,8 @@ native int Cel_SpawnLadder(int iClient, const char[] sModel, float fAngles[3], f
 
 native int Cel_SpawnLight(int iClient, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
+native int Cel_SpawnMusic(int iClient, const char[] sMusicPath, bool bLoop = false, float fLoopTime = 0.0, bool bStart = true, float fVolume, int iSpeed, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
 /**
  * Spawns a prop entity.
  *
@@ -1237,6 +1254,8 @@ native int Cel_SpawnLight(int iClient, float fAngles[3], float fOrigin[3], int i
  * @return			The entity index of the spawned prop.
  */
 native int Cel_SpawnProp(int iClient, const char[] sAlias, const char[] sEntityType, const char[] sModel, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
+
+native int Cel_SpawnSound(int iClient, const char[] sSoundPath, int iSpeed, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
 native int Cel_SpawnWeaponBit(int iClient, WeaponBitType wbtType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 

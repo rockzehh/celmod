@@ -152,5 +152,13 @@
 		"song24"	"music/HL1_song24.mp3|77.0"
 		"song25"	"music/HL1_song25_REMIX3.mp3|61.0"
 		"song26"	"music/HL1_song26.mp3|37.0"
+		"summersolace"	"celmod/cm_intro_summersolace96k.mp3|72.0"
+		"chip"		"celmod/chip.mp3|106.0"
+		"chip2"		"celmod/chip2.mp3|265.0"
+		"chip3"		"celmod/chip3.mp3|102.0"
+		"chip4"		"celmod/chip4.mp3|195.0"
+		"krusty"		"celmod/krusty2.mp3|67.0"
+		"arctic"		"celmod/smb1_arctic.mp3|80.0"
+		"storm"		"celmod/smb1_storm.mp3|83.0"
 	}
 }

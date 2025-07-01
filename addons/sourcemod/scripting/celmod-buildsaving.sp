@@ -97,7 +97,7 @@ public Action Command_SaveBuild(int iClient, int iArgs)
 
 public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96];
+	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sTemp[256];
 	float fEnt[2][3], fOrigin[3];
 	
 	int iClient = GetNativeCell(1), iProp = -1;
@@ -201,6 +201,16 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 					case ENTTYPE_WEAPONSPWNER:
 					{
 						iProp = Cel_SpawnWeaponBit(iClient, view_as<WeaponBitType>(kvLoadBuild.GetNum("weaponbittype")), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_MUSIC:
+					{
+						kvLoadBuild.GetString("musicpath", sTemp, sizeof(sTemp));
+						iProp = Cel_SpawnMusic(iClient, sTemp, view_as<bool>(kvLoadBuild.GetNum("loop")), kvLoadBuild.GetFloat("looptime"), view_as<bool>(kvLoadBuild.GetNum("start")), kvLoadBuild.GetFloat("volume"), kvLoadBuild.GetNum("speed"), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+					}
+					case ENTTYPE_SOUND:
+					{
+						kvLoadBuild.GetString("soundpath", sTemp, sizeof(sTemp));
+						iProp = Cel_SpawnSound(iClient, sTemp, kvLoadBuild.GetNum("speed"), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
 					case ENTTYPE_UNKNOWN:
 					{
@@ -444,6 +454,34 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
 							
 							kvSaveBuild.SetNum("weaponbittype", Cel_GetWeaponType(i));
+						}
+						case ENTTYPE_MUSIC:
+						{
+							char sMusicPath[PLATFORM_MAX_PATH];
+							
+							Cel_GetMusicPath(i, sMusicPath, sizeof(sMusicPath));
+							
+							fEnt[0][1] -= 180;
+							
+							kvSaveBuild.SetString("musicpath", sMusicPath);
+							
+							kvSaveBuild.SetNum("loop", view_as<int>(Cel_IsMusicLooping(i)));
+							kvSaveBuild.SetNum("start", view_as<int>(Cel_IsMusicActive(i)));
+							
+							kvSaveBuild.SetFloat("looptime", Cel_GetMusicLoopTime(i));
+							kvSaveBuild.SetFloat("volume", Cel_GetMusicVolume(i));
+							
+							kvSaveBuild.SetNum("speed", Cel_GetSoundSpeed(i));
+						}
+						case ENTTYPE_SOUND:
+						{
+							char sSoundPath[PLATFORM_MAX_PATH];
+							
+							Cel_GetMusicPath(i, sSoundPath, sizeof(sSoundPath));
+							
+							kvSaveBuild.SetString("soundpath", sSoundPath);
+							
+							kvSaveBuild.SetNum("speed", Cel_GetSoundSpeed(i));
 						}
 					}
 					

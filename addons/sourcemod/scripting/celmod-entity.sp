@@ -14,6 +14,7 @@ bool g_bMotion[MAXENTITIES + 1];
 bool g_bLate;
 bool g_bLocked[MAXENTITIES + 1];
 bool g_bHasCopyEntity[MAXPLAYERS + 1];
+bool g_bIsDeleting[MAXENTITIES + 1];
 bool g_bIsFading[MAXENTITIES + 1];
 bool g_bRainbow[MAXENTITIES + 1];
 bool g_bSolid[MAXENTITIES + 1];
@@ -27,7 +28,7 @@ float g_fCopyMoveOrigin[MAXPLAYERS + 1][3];
 float g_fFadeTime[MAXENTITIES + 1];
 float g_fRainbowTime[MAXENTITIES + 1];
 
-Handle g_hOnEntityRemove;
+GlobalForward g_gfOnEntityRemoved;
 
 int g_iColor[MAXENTITIES + 1][4];
 int g_iFadeColor[MAXENTITIES + 1][6];
@@ -63,7 +64,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetRenderFX", Native_GetRenderFX);
 	CreateNative("Cel_GetRenderFXFromName", Native_GetRenderFXFromName);
 	CreateNative("Cel_GetRenderFXName", Native_GetRenderFXName);
-	CreateNative("Cel_IsBreakable", Native_IsFading);
+	CreateNative("Cel_IsBreakable", Native_IsBreakable);
+	CreateNative("Cel_IsDeleting", Native_IsDeleting);
 	CreateNative("Cel_IsEntity", Native_IsEntity);
 	CreateNative("Cel_IsFading", Native_IsFading);
 	CreateNative("Cel_IsLocked", Native_IsLocked);
@@ -119,7 +121,7 @@ public void OnPluginStart()
 		ThrowError("|CelMod| %t", "FileNotFound", g_sColorDB);
 	}
 	
-	g_hOnEntityRemove = CreateGlobalForward("Cel_OnEntityRemove", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
+	g_gfOnEntityRemoved = CreateGlobalForward("Cel_OnEntityRemove", ET_Hook, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 	
 	RegAdminCmd("v_autobuild", Command_AutoBuild, ADMFLAG_SLAY, "|CelMod| Stacks props on the x, y and z axis.");
 	RegConsoleCmd("+copy", Command_StartCopy, "|CelMod| Starts copying and moving the prop you are looking at.");
@@ -223,19 +225,19 @@ public void OnEntityDestroyed(int iEntity)
 			(Cel_CheckEntityCatagory(iEntity, ENTCATAGORY_PROP)) ? Cel_SubFromPropCount(Cel_GetOwner(iEntity)) : Cel_SubFromCelCount(Cel_GetOwner(iEntity));
 		}
 		
-		Call_StartForward(g_hOnEntityRemove);
+		Call_StartForward(g_gfOnEntityRemoved);
 		
 		Call_PushCell(iEntity);
 		Call_PushCell(Cel_GetOwner(iEntity));
-		Call_PushCell(view_as<int>(Cel_GetEntityCatagory(iEntity)));
-		Call_PushCell(view_as<int>(Cel_GetEntityType(iEntity)));
+		Call_PushCell(Cel_GetEntityCatagory(iEntity));
+		Call_PushCell(Cel_GetEntityType(iEntity));
 		
 		Call_Finish();
 		
 		Cel_SetColorFade(iEntity, false, 0, 0, 0, 0, 0, 0);
-		Cel_SetOwner(-1, iEntity);
 		Cel_SetRainbow(iEntity, false);
 		Cel_SetEntity(iEntity, false);
+		g_bIsDeleting[iEntity] = false;
 	}
 }
 
@@ -604,6 +606,9 @@ public Action Command_Delete(int iClient, int iArgs)
 				AcceptEntityInput(Cel_GetEffectAttachment(iProp), "kill");
 			}
 			
+			if(Cel_IsMusicActive(iProp))
+			Cel_KillSound(iProp);
+			
 			Cel_RemovalBeam(iClient, iProp);
 			
 			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "Remove");
@@ -635,6 +640,9 @@ public Action Command_DeleteAll(int iClient, int iArgs)
 				AcceptEntityInput(Cel_GetEffectAttachment(i), "TurnOff");
 				AcceptEntityInput(Cel_GetEffectAttachment(i), "kill");
 			}
+			
+			if(Cel_IsMusicActive(i))
+			Cel_KillSound(i);
 			
 			AcceptEntityInput(i, "kill");
 			
@@ -1891,6 +1899,8 @@ public int Native_DissolveEntity(Handle hPlugin, int iNumParams)
 {
 	int iEntity = GetNativeCell(1);
 	
+	g_bIsDeleting[iEntity] = true;
+	
 	DispatchKeyValue(iEntity, "classname", "deleted");
 	
 	AcceptEntityInput(g_iEntityDissolve, "dissolve");
@@ -1949,7 +1959,7 @@ public int Native_GetEntityCatagory(Handle hPlugin, int iNumParams)
 	if (etEntityType == ENTTYPE_AMMO || etEntityType == ENTTYPE_AMMOCRATE || etEntityType == ENTTYPE_BIT || etEntityType == ENTTYPE_CHARGER || etEntityType == ENTTYPE_TRIGGER || etEntityType == ENTTYPE_WEAPONSPWNER)
 	{
 		return view_as<int>(ENTCATAGORY_BIT);
-	}else if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT)
+	}else if (etEntityType == ENTTYPE_DOOR || etEntityType == ENTTYPE_EFFECT || etEntityType == ENTTYPE_INTERNET || etEntityType == ENTTYPE_LADDER || etEntityType == ENTTYPE_LIGHT || etEntityType == ENTTYPE_MUSIC || etEntityType == ENTTYPE_SOUND)
 	{
 		return view_as<int>(ENTCATAGORY_CEL);
 	} else if (etEntityType == ENTTYPE_CYCLER || etEntityType == ENTTYPE_DYNAMIC || etEntityType == ENTTYPE_PHYSICS || etEntityType == ENTTYPE_CLEER)
@@ -2339,6 +2349,13 @@ public int Native_IsBreakable(Handle hPlugin, int iNumParams)
 	int iEntity = GetNativeCell(1);
 	
 	return g_bBreakable[iEntity];
+}
+
+public int Native_IsDeleting(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	return g_bIsDeleting[iEntity];
 }
 
 public int Native_IsEntity(Handle hPlugin, int iNumParams)

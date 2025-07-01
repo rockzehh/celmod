@@ -25,3 +25,4 @@
 	 - 06/09/25: Added commands !replace/v_replace to replace the model of a prop and !owner/v_owner to print the owner of the entity.
 		 - Updated !lock/v_lock and !unlock/v_unlock to be their own commands instead of being hidden in !freeze/!unfreeze.
 		 - Added command !drop/v_drop to drop entities to the floor.
+	 - 06/30/25: Added cels !music/v_music and !sound/v_sound to spawn music and sound cels.

@@ -969,7 +969,7 @@ public int Native_GetClientAimTarget(Handle hPlugin, int iNumParams)
 		CloseHandle(hTraceRay);
 	}
 	
-	return (Cel_IsEntity(iTarget)) ? iTarget : -1;
+	return (Cel_IsEntity(iTarget) && !Cel_IsDeleting(iTarget)) ? iTarget : -1;
 }
 
 public int Native_GetCombinedCount(Handle hPlugin, int iNumParams)

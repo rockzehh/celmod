@@ -120,6 +120,11 @@
 	{
 		"en"			"Usage: {green}[tag]load{default} <buildname>"
 	}
+	
+	"CMD_Music"
+	{
+		"en"			"Usage: {green}[tag]music{default} <song name> <loop 0-1> <volume 50-90> <speed 10-250>"
+	}
 
 	"CMD_Remove"
 	{
@@ -164,6 +169,11 @@
 	"CMD_SMove"
 	{
 		"en"			"Usage: {green}[tag]smove{default} <x> <y> <z>"
+	}
+	
+	"CMD_Sound"
+	{
+		"en"			"Usage: {green}[tag]sound{default} <sound name> <speed 10-250>"
 	}
 
 	"CMD_Spawn"
@@ -311,7 +321,7 @@
 
 	"EnableMotion"
 	{
-		"en"			"Enabled motion on [type}."
+		"en"			"Enabled motion on [type]."
 	}
 
 	"EnteredLand"
@@ -450,6 +460,18 @@
 	{
 		"#format"		"{1:i}"
 		"en"			"You have reached the max prop limit. ({green}{1}{default})"
+	}
+	
+	"MusicNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Song {green}{1}{default} not found."
+	}
+	
+	"SoundNotFound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Sound {green}{1}{default} not found."
 	}
 
 	"NotCopyingProp"
@@ -713,11 +735,23 @@
 		"#format"		"{1:s}"
 		"en"			"Spawned {green}{1}{default} effect cel."
 	}
+	
+	"SpawnMusic"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} music cel."
+	}
 
 	"SpawnProp"
 	{
 		"#format"		"{1:s}"
 		"en"			"Spawned prop {green}{1}{default}."
+	}
+	
+	"SpawnSound"
+	{
+		"#format"		"{1:s}"
+		"en"			"Spawned {green}{1}{default} sound cel."
 	}
 
 	"StackInfo_First"

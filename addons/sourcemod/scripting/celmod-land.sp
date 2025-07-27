@@ -168,7 +168,7 @@ public void CMLand_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, cons
 {
 	if (cvConVar == g_cvMaxLandSize)
 	{
-		g_fMaxLandSize = g_cvMaxLandSize.FloatValue;
+		g_fMaxLandSize = StringToFloat(sNewValue);
 		PrintToServer("|CelMod| Max land size updated to %s.", sNewValue);
 	}
 }

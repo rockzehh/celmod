@@ -8,6 +8,10 @@ bool g_bLate;
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
+	//CreateNative("Cel_", Native_);
+	
+	g_bLate = bLate;
+	
 	return APLRes_Success;
 }
 

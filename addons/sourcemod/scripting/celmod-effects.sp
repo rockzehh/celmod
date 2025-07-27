@@ -142,10 +142,10 @@ public int Native_GetEffectTypeFromName(Handle hPlugin, int iNumParams)
 	} else if (StrContains("smokestack", sEffectName, false) != -1)
 	{
 		return view_as<int>(EFFECT_SMOKESTACK);
-	} else if (StrContains("spotlight", sEffectName, false) != -1)
+	/*} else if (StrContains("spotlight", sEffectName, false) != -1)
 	{
 		return view_as<int>(EFFECT_SPOTLIGHT);
-	} else if (StrContains("steam", sEffectName, false) != -1)
+	*/} else if (StrContains("steam", sEffectName, false) != -1)
 	{
 		return view_as<int>(EFFECT_STEAM);
 	} else {
@@ -181,10 +181,10 @@ public int Native_GetEffectTypeName(Handle hPlugin, int iNumParams)
 		{
 			Format(sEffectName, sizeof(sEffectName), "smokestack");
 		}
-		case EFFECT_SPOTLIGHT:
+		/*case EFFECT_SPOTLIGHT:
 		{
 			Format(sEffectName, sizeof(sEffectName), "spotlight");
-		}
+		}*/
 		case EFFECT_STEAM:
 		{
 			Format(sEffectName, sizeof(sEffectName), "steam");
@@ -441,7 +441,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			
 			return iBase;
 		}
-		case EFFECT_SPOTLIGHT:
+		/*case EFFECT_SPOTLIGHT:
 		{
 			iEffect = CreateEntityByName("point_spotlight");
 			
@@ -476,7 +476,7 @@ public int Native_SpawnEffect(Handle hPlugin, int iNumParams)
 			AcceptEntityInput(Cel_GetEffectAttachment(iBase), Cel_IsEffectActive(iBase) ? "LightOff" : "LightOn");
 			
 			return iBase;
-		}
+		}*/
 		case EFFECT_STEAM:
 		{
 			iEffect = CreateEntityByName("env_steam");

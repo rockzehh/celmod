@@ -483,6 +483,16 @@
 	{
 		"en"			"You aren't grabbing a prop already!"
 	}
+	
+	"NotLinked-Button"
+	{
+		"en"			"This button isn't linked to any bits yet. Type {green}[tag]link{default} on the button to get started!"
+	}
+	
+	"NotLinked-Trigger"
+	{
+		"en"			"This trigger isn't linked to any bits yet. Type {green}[tag]link{default} on the trigger to get started!"
+	}
 
 	"NoKill"
 	{
@@ -781,6 +791,12 @@
 	{
 		"#format"		"{1:s}"
 		"en"			"Switched HUD to the {green}{1}{default} side."
+	}
+	
+	"TooManyLinkedBits"
+	{
+		"#format"		"{1:s},{2:i}"
+		"en"			"You have too many linked bits on this {1}. ({2})"
 	}
 
 	"Unlocked"

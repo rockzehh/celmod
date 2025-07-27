@@ -4,8 +4,6 @@
 
 #pragma newdecls required
 
-bool g_bLate;
-
 StringMap g_smCelCommands;
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
@@ -34,11 +32,6 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	LoadTranslations("celmod.phrases");
-	
-	if (g_bLate)
-	{
-		OnMapStart();
-	}
 	
 	AddCommandListener(Handle_Noclip, "noclip");
 	AddCommandListener(Handle_Chat, "say");

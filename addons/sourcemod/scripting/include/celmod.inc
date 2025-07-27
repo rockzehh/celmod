@@ -482,6 +482,8 @@ native int Cel_GetColor(int iEntity, int iColor[4]);
 
 native int Cel_GetCombinedCount(int iClient);
 
+native int Cel_GetControllerEntity(int iEntity);
+
 /**
  * Retrieves the world position where a client is aiming.
  *
@@ -684,6 +686,8 @@ native float Cel_GetMusicVolume(int iEntity);
  * @return		 An integer representing the NoKill status.
  */
 native int Cel_GetNoKill(int iClient);
+
+native int Cel_GetNumLinkedBits(int iEntity);
 
 /**
  * Retrieves the owner of an entity.
@@ -916,6 +920,8 @@ native void Cel_RemovalBeam(int iClient, int iEntity);
 native void Cel_RemoveClientPurchase(int iClient, char[] sPurchase);
 
 native void Cel_RemoveFromBlacklist(char[] sAlias);
+
+native void Cel_RemoveLinkToBits(int iEntity);
 
 /**
  * Sends a command response to a client.
@@ -1289,12 +1295,12 @@ stock void Cel_ActivateEffect(int iEntity)
 		case EFFECT_CORE:
 		{
 			SetVariantFloat(0.0);
-			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "StartDischarge" : "StartCharge");
+			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "StartCharge" : "StartDischarge");
 		}
-		case EFFECT_EXPLOSION:
+		/*case EFFECT_EXPLOSION:
 		{
 			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), "Explode");
-		}
+		}*/
 		case EFFECT_FIRE:
 		{
 			SetVariantFloat(0.0);
@@ -1308,10 +1314,10 @@ stock void Cel_ActivateEffect(int iEntity)
 		{
 			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "TurnOn" : "TurnOff");
 		}
-		case EFFECT_SPOTLIGHT:
+		/*case EFFECT_SPOTLIGHT:
 		{
 			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "LightOn" : "LightOff");
-		}
+		}*/
 		case EFFECT_STEAM:
 		{
 			AcceptEntityInput(Cel_GetEffectAttachment(iEntity), Cel_IsEffectActive(iEntity) ? "TurnOn" : "TurnOff");

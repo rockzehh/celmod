@@ -209,6 +209,9 @@ public void OnMapStart()
 	DispatchSpawn(g_iEntityDissolve);
 	
 	DispatchKeyValue(g_iEntityDissolve, "classname", "cm_entity_dissolver");
+	
+	PrecacheSound("buttons/lever7.wav", true);
+	PrecacheSound("buttons/combine_button_locked.wav", true);
 }
 
 public void OnMapEnd()
@@ -609,6 +612,9 @@ public Action Command_Delete(int iClient, int iArgs)
 			if(Cel_IsMusicActive(iProp))
 			Cel_KillSound(iProp);
 			
+			if(Cel_IsTrigger(iProp))
+			Cel_RemoveLinkToBits(iProp);
+			
 			Cel_RemovalBeam(iClient, iProp);
 			
 			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "Remove");
@@ -643,6 +649,9 @@ public Action Command_DeleteAll(int iClient, int iArgs)
 			
 			if(Cel_IsMusicActive(i))
 			Cel_KillSound(i);
+			
+			if(Cel_IsTrigger(i))
+			Cel_RemoveLinkToBits(i);
 			
 			AcceptEntityInput(i, "kill");
 			
@@ -1142,8 +1151,6 @@ public Action Command_Rotate(int iClient, int iArgs)
 		}
 		
 		TE_SetupBeamRingPoint(fOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 3.0, 0.0, g_iOrange, 10, 0); TE_SendToAll();
-		
-		PrecacheSound("buttons/lever7.wav");
 		
 		EmitSoundToAll("buttons/lever7.wav", iProp, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	} else {
@@ -2389,8 +2396,6 @@ public int Native_IsLocked(Handle hPlugin, int iNumParams)
 	
 	if(g_bLocked[iEntity])
 	{
-		PrecacheSound("buttons/combine_button_locked.wav");
-		
 		EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	}
 	

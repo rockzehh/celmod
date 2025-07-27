@@ -90,7 +90,7 @@ public void CMHud_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const
 {
 	if (cvConVar == g_cvHudEnable)
 	{
-		g_bHudEnable = view_as<bool>(g_cvHudEnable.IntValue);
+		g_bHudEnable = view_as<bool>(StringToInt(sNewValue));
 	}
 }
 

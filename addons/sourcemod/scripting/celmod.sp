@@ -208,8 +208,6 @@ public void OnClientAuthorized(int iClient, const char[] sAuthID)
 	{
 		if (IsClientInGame(i))
 		{
-			PrecacheSound("npc/metropolice/vo/on1.wav");
-			
 			EmitSoundToClient(i, "npc/metropolice/vo/on1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}
 	}
@@ -259,8 +257,6 @@ public void OnClientDisconnect(int iClient)
 	{
 		if (IsClientInGame(i))
 		{
-			PrecacheSound("npc/metropolice/vo/off1.wav");
-			
 			EmitSoundToClient(i, "npc/metropolice/vo/off1.wav", i, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}
 	}
@@ -271,6 +267,15 @@ public void OnMapStart()
 	g_iBeam = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 	g_iHalo = PrecacheModel("materials/sprites/halo01.vmt", true);
 	g_iPhys = PrecacheModel("materials/sprites/physbeam.vmt", true);
+	
+	PrecacheSound("npc/metropolice/vo/off1.wav", true);
+	PrecacheSound("npc/metropolice/vo/on1.wav", true);
+	PrecacheSound("weapons/airboat/airboat_gun_lastshot1.wav", true);
+	PrecacheSound("weapons/airboat/airboat_gun_lastshot2.wav", true);
+	PrecacheSound("ambient/levels/citadel/weapon_disintegrate1.wav", true);
+	PrecacheSound("ambient/levels/citadel/weapon_disintegrate2.wav", true);
+	PrecacheSound("ambient/levels/citadel/weapon_disintegrate3.wav", true);
+	PrecacheSound("ambient/levels/citadel/weapon_disintegrate4.wav", true);
 	
 	Cel_DownloadClientFiles();
 }
@@ -290,11 +295,11 @@ public void CM_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const ch
 		PrintToServer("|CelMod| Cel limit updated to %i.", StringToInt(sNewValue));
 	} else if (cvConVar == g_cvDownloadPath)
 	{
-		g_cvDownloadPath.GetString(g_sDownloadPath, sizeof(g_sDownloadPath));
+		Format(g_sDownloadPath, sizeof(g_sDownloadPath), sNewValue);
 		PrintToServer("|CelMod| Download list path updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvOverlayPath)
 	{
-		g_cvOverlayPath.GetString(g_sOverlayPath, sizeof(g_sOverlayPath));
+		Format(g_sOverlayPath, sizeof(g_sOverlayPath), sNewValue);
 		PrintToServer("|CelMod| Default overlay material path updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvPropLimit) {
 		Cel_SetPropLimit(StringToInt(sNewValue));
@@ -723,6 +728,12 @@ public Action Event_Disconnect(Event eEvent, const char[] sName, bool bDontBroad
 				AcceptEntityInput(Cel_GetEffectAttachment(i), "kill");
 			}
 			
+			if(Cel_IsMusicActive(i))
+			Cel_KillSound(i);
+			
+			if(Cel_IsTrigger(i))
+			Cel_RemoveLinkToBits(i);
+			
 			AcceptEntityInput(i, "kill");
 		}
 	}
@@ -802,8 +813,6 @@ public int Native_ChangeBeam(Handle hPlugin, int iNumParams)
 	TE_SetupSparks(fHitOrigin, NULL_VECTOR, 2, 5); TE_SendToAll();
 	
 	Format(sSound, sizeof(sSound), "weapons/airboat/airboat_gun_lastshot%i.wav", GetRandomInt(1, 2));
-	
-	PrecacheSound(sSound);
 	
 	EmitSoundToAll(sSound, iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	
@@ -1056,8 +1065,6 @@ public int Native_RemovalBeam(Handle hPlugin, int iNumParams)
 	TE_SetupBeamRingPoint(fEntityOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 5.0, 0.0, g_iGray, 10, 0); TE_SendToAll();
 	
 	Format(sSound, sizeof(sSound), "ambient/levels/citadel/weapon_disintegrate%i.wav", GetRandomInt(1, 4));
-	
-	PrecacheSound(sSound);
 	
 	EmitAmbientSound(sSound, fEntityOrigin, iEntity, 100, 0, 1.0, 100, 0.0);
 	

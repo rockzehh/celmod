@@ -14,12 +14,17 @@ WeaponBitType g_wbtWeaponType[MAXENTITIES + 1];
 
 ControlTriggerType g_cttTriggerType[MAXENTITIES + 1];
 
+ConVar g_cvMaxLinkedBits;
+
 bool g_bCreatingLink[MAXPLAYERS + 1];
 bool g_bHasLink[MAXENTITIES + 1];
 
-int g_iLinkedEntity[MAXENTITIES + 1];
+int g_iControllerEntity[MAXENTITIES + 1];
 int g_iLinkingEntity[MAXPLAYERS + 1];
 int g_iLinkStage[MAXPLAYERS + 1];
+int g_iMaxLinkedBits;
+
+StringMap g_smLinkedBits[MAXENTITIES + 1];
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
@@ -32,11 +37,14 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetChargerType", Native_GetChargerType);
 	CreateNative("Cel_GetChargerTypeFromName", Native_GetChargerTypeFromName);
 	CreateNative("Cel_GetChargerTypeName", Native_GetChargerTypeName);
+	CreateNative("Cel_GetControllerEntity", Native_GetControllerEntity);
+	CreateNative("Cel_GetNumLinkedBits", Native_GetNumLinkedBits);
 	CreateNative("Cel_GetTriggerType", Native_GetTriggerType);
 	CreateNative("Cel_GetWeaponType", Native_GetWeaponType);
 	CreateNative("Cel_GetWeaponTypeFromName", Native_GetWeaponTypeFromName);
 	CreateNative("Cel_GetWeaponTypeName", Native_GetWeaponTypeName);
 	CreateNative("Cel_IsTrigger", Native_IsTrigger);
+	CreateNative("Cel_RemoveLinkToBits", Native_RemoveLinkToBits);
 	CreateNative("Cel_SpawnAmmoBit", Native_SpawnAmmoBit);
 	CreateNative("Cel_SpawnAmmoCrate", Native_SpawnAmmoCrate);
 	CreateNative("Cel_SpawnButton", Native_SpawnButton);
@@ -44,6 +52,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	//CreateNative("Cel_SpawnTrigger", Native_SpawnTrigger);
 	CreateNative("Cel_SpawnWeaponBit", Native_SpawnWeaponBit);
 	CreateNative("Cel_TriggerEntity", Native_TriggerEntity);
+	
+	g_bLate = bLate;
 	
 	return APLRes_Success;
 }
@@ -63,6 +73,8 @@ public void OnPluginStart()
 	
 	if (g_bLate)
 	{
+		OnMapStart();
+		
 		for (int i = 1; i < MaxClients; i++)
 		{
 			if (IsClientAuthorized(i))
@@ -78,6 +90,12 @@ public void OnPluginStart()
 	RegConsoleCmd("v_charger", Command_SpawnChargerBit, "|CelMod| Creates a health/suit charger bit that will give health/suit to the player.");
 	RegConsoleCmd("v_link", Command_Link, "|CelMod| Creates a link between a trigger bit and an entity.");
 	RegConsoleCmd("v_wep", Command_SpawnWeaponBit, "|CelMod| Creates a weapon bit that will give a weapon when the player touches it.");
+	
+	g_cvMaxLinkedBits = CreateConVar("cm_max_linked_bits", "12", "Maxiumum number of linked bits a link can have.");
+	
+	g_cvMaxLinkedBits.AddChangeHook(CMBits_OnConVarChanged);
+	
+	g_iMaxLinkedBits = g_cvMaxLinkedBits.IntValue;
 }
 
 public void OnClientPutInServer(int iClient)
@@ -90,9 +108,25 @@ public void OnClientDisconnect(int iClient)
 	g_bTouched[iClient] = false;
 }
 
+public void OnMapStart()
+{
+	PrecacheSound("buttons/button19.wav", true);
+	PrecacheSound("buttons/combine_button1.wav", true);
+	PrecacheSound("buttons/combine_button_locked.wav", true);
+}
+
+public void CMBits_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, const char[] sNewValue)
+{
+	if (cvConVar == g_cvMaxLinkedBits)
+	{
+		g_iMaxLinkedBits = StringToInt(sNewValue);
+		PrintToServer("|CelMod| Max linked bits limit updated to %i.", StringToInt(sNewValue));
+	}
+}
+
 public Action Command_Link(int iClient, int iArgs)
 {
-	char sOption[64];
+	char sBit[32], sOption[64];
 	float fLinkOrigin[2][3];
 	
 	GetCmdArg(1, sOption, sizeof(sOption));
@@ -116,6 +150,13 @@ public Action Command_Link(int iClient, int iArgs)
 				return Plugin_Handled;
 			}
 			
+			if(g_smLinkedBits[iEntity].Size >= g_iMaxLinkedBits - 1)
+			{
+				//You have too many linked bits on this {1}. ({2})
+				Cel_ReplyToCommand(iClient, "%t", "TooManyLinkedBits", "button", g_iMaxLinkedBits);
+				return Plugin_Handled;
+			}
+			
 			g_bCreatingLink[iClient] = true;
 			g_iLinkingEntity[iClient] = iEntity;
 			
@@ -127,10 +168,15 @@ public Action Command_Link(int iClient, int iArgs)
 		}
 		case 1:
 		{
-			if(Cel_CheckEntityType(iEntity, "door") || Cel_CheckEntityType(iEntity, "effect") || Cel_CheckEntityType(iEntity, "light"))
+			if(Cel_CheckEntityType(iEntity, "door") || Cel_CheckEntityType(iEntity, "effect") || Cel_CheckEntityType(iEntity, "light") || Cel_CheckEntityType(iEntity, "music") || Cel_CheckEntityType(iEntity, "sound"))
 			{
-				g_iLinkedEntity[g_iLinkingEntity[iClient]] = iEntity;
 				g_bHasLink[g_iLinkingEntity[iClient]] = true;
+				
+				Format(sBit, sizeof(sBit), "link:%i", g_smLinkedBits[g_iLinkingEntity[iClient]].Size + 1);
+				
+				g_smLinkedBits[g_iLinkingEntity[iClient]].SetValue(sBit, EntIndexToEntRef(iEntity), false);
+				
+				g_iControllerEntity[iEntity] = g_iLinkingEntity[iClient];
 				
 				g_bCreatingLink[iClient] = false;
 				g_iLinkStage[iClient] = 0;
@@ -140,7 +186,6 @@ public Action Command_Link(int iClient, int iArgs)
 				
 				TE_SetupBeamPoints(fLinkOrigin[0], fLinkOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.60, 1.0, 1.0, 1, 0.0, g_iOrange, 10); TE_SendToAll();
 				
-				PrecacheSound("buttons/button19.wav");
 				EmitSoundToAll("buttons/button19.wav", g_iLinkingEntity[iClient], 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 				EmitSoundToAll("buttons/button19.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 				
@@ -549,6 +594,35 @@ public int Native_GetChargerTypeName(Handle hPlugin, int iNumParams)
 	return true;
 }
 
+public int Native_GetControllerEntity(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	if(Cel_CheckEntityCatagory(g_iControllerEntity[iEntity], ENTCATAGORY_BIT) && Cel_IsTrigger(g_iControllerEntity[iEntity]))
+	{
+		if(g_iControllerEntity[iEntity] != -1)
+		{
+			return g_iControllerEntity[iEntity];
+		}
+		
+		return -1;
+	}
+	
+	return -1;
+}
+
+public int Native_GetNumLinkedBits(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	if(g_bHasLink[iEntity])
+	{
+		return g_smLinkedBits[iEntity].Size;
+	}
+	
+	return -1;
+}
+
 public int Native_GetTriggerType(Handle hPlugin, int iNumParams)
 {
 	char sClassname[64];
@@ -705,6 +779,20 @@ public int Native_IsTrigger(Handle hPlugin, int iNumParams)
 	}else{
 		return false;
 	}
+}
+
+public int Native_RemoveLinkToBits(Handle hPlugin, int iNumParams)
+{
+	int iEntity = GetNativeCell(1);
+	
+	if(g_bHasLink[iEntity])
+	{
+		g_smLinkedBits[iEntity].Close();
+		
+		return true;
+	}
+	
+	return false;
 }
 
 public int Native_SpawnAmmoBit(Handle hPlugin, int iNumParams)
@@ -891,10 +979,13 @@ public int Native_SpawnButton(Handle hPlugin, int iNumParams)
 	
 	DispatchSpawn(iBase);
 	
+	fAngles[1] += 180;
+	
 	TeleportEntity(iBase, fOrigin, fAngles, NULL_VECTOR);
 	
 	g_bHasLink[iBase] = false;
-	g_iLinkedEntity[iBase] = -1;
+	
+	g_smLinkedBits[iBase] = new StringMap();
 	
 	Cel_AddToCelCount(iClient);
 	Cel_SetColor(iBase, iColor[0], iColor[1], iColor[2], iColor[3]);
@@ -1132,24 +1223,34 @@ public int Native_TriggerEntity(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1), iEntity = GetNativeCell(2);
 	
-	if(Cel_IsEntity(g_iLinkedEntity[iEntity]))
+	if(Cel_IsEntity(iEntity))
 	{
-		switch(Cel_GetEntityType(g_iLinkedEntity[iEntity]))
+		switch(Cel_GetEntityType(iEntity))
 		{
 			case ENTTYPE_DOOR:
 			{
-				AcceptEntityInput(g_iLinkedEntity[iEntity], "Toggle", iClient);
+				AcceptEntityInput(iEntity, "Toggle", iClient);
 			}
 			
 			case ENTTYPE_LIGHT:
 			{
-				AcceptEntityInput(Entity_GetEntityAttachment(g_iLinkedEntity[iEntity]), "Toggle", iClient);
+				AcceptEntityInput(Entity_GetEntityAttachment(iEntity), "Toggle", iClient);
 				
 			}
 			
 			case ENTTYPE_EFFECT:
 			{
-				Cel_ActivateEffect(g_iLinkedEntity[iEntity]);
+				Cel_ActivateEffect(iEntity);
+			}
+			
+			case ENTTYPE_MUSIC:
+			{
+				AcceptEntityInput(iEntity, "Use", iClient);
+			}
+			
+			case ENTTYPE_SOUND:
+			{
+				AcceptEntityInput(iEntity, "Use", iClient);
 			}
 		}
 	}
@@ -1235,13 +1336,34 @@ public void Hook_ButtonUse(int iEntity, int iActivator, int iCaller, UseType utT
 	{
 		if(g_bHasLink[iEntity])
 		{
-			Cel_TriggerEntity(iActivator, iEntity);
+			StringMapSnapshot smsSnapshot = g_smLinkedBits[iEntity].Snapshot();
 			
-			PrecacheSound("buttons/combine_button1.wav");
+			int iKeyCount = smsSnapshot.Length, iLinkedEntity;
+			
+			char sKey[32];
+			
+			for (int i = 0; i < iKeyCount; i++)
+			{
+				smsSnapshot.GetKey(i, sKey, sizeof(sKey));
+				
+				if(g_smLinkedBits[iEntity].GetValue(sKey, iLinkedEntity))
+				{
+					Cel_TriggerEntity(iActivator, EntRefToEntIndex(iLinkedEntity));
+				}
+			}
+			
+			delete smsSnapshot;
 			
 			EmitSoundToAll("buttons/combine_button1.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}else{
-			PrecacheSound("buttons/combine_button_locked.wav");
+			if(Cel_CheckOwner(iActivator, iEntity))
+			{
+				ReplySource rpSource = GetCmdReplySource();
+				SetCmdReplySource(SM_REPLY_TO_CHAT);
+				//This button isn't linked to any bits yet. Type {green}[tag]link{default} on the button to get started!
+				Cel_ReplyToCommandEntity(iActivator, iEntity, "%t", "NotLinked-Button");
+				SetCmdReplySource(rpSource);
+			}
 			
 			EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 		}

@@ -105,6 +105,13 @@ enum ControlTriggerType
 	TRIGGERTYPE_STEP = 1,
 };
 
+enum TriggerFunctionType
+{
+	TRIGGERFUNC_OPEN = 0,
+	TRIGGERFUNC_SWITCH = 1,
+	TRIGGERFUNC_UNLOCK = 2,
+};
+
 #define CEL_AUTHOR "rockzehh"
 #define CEL_URL "https://github.com/rockzehh/celmod"
 #define CEL_VERSION "3.0.0"
@@ -482,8 +489,6 @@ native int Cel_GetColor(int iEntity, int iColor[4]);
 
 native int Cel_GetCombinedCount(int iClient);
 
-native int Cel_GetControllerEntity(int iEntity);
-
 /**
  * Retrieves the world position where a client is aiming.
  *
@@ -687,8 +692,6 @@ native float Cel_GetMusicVolume(int iEntity);
  */
 native int Cel_GetNoKill(int iClient);
 
-native int Cel_GetNumLinkedBits(int iEntity);
-
 /**
  * Retrieves the owner of an entity.
  *
@@ -760,8 +763,6 @@ native int Cel_GetSaveSystemVersion();
 native void Cel_GetSoundPath(int iEntity, char[] sSoundPath, int iMaxLength);
 
 native int Cel_GetSoundSpeed(int iEntity);
-
-native int Cel_GetTriggerType(iEntity);
 
 native WeaponBitType Cel_GetWeaponType(int iEntity);
 
@@ -836,8 +837,6 @@ native bool Cel_IsRainbow(int iEntity);
  * @return		 True if the entity is solid, false otherwise.
  */
 native bool Cel_IsSolid(int iEntity);
-
-native bool Cel_IsTrigger(iEntity);
 
 native void Cel_KillSound(int iEntity);
 
@@ -920,8 +919,6 @@ native void Cel_RemovalBeam(int iClient, int iEntity);
 native void Cel_RemoveClientPurchase(int iClient, char[] sPurchase);
 
 native void Cel_RemoveFromBlacklist(char[] sAlias);
-
-native void Cel_RemoveLinkToBits(int iEntity);
 
 /**
  * Sends a command response to a client.
@@ -1189,8 +1186,6 @@ native int Cel_SpawnAmmoBit(int iClient, AmmoBitType abtType, float fAngles[3], 
 
 native int Cel_SpawnAmmoCrate(int iClient, AmmoCrateType actType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
-native int Cel_SpawnButton(iClient, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
-
 native int Cel_SpawnCharger(int iClient, ChargerType ctType, float fAngles[3], float fOrigin[3], int iR, int iG, int iB, int iA);
 
 /**
@@ -1284,8 +1279,6 @@ native void Cel_SubFromClientBalance(int iClient, int iBalance);
 native void Cel_SubFromPropCount(int iClient);
 
 native void Cel_TeleportInfrontOfClient(int iClient, int iEntity, float fAdd = 0.0);
-
-native void Cel_TriggerEntity(int iClient, int iEntity);
 
 //Stocks:
 stock void Cel_ActivateEffect(int iEntity)

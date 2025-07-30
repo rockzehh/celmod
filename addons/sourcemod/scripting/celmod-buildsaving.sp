@@ -99,10 +99,10 @@ public Action Command_SaveBuild(int iClient, int iArgs)
 
 public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sTemp[256];
+	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sEnt[32], sFile[PLATFORM_MAX_PATH], sKey[32], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sTemp[256];
 	float fEnt[2][3], fOrigin[3];
-	
 	int iClient = GetNativeCell(1), iControllerEntity = -1, iControllerID = -1, iProp = -1;
+	StringMap smControllers = new StringMap(), smLinked = new StringMap();
 	
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
 	
@@ -216,13 +216,20 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 					}
 					case ENTTYPE_TRIGGER:
 					{
-						iControllerID = kvLoadBuild.GetNum("controllerid");
-						
 						if(StrEqual(sBuffer[0], "bit_trigger_button"))
 						{
 							iProp = Cel_SpawnButton(iClient, fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 						}else{
 							//iProp = Cel_SpawnTrigger(iClient, fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
+						}
+						
+						iControllerID = kvLoadBuild.GetNum("controllerid", -1);
+						
+						if(iControllerID != -1)
+						{
+							IntToString(iControllerID, sKey, sizeof(sKey));
+						
+							smControllers.SetValue(sKey, EntIndexToEntRef(iProp));	
 						}
 					}
 					case ENTTYPE_UNKNOWN:
@@ -242,12 +249,41 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 				Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
 				Cel_SetOwner(iClient, iProp);
 				
+				iControllerEntity = kvLoadBuild.GetNum("controllerentity", -1);
+				
+				if(iControllerEntity != -1)
+				{
+					IntToString(iControllerEntity, sKey, sizeof(sKey));
+							
+					smLinked.SetValue(sKey, EntIndexToEntRef(iProp));
+				}
+				
 				Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
 				Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
 			}
 			
 			while (kvLoadBuild.GotoNextKey());
 		}
+		
+		StringMapSnapshot smsLinked = smLinked.Snapshot();
+		
+		for (int i = 0; i < smsLinked.Length; i++)
+		{
+			int iControlledEnt, iControllerEnt;
+			
+			smsLinked.GetKey(i, sKey, sizeof(sKey));
+			
+			if(!smControllers.GetValue(sKey, iControllerEnt))
+				continue;
+				
+			smLinked.GetValue(sKey, iControlledEnt);
+			
+			Cel_LinkBit(EntRefToEntIndex(iControllerEnt), EntRefToEntIndex(iControlledEnt));
+		}
+		
+		delete smControllers;
+		delete smLinked;
+		delete smsLinked;
 		
 		if(!kvLoadBuild.GotoNextKey())
 		{

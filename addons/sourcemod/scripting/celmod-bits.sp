@@ -12,20 +12,6 @@ AmmoCrateType g_actAmmoCrateType[MAXENTITIES + 1];
 ChargerType g_ctChargerType[MAXENTITIES + 1];
 WeaponBitType g_wbtWeaponType[MAXENTITIES + 1];
 
-ControlTriggerType g_cttTriggerType[MAXENTITIES + 1];
-
-ConVar g_cvMaxLinkedBits;
-
-bool g_bCreatingLink[MAXPLAYERS + 1];
-bool g_bHasLink[MAXENTITIES + 1];
-
-int g_iControllerEntity[MAXENTITIES + 1];
-int g_iLinkingEntity[MAXPLAYERS + 1];
-int g_iLinkStage[MAXPLAYERS + 1];
-int g_iMaxLinkedBits;
-
-StringMap g_smLinkedBits[MAXENTITIES + 1];
-
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr_max)
 {
 	CreateNative("Cel_GetAmmoType", Native_GetAmmoType);
@@ -37,21 +23,13 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_GetChargerType", Native_GetChargerType);
 	CreateNative("Cel_GetChargerTypeFromName", Native_GetChargerTypeFromName);
 	CreateNative("Cel_GetChargerTypeName", Native_GetChargerTypeName);
-	CreateNative("Cel_GetControllerEntity", Native_GetControllerEntity);
-	CreateNative("Cel_GetNumLinkedBits", Native_GetNumLinkedBits);
-	CreateNative("Cel_GetTriggerType", Native_GetTriggerType);
 	CreateNative("Cel_GetWeaponType", Native_GetWeaponType);
 	CreateNative("Cel_GetWeaponTypeFromName", Native_GetWeaponTypeFromName);
 	CreateNative("Cel_GetWeaponTypeName", Native_GetWeaponTypeName);
-	CreateNative("Cel_IsTrigger", Native_IsTrigger);
-	CreateNative("Cel_RemoveLinkToBits", Native_RemoveLinkToBits);
 	CreateNative("Cel_SpawnAmmoBit", Native_SpawnAmmoBit);
 	CreateNative("Cel_SpawnAmmoCrate", Native_SpawnAmmoCrate);
-	CreateNative("Cel_SpawnButton", Native_SpawnButton);
 	CreateNative("Cel_SpawnCharger", Native_SpawnCharger);
-	//CreateNative("Cel_SpawnTrigger", Native_SpawnTrigger);
 	CreateNative("Cel_SpawnWeaponBit", Native_SpawnWeaponBit);
-	CreateNative("Cel_TriggerEntity", Native_TriggerEntity);
 	
 	g_bLate = bLate;
 	
@@ -170,24 +148,10 @@ public Action Command_Link(int iClient, int iArgs)
 		{
 			if(Cel_CheckEntityType(iEntity, "door") || Cel_CheckEntityType(iEntity, "effect") || Cel_CheckEntityType(iEntity, "light") || Cel_CheckEntityType(iEntity, "music") || Cel_CheckEntityType(iEntity, "sound"))
 			{
-				g_bHasLink[g_iLinkingEntity[iClient]] = true;
-				
-				Format(sBit, sizeof(sBit), "link:%i", g_smLinkedBits[g_iLinkingEntity[iClient]].Size + 1);
-				
-				g_smLinkedBits[g_iLinkingEntity[iClient]].SetValue(sBit, EntIndexToEntRef(iEntity), false);
-				
-				g_iControllerEntity[iEntity] = g_iLinkingEntity[iClient];
-				
 				g_bCreatingLink[iClient] = false;
 				g_iLinkStage[iClient] = 0;
 				
-				Cel_GetEntityOrigin(g_iLinkingEntity[iClient], fLinkOrigin[0]);
-				Cel_GetEntityOrigin(iEntity, fLinkOrigin[1]);
-				
-				TE_SetupBeamPoints(fLinkOrigin[0], fLinkOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.60, 1.0, 1.0, 1, 0.0, g_iOrange, 10); TE_SendToAll();
-				
-				EmitSoundToAll("buttons/button19.wav", g_iLinkingEntity[iClient], 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
-				EmitSoundToAll("buttons/button19.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+				Cel_LinkBit(g_iLinkingEntity[iClient], iEntity);
 				
 				//Created trigger link.
 				Cel_ReplyToCommand(iClient, "%t", "CreatedLink");
@@ -761,6 +725,31 @@ public int Native_GetWeaponTypeName(Handle hPlugin, int iNumParams)
 	}
 	
 	SetNativeString(2, sName, iMaxLength);
+	
+	return true;
+}
+
+public int Native_LinkBit(Handle hPlugin, int iNumParams)
+{
+	char sBit[32];
+	float fLinkOrigin[2][3];
+	int iEntity = GetNativeCell(2), iLink = GetNativeCell(1);
+	
+	g_bHasLink[iLink] = true;
+				
+	Format(sBit, sizeof(sBit), "link:%i", g_smLinkedBits[iLink].Size + 1);
+				
+	g_smLinkedBits[iLink].SetValue(sBit, EntIndexToEntRef(iEntity), false);
+				
+	g_iControllerEntity[iEntity] = iLink;
+				
+	Cel_GetEntityOrigin(iLink, fLinkOrigin[0]);
+	Cel_GetEntityOrigin(iEntity, fLinkOrigin[1]);
+				
+	TE_SetupBeamPoints(fLinkOrigin[0], fLinkOrigin[1], Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.60, 1.0, 1.0, 1, 0.0, g_iOrange, 10); TE_SendToAll();
+				
+	EmitSoundToAll("buttons/button19.wav", iLink, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	EmitSoundToAll("buttons/button19.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	
 	return true;
 }

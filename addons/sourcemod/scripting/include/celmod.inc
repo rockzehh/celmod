@@ -112,6 +112,43 @@ enum TriggerFunctionType
 	TRIGGERFUNC_UNLOCK = 2,
 };
 
+methodmap EntityHandler
+{
+	public EntityHandler(int iEnt)
+	{
+		return view_as<EntityHandler>(iEnt);
+	}
+	
+	property int Ent
+	{
+		private get() {	return view_as<int>(this);	}
+	}
+	
+	propety bool ServerEntity
+	{
+		public get() {	Cel_IsEntity(this.Ent);	}
+		public set(bool bIsEntity) {	Cel_SetEntity(this.Ent, bIsEntity);	}
+	}
+	
+	propety bool Breakable
+	{
+		public get() {	Cel_IsBreakable(this.Ent);	}
+		public set(bool bBreakable) {	Cel_SetBreakable(this.Ent, bBreakable);	}
+	}
+	
+	propety bool Deleting
+	{
+		public get() {	Cel_IsDeleting(this.Ent);	}
+	}
+	
+	propety bool Fading
+	{
+		public get() {	Cel_IsFading(this.Ent);	}
+		public getColor(int iFadeColor1[3], int iFadeColor2[3]) {	Cel_GetFadeColor(this.Ent, iFadeColor1, iFadeColor2);	}
+		public set(bool bFade, int iR1, int iR2, int iR3, int iR2, int iG2, int iB2) {	Cel_SetColorFade(this.Ent, bFade, iR1, iG1, iB2, iR2, iG2, iB2);	}
+	}
+}
+
 #define CEL_AUTHOR "rockzehh"
 #define CEL_URL "https://github.com/rockzehh/celmod"
 #define CEL_VERSION "3.0.0"

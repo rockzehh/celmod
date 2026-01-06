@@ -142,7 +142,7 @@ public Action Command_Link(int iClient, int iArgs)
 				g_bCreatingLink[iClient] = false;
 				g_iLinkStage[iClient] = 0;
 				
-				Cel_LinkBit(g_iLinkingEntity[iClient], iEntity);
+				Cel_LinkEntity(g_iLinkingEntity[iClient], iEntity);
 				
 				//Created trigger link.
 				Cel_ReplyToCommand(iClient, "%t", "CreatedLink");

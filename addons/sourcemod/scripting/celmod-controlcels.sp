@@ -201,7 +201,7 @@ public int Native_GetTriggerTypeName(Handle hPlugin, int iNumParams)
 	SetNativeString(2, sName, iMaxLength);
 }
 
-public int Native_LinkBit(Handle hPlugin, int iNumParams)
+public int Native_LinkEntity(Handle hPlugin, int iNumParams)
 {
 	char sBit[32];
 	float fLinkOrigin[2][3];

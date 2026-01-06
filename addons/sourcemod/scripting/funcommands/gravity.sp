@@ -187,7 +187,8 @@ public Action Command_Gravity(int client, int args)
 {
 	if (args < 1)
 	{
-		ReplyToCommand(client, "[SM] Usage: sm_playergravity <#userid|name> [amount]");
+		//CelMod Compatability
+		ReplyToCommand(client, "[SM] Usage: sm_pgravity <#userid|name> [amount]");
 		return Plugin_Handled;
 	}
 

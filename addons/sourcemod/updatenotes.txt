@@ -1,0 +1,26 @@
+Links:
+Button/Trigger is only assigned to a link.
+Link is gonna be a soupcan. (Options: create (creates the empty link base), switch (on/off), open (open/close), lock (unlock/lock)) Can have multiple links.
+
+
+Saving/Loading
+new keyvalue layout
+"positions" "angles,origin"
+"entityinfo" "classname,model,targetname,entitytype,skin,spawnflags,renderfx"
+"motion" "motion,solid"
+"color" "color"
+"fadecolor" "fadecolor1-6,enabled"
+"rainbow" "enabled"
+"linked" "controller"
+
+//specific
+"cycler" "propname,sequence"
+"door" "pushbar"
+"dynamic" "propname"
+"physics" "propname,breakable"
+"effect" "type,enabled"
+"internet" "url"
+"ammo|ammocrate|charger|wepspawner" "angles,type"
+"music" "angles,musicpath,loop,start,looptime,volume,speed"
+"sound" "angles,soundpath,speed"
+"trigger" "controllerid"

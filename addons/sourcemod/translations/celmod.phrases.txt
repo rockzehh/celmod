@@ -185,6 +185,11 @@
 	{
 		"en"			"Usage: {green}[tag]stack{default} <x> <y> <z>"
 	}
+	
+	"CannotCopyColor"
+	{
+		"en"			"You cannot copy the color from this [type]."
+	}
 
 	"CannotSellForFree"
 	{
@@ -473,6 +478,11 @@
 		"#format"		"{1:s}"
 		"en"			"Sound {green}{1}{default} not found."
 	}
+	
+	"NoCopiedColor"
+	{
+		"en"			"You haven't copied a color yet. Type {green}[tag]color copy{default} on a prop to get started!"
+	}
 
 	"NotCopyingProp"
 	{
@@ -534,6 +544,11 @@
 	"OutdatedSaveSystem"
 	{
 		"en"			"This build was saved under an outdated save system, this build cannot be loaded!"
+	}
+	
+	"PastedCopiedColor"
+	{
+		"en"			"Pasted copied color onto [type]."
 	}
 
 	"PastedFromCopyQueue"

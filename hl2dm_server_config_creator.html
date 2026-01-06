@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced HL2:DM Server Configurator</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #ff9800; /* HL2 Orange */
+            --accent-hover: #ffb74d;
+            --border-color: #333;
+            --input-bg: #2c2c2c;
+            --success-color: #4caf50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 300px 1fr; /* Sidebar + Content */
+            gap: 20px;
+        }
+
+        /* Header */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 15px;
+            margin-bottom: 10px;
+        }
+
+        h1 { margin: 0; color: var(--accent-color); font-size: 1.8rem; }
+        .subtitle { font-size: 0.9rem; color: #888; }
+
+        /* Sidebar Presets */
+        .sidebar {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            height: fit-content;
+        }
+
+        .sidebar h3 { margin-top: 0; color: var(--accent-color); }
+
+        .preset-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            cursor: pointer;
+            text-align: left;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover { background: var(--border-color); border-color: var(--accent-color); }
+        .preset-btn strong { display: block; font-size: 1rem; color: var(--accent-color); }
+        .preset-btn span { font-size: 0.8rem; color: #aaa; }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+        /* Forms */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+        .desc { display: block; font-size: 0.75rem; color: #888; margin-bottom: 5px; }
+        
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            background: var(--input-bg);
+            border: 1px solid #444;
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        /* Output Area */
+        .output-area {
+            position: sticky;
+            bottom: 20px;
+            background: var(--panel-bg);
+            border: 1px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            background: #000;
+            color: #4caf50;
+            font-family: 'Consolas', monospace;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        button.action-btn {
+            background: var(--accent-color);
+            color: black;
+            border: none;
+            padding: 10px 25px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button.action-btn:hover { background: var(--accent-hover); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>HL2:DM Server Configurator</h1>
+            <span class="subtitle">Complete control over physics, rates, and rules.</span>
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <h3>Quick Presets</h3>
+        <p class="desc">Clicking a preset will overwrite current settings.</p>
+        
+        <button class="preset-btn" onclick="applyPreset('standard')">
+            <strong>Standard / Vanilla</strong>
+            <span>Classic settings. Normal gravity, normal weapon respawn.</span>
+        </button>
+
+        <button class="preset-btn" onclick="applyPreset('competitive')">
+            <strong>Competitive / 1v1</strong>
+            <span>High tickrate, no random crits (if applicable), standard physics.</span>
+        </button>
+
+        <button class="preset-btn" onclick="applyPreset('surf')">
+            <strong>Surf / Bhop</strong>
+            <span>High air accelerate (150), no fall damage, 100 tick.</span>
+        </button>
+
+        <button class="preset-btn" onclick="applyPreset('killbox')">
+            <strong>Killbox / Fun</strong>
+            <span>Fast weapon respawn (5s), infinite aux power, low grav (optional).</span>
+        </button>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="card">
+            <h2>1. Server Identity & Access</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Hostname</label>
+                    <input type="text" id="hostname" value="Half-Life 2: Deathmatch Server">
+                </div>
+                <div class="form-group">
+                    <label>RCON Password</label>
+                    <input type="text" id="rcon_password" placeholder="admin_password_here">
+                </div>
+                <div class="form-group">
+                    <label>Server Password (Optional)</label>
+                    <input type="text" id="sv_password" placeholder="Leave empty for public">
+                </div>
+                <div class="form-group">
+                    <label>LAN Mode</label>
+                    <select id="sv_lan">
+                        <option value="0">Internet (Public)</option>
+                        <option value="1">LAN Only</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Region</label>
+                    <select id="sv_region">
+                        <option value="255">World</option>
+                        <option value="0">US East</option>
+                        <option value="1">US West</option>
+                        <option value="3">Europe</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tags</label>
+                    <span class="desc">Comma separated (e.g. hl2dm,surf,fun)</span>
+                    <input type="text" id="sv_tags" value="hl2dm">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Gameplay Rules & Items</h2>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Teamplay</label>
+                    <select id="mp_teamplay">
+                        <option value="0">Deathmatch (FFA)</option>
+                        <option value="1">Team Deathmatch</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Time Limit (min)</label>
+                    <input type="number" id="mp_timelimit" value="20">
+                </div>
+                <div class="form-group">
+                    <label>Frag Limit</label>
+                    <input type="number" id="mp_fraglimit" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Weapon Respawn (sec)</label>
+                    <span class="desc">Default: 20. Lower for killbox.</span>
+                    <input type="number" id="sv_hl2mp_weapon_respawn_time" value="20">
+                </div>
+                <div class="form-group">
+                    <label>Item Respawn (sec)</label>
+                    <span class="desc">Health/Suit Battery. Default: 30.</span>
+                    <input type="number" id="sv_hl2mp_item_respawn_time" value="30">
+                </div>
+                <div class="form-group">
+                    <label>Weapon Stay</label>
+                    <select id="mp_weaponstay">
+                        <option value="0">Disabled (Pickup consumes)</option>
+                        <option value="1" selected>Enabled (Stays on ground)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fall Damage</label>
+                    <select id="mp_falldamage">
+                        <option value="0">0 - No Damage</option>
+                        <option value="1">1 - Damage Enabled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Flashlight</label>
+                    <select id="mp_flashlight">
+                        <option value="1">Allowed</option>
+                        <option value="0">Disabled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Infinite Aux Power</label>
+                    <span class="desc">Sprint forever?</span>
+                    <select id="sv_infinite_aux_power">
+                        <option value="0">0 - Normal</option>
+                        <option value="1">1 - Infinite</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Physics & Movement (Advanced)</h2>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Gravity</label>
+                    <span class="desc">Default: 600. Moon: 100.</span>
+                    <input type="number" id="sv_gravity" value="600">
+                </div>
+                <div class="form-group">
+                    <label>Air Accelerate</label>
+                    <span class="desc">Crucial for Surf. Def: 10. Surf: 150+.</span>
+                    <input type="number" id="sv_airaccelerate" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Push Scale</label>
+                    <span class="desc">Force of weapons on props. Def: 1.</span>
+                    <input type="number" id="phys_pushscale" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Friction</label>
+                    <span class="desc">Ground friction. Default: 4.</span>
+                    <input type="number" id="sv_friction" value="4">
+                </div>
+                <div class="form-group">
+                    <label>Stop Speed</label>
+                    <span class="desc">Deceleration. Default: 100.</span>
+                    <input type="number" id="sv_stopspeed" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Turbo Physics</label>
+                    <span class="desc">Stand on physics props?</span>
+                    <select id="sv_turbophysics">
+                        <option value="0">0 - No</option>
+                        <option value="1">1 - Yes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Performance & Networking</h2>
+            <p class="desc" style="margin-bottom: 15px;">Note: 66 Tick is standard Source. 100 Tick is high performance.</p>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Max Rate (Bandwidth)</label>
+                    <input type="number" id="sv_maxrate" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Min Rate</label>
+                    <input type="number" id="sv_minrate" value="100000">
+                </div>
+                <div class="form-group">
+                    <label>Max Update Rate (Tick)</label>
+                    <span class="desc">Server -> Client updates.</span>
+                    <input type="number" id="sv_maxupdaterate" value="66">
+                </div>
+                <div class="form-group">
+                    <label>Min Update Rate</label>
+                    <input type="number" id="sv_minupdaterate" value="66">
+                </div>
+                <div class="form-group">
+                    <label>Max CMD Rate</label>
+                    <span class="desc">Client -> Server updates.</span>
+                    <input type="number" id="sv_maxcmdrate" value="66">
+                </div>
+                <div class="form-group">
+                    <label>Min CMD Rate</label>
+                    <input type="number" id="sv_mincmdrate" value="66">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Downloads & Security</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>FastDL URL</label>
+                    <span class="desc">http://example.com/hl2mp/</span>
+                    <input type="text" id="sv_downloadurl" placeholder="">
+                </div>
+                <div class="form-group">
+                    <label>Pure Server</label>
+                    <span class="desc">Force valid game files?</span>
+                    <select id="sv_pure">
+                        <option value="0">0 - Off (Allow custom skins)</option>
+                        <option value="1">1 - whitelist.cfg</option>
+                        <option value="2">2 - Strict (Steam only)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Allow Upload</label>
+                    <select id="sv_allowupload">
+                        <option value="1">Yes (Sprays)</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Allow Download</label>
+                    <select id="sv_allowdownload">
+                        <option value="1">Yes (Maps/Sounds)</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="output-area">
+            <h3 style="margin-top: 0; color: var(--accent-color);">Generated server.cfg</h3>
+            <textarea id="output" readonly></textarea>
+            <div class="actions">
+                <button class="action-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    // All relevant inputs
+    const inputs = document.querySelectorAll('input, select');
+
+    // Preset Data
+    const presets = {
+        standard: {
+            mp_teamplay: 0, mp_timelimit: 20, mp_fraglimit: 0, 
+            sv_hl2mp_weapon_respawn_time: 20, sv_hl2mp_item_respawn_time: 30,
+            mp_weaponstay: 1, mp_falldamage: 1, sv_infinite_aux_power: 0,
+            sv_gravity: 600, sv_airaccelerate: 10, phys_pushscale: 1, sv_friction: 4,
+            sv_maxupdaterate: 66, sv_maxcmdrate: 66
+        },
+        competitive: {
+            mp_teamplay: 0, mp_timelimit: 30, mp_fraglimit: 0,
+            sv_hl2mp_weapon_respawn_time: 20, sv_hl2mp_item_respawn_time: 30,
+            mp_weaponstay: 0, mp_falldamage: 1, sv_infinite_aux_power: 0,
+            sv_gravity: 600, sv_airaccelerate: 10, sv_friction: 4,
+            sv_maxupdaterate: 100, sv_minupdaterate: 66, sv_maxcmdrate: 100, sv_mincmdrate: 66
+        },
+        surf: {
+            mp_teamplay: 0, mp_timelimit: 45, mp_fraglimit: 0,
+            sv_hl2mp_weapon_respawn_time: 10, mp_falldamage: 0,
+            sv_gravity: 600, sv_airaccelerate: 150, sv_friction: 4,
+            sv_maxupdaterate: 100
+        },
+        killbox: {
+            mp_teamplay: 0, mp_timelimit: 15, mp_fraglimit: 50,
+            sv_hl2mp_weapon_respawn_time: 5, sv_hl2mp_item_respawn_time: 10,
+            sv_infinite_aux_power: 1,
+            sv_gravity: 600, sv_airaccelerate: 10, phys_pushscale: 5
+        }
+    };
+
+    function applyPreset(type) {
+        const data = presets[type];
+        if(!data) return;
+
+        for (const [key, value] of Object.entries(data)) {
+            const el = document.getElementById(key);
+            if (el) el.value = value;
+        }
+        generateConfig();
+    }
+
+    function generateConfig() {
+        let c = "// HL2:DM Advanced Server Configuration\n";
+        c += `// Created: ${new Date().toLocaleString()}\n\n`;
+
+        c += "// --- 1. Identity & Access ---\n";
+        c += `hostname "${document.getElementById('hostname').value}"\n`;
+        c += `rcon_password "${document.getElementById('rcon_password').value}"\n`;
+        c += `sv_password "${document.getElementById('sv_password').value}"\n`;
+        c += `sv_lan ${document.getElementById('sv_lan').value}\n`;
+        c += `sv_region ${document.getElementById('sv_region').value}\n`;
+        c += `sv_tags "${document.getElementById('sv_tags').value}"\n\n`;
+
+        c += "// --- 2. Gameplay Rules ---\n";
+        c += `mp_teamplay ${document.getElementById('mp_teamplay').value}\n`;
+        c += `mp_timelimit ${document.getElementById('mp_timelimit').value}\n`;
+        c += `mp_fraglimit ${document.getElementById('mp_fraglimit').value}\n`;
+        c += `mp_weaponstay ${document.getElementById('mp_weaponstay').value}\n`;
+        c += `mp_falldamage ${document.getElementById('mp_falldamage').value}\n`;
+        c += `mp_flashlight ${document.getElementById('mp_flashlight').value}\n`;
+        c += `mp_footsteps 1\n`;
+        c += `sv_hl2mp_weapon_respawn_time ${document.getElementById('sv_hl2mp_weapon_respawn_time').value}\n`;
+        c += `sv_hl2mp_item_respawn_time ${document.getElementById('sv_hl2mp_item_respawn_time').value}\n`;
+        c += `sv_infinite_aux_power ${document.getElementById('sv_infinite_aux_power').value}\n\n`;
+
+        c += "// --- 3. Physics & Movement ---\n";
+        c += `sv_gravity ${document.getElementById('sv_gravity').value}\n`;
+        c += `sv_airaccelerate ${document.getElementById('sv_airaccelerate').value}\n`;
+        c += `sv_friction ${document.getElementById('sv_friction').value}\n`;
+        c += `sv_stopspeed ${document.getElementById('sv_stopspeed').value}\n`;
+        c += `phys_pushscale ${document.getElementById('phys_pushscale').value}\n`;
+        c += `sv_turbophysics ${document.getElementById('sv_turbophysics').value}\n\n`;
+
+        c += "// --- 4. Performance & Network ---\n";
+        c += `sv_maxrate ${document.getElementById('sv_maxrate').value}\n`;
+        c += `sv_minrate ${document.getElementById('sv_minrate').value}\n`;
+        c += `sv_maxupdaterate ${document.getElementById('sv_maxupdaterate').value}\n`;
+        c += `sv_minupdaterate ${document.getElementById('sv_minupdaterate').value}\n`;
+        c += `sv_maxcmdrate ${document.getElementById('sv_maxcmdrate').value}\n`;
+        c += `sv_mincmdrate ${document.getElementById('sv_mincmdrate').value}\n`;
+        c += `net_maxfilesize 64\n\n`;
+
+        c += "// --- 5. Communication & Security ---\n";
+        c += `sv_voiceenable 1\n`;
+        c += `sv_alltalk 1\n`;
+        c += `sv_pure ${document.getElementById('sv_pure').value}\n`;
+        c += `sv_allowupload ${document.getElementById('sv_allowupload').value}\n`;
+        c += `sv_allowdownload ${document.getElementById('sv_allowdownload').value}\n`;
+        
+        const dlUrl = document.getElementById('sv_downloadurl').value;
+        if(dlUrl) c += `sv_downloadurl "${dlUrl}"\n`;
+
+        c += "\n// --- Bans & Execs ---\n";
+        c += "exec banned_user.cfg\n";
+        c += "exec banned_ip.cfg\n";
+        c += "writeid\nwriteip\n";
+        c += "log on\n";
+
+        document.getElementById('output').value = c;
+    }
+
+    function copyToClipboard() {
+        const copyText = document.getElementById("output");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        const btn = document.querySelector('.action-btn');
+        const orig = btn.innerText;
+        btn.innerText = "COPIED!";
+        setTimeout(() => btn.innerText = orig, 2000);
+    }
+
+    inputs.forEach(i => i.addEventListener('input', generateConfig));
+    generateConfig();
+</script>
+
+</body>
+</html>

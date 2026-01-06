@@ -31,6 +31,7 @@ float g_fRainbowTime[MAXENTITIES + 1];
 GlobalForward g_gfOnEntityRemoved;
 
 int g_iColor[MAXENTITIES + 1][4];
+int g_iCopiedColor[MAXPLAYERS + 1][4];
 int g_iFadeColor[MAXENTITIES + 1][6];
 int g_iEntityDissolve;
 int g_iMoveCopyEntity[MAXPLAYERS + 1];
@@ -419,7 +420,7 @@ public Action Command_Color(int iClient, int iArgs)
 						Cel_SetRainbow(i, true);
 					}else if(StrEqual(sColor, "error", false))
 					{
-						Cel_SetColorFade(i, true, 255, 32, 0, 0, 0, 0);
+						Cel_SetColorFade(i, true, 255, 4, 0, 24, 2, 0);
 					}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 					{
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
@@ -486,11 +487,18 @@ public Action Command_Color(int iClient, int iArgs)
 				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", "rainbow");
 			}else if(StrEqual(sColor, "error", false))
 			{
-				Cel_SetColorFade(iProp, true, 255, 32, 0, 0, 0, 0);
+				Cel_SetColorFade(iProp, true, 255, 4, 0, 24, 2, 0);
 				
 				Cel_ChangeBeam(iClient, iProp);
 				
 				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", "error");
+			}else if(StrEqual(sColor, "copy", false))
+			{
+				Cel_GetColor(iProp, g_iCopiedColor[iClient]);
+				
+				Cel_ChangeBeam(iClient, iProp);
+				
+				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "CopiedColor");
 			}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 			{
 				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));

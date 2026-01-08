@@ -81,23 +81,21 @@ public void CMHelp_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, cons
 {
 	if (cvConVar == g_cvColorListURL)
 	{
-		Format(g_sColorListURL, sizeof(g_sColorListURL), sNewValue);
+		g_cvColorListURL.GetString(g_sColorListURL, sizeof(g_sColorListURL));
 		PrintToServer("|CelMod| Color list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvCommandListURL)
 	{
-		Format(g_sCommandListURL, sizeof(g_sCommandListURL), sNewValue);
+		g_cvCommandListURL.GetString(g_sCommandListURL, sizeof(g_sCommandListURL));
 		PrintToServer("|CelMod| Command list url updated to %s.", sNewValue);
 	} else if (cvConVar == g_cvEffectListURL)
 	{
-		Format(g_sEffectListURL, sizeof(g_sEffectListURL), sNewValue);
+		g_cvEffectListURL.GetString(g_sEffectListURL, sizeof(g_sEffectListURL));
 		PrintToServer("|CelMod| Effect list url updated to %s.", sNewValue);
-	} else if (cvConVar == g_cvPropListURL)
-	{
-		Format(g_sPropListURL, sizeof(g_sPropListURL), sNewValue);
+	} else if (cvConVar == g_cvPropListURL) {
+		g_cvPropListURL.GetString(g_sPropListURL, sizeof(g_sPropListURL));
 		PrintToServer("|CelMod| Prop list url updated to %s.", sNewValue);
-	} else if (cvConVar == g_cvUpdateListURL)
-	{
-		Format(g_sUpdateListURL, sizeof(g_sUpdateListURL), sNewValue);
+	} else if (cvConVar == g_cvUpdateListURL) {
+		g_cvPropListURL.GetString(g_sUpdateListURL, sizeof(g_sUpdateListURL));
 		PrintToServer("|CelMod| Update list url updated to %s.", sNewValue);
 	}
 }

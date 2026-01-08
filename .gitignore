@@ -324,5 +324,5 @@ addons/sourcemod/extensions/x64/sdktools.ext.2.dods.dll
 /bin
 addons/sourcemod/scripting/include/ink_build.inc
 addons/sourcemod/scripting/ink_build.sp
-cfg/banned_ip.cfg
 cfg/banned_user.cfg
+cfg/banned_ip.cfg

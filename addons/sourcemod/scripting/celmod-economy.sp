@@ -41,8 +41,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_StartSale", Native_StartSale);
 	CreateNative("Cel_SubFromClientBalance", Native_SubFromClientBalance);
 	
-	g_bLate = bLate;
-	
 	return APLRes_Success;
 }
 
@@ -112,7 +110,7 @@ public void CMEconomy_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, c
 {
 	if (cvConVar == g_cvCleerModel)
 	{
-		Format(g_sCleerModel, sizeof(g_sCleerModel), sNewValue);
+		g_cvCleerModel.GetString(g_sCleerModel, sizeof(g_sCleerModel));
 		PrintToServer("|CelMod| Cleer model updated to %s.", sNewValue);
 	}
 }

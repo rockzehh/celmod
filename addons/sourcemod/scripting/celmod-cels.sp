@@ -90,7 +90,7 @@ public void CMCels_OnConVarChanged(ConVar cvConVar, const char[] sOldValue, cons
 {
 	if (cvConVar == g_cvDefaultInternetURL)
 	{
-		Format(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL), sNewValue);
+		g_cvDefaultInternetURL.GetString(g_sDefaultInternetURL, sizeof(g_sDefaultInternetURL));
 		PrintToServer("|CelMod| Default internet cel url updated to %s.", sNewValue);
 	}
 }
@@ -315,6 +315,8 @@ public Action Command_Music(int iClient, int iArgs)
 		GetClientAbsAngles(iClient, fAngles);
 		Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 		
+		PrecacheSound(sMusicBuffer[0]);
+		
 		int iMusic = Cel_SpawnMusic(iClient, sMusicBuffer[0], bLoop, StringToFloat(sMusicBuffer[1]), false, fVolume, iSpeed, fAngles, fOrigin, 64, 255, 0, 255);
 		
 		Cel_TeleportInfrontOfClient(iClient, iMusic, 25.0);
@@ -416,6 +418,8 @@ public Action Command_Sound(int iClient, int iArgs)
 	{
 		GetClientAbsAngles(iClient, fAngles);
 		Cel_GetCrosshairHitOrigin(iClient, fOrigin);
+		
+		PrecacheSound(sMusicString);
 		
 		int iSound = Cel_SpawnSound(iClient, sMusicString, iSpeed, fAngles, fOrigin, 255, 200, 0, 255);
 		
@@ -906,8 +910,6 @@ public int Native_SpawnMusic(Handle hPlugin, int iNumParams)
 	
 	g_fVolume[iMusic] = fVolume;
 	
-	PrecacheSound(sMusicPath);
-	
 	Format(g_sMusicPath[iMusic], sizeof(g_sMusicPath[]), sMusicPath);
 	
 	Cel_SetOwner(iClient, iMusic);
@@ -966,8 +968,6 @@ public int Native_SpawnSound(Handle hPlugin, int iNumParams)
 	Cel_SetEntity(iSound, true);
 	
 	Cel_SetMotion(iSound, false);
-	
-	PrecacheSound(sSound);
 	
 	Format(g_sSoundPath[iSound], sizeof(g_sSoundPath[]), sSound);
 	

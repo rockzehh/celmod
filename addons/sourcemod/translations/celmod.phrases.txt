@@ -185,11 +185,6 @@
 	{
 		"en"			"Usage: {green}[tag]stack{default} <x> <y> <z>"
 	}
-	
-	"CannotCopyColor"
-	{
-		"en"			"You cannot copy the color from this [type]."
-	}
 
 	"CannotSellForFree"
 	{
@@ -478,11 +473,6 @@
 		"#format"		"{1:s}"
 		"en"			"Sound {green}{1}{default} not found."
 	}
-	
-	"NoCopiedColor"
-	{
-		"en"			"You haven't copied a color yet. Type {green}[tag]color copy{default} on a prop to get started!"
-	}
 
 	"NotCopyingProp"
 	{
@@ -492,16 +482,6 @@
 	"NotGrabbingProp"
 	{
 		"en"			"You aren't grabbing a prop already!"
-	}
-	
-	"NotLinked-Button"
-	{
-		"en"			"This button isn't linked to any bits yet. Type {green}[tag]link{default} on the button to get started!"
-	}
-	
-	"NotLinked-Trigger"
-	{
-		"en"			"This trigger isn't linked to any bits yet. Type {green}[tag]link{default} on the trigger to get started!"
 	}
 
 	"NoKill"
@@ -544,11 +524,6 @@
 	"OutdatedSaveSystem"
 	{
 		"en"			"This build was saved under an outdated save system, this build cannot be loaded!"
-	}
-	
-	"PastedCopiedColor"
-	{
-		"en"			"Pasted copied color onto [type]."
 	}
 
 	"PastedFromCopyQueue"
@@ -806,12 +781,6 @@
 	{
 		"#format"		"{1:s}"
 		"en"			"Switched HUD to the {green}{1}{default} side."
-	}
-	
-	"TooManyLinkedBits"
-	{
-		"#format"		"{1:s},{2:i}"
-		"en"			"You have too many linked bits on this {1}. ({2})"
 	}
 
 	"Unlocked"

@@ -56,7 +56,6 @@ v_load - Client - Loads entities from a save file.
 v_lock - Client - Locks the cel you are looking at.
 v_mark - Client - Creates a marker to the player showing every axis.
 v_marker - Client - Creates a marker to the player showing every axis.
-v_music - Client - Creates a working music cel.
 v_nokill - Client - Enables/disables godmode on the player.
 v_owner - Client - Gets the owner of the entity you are looking at.
 v_p - Client - Spawns a prop by name.
@@ -82,7 +81,6 @@ v_shop - Client - Changes the mode to shop (merchant) within the land.
 v_skin - Client - Changes the skin on the prop you are looking at.
 v_smove - Client - Moves the prop you are looking at on it's origin.
 v_solid - Client - Enables/disables solidicity on the prop you are looking at.
-v_sound - Client - Creates a working sound cel.
 v_spawn - Client - Spawns a prop by name.
 v_stack - Client - Stacks one prop on the x, y and z axis.
 v_stackinfo - Client - Gets the origin difference between props for help stacking.

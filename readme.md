@@ -4,7 +4,7 @@
 
 Latest release is *2.1.4*, current working version is *3.x*.
 
-Built against SourceMod *1.12.0-git7221* and Metamod: Source *1.12.0-git1219*.
+Built against SourceMod *1.12.0-git7198* and Metamod: Source *1.12.0-git1219*.
 
 This plugin uses [Updater](https://github.com/rockzehh/updater) to update its files, and is required.
 This plugin uses [More Colors](https://forums.alliedmods.net/showthread.php?t=185016) for the text color, and [StudioHdr](https://forums.alliedmods.net/showthread.php?t=333857) for advanced model information. It is required if you want to recompile the plugin.

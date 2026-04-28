@@ -4,9 +4,9 @@
 	{
 		"alyx"		"blacklist"
 		"cake"		"blacklist"
-		"delaware"		"blacklist"
 		"hoopie"		"blacklist"
 		"pineapple"		"blacklist"
 		"sbc"		"blacklist"
+		"delaware"		"blacklist"
 	}
 }

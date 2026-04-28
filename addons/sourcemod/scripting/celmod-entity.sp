@@ -31,7 +31,6 @@ float g_fRainbowTime[MAXENTITIES + 1];
 GlobalForward g_gfOnEntityRemoved;
 
 int g_iColor[MAXENTITIES + 1][4];
-int g_iCopiedColor[MAXPLAYERS + 1][4];
 int g_iFadeColor[MAXENTITIES + 1][6];
 int g_iEntityDissolve;
 int g_iMoveCopyEntity[MAXPLAYERS + 1];
@@ -210,9 +209,6 @@ public void OnMapStart()
 	DispatchSpawn(g_iEntityDissolve);
 	
 	DispatchKeyValue(g_iEntityDissolve, "classname", "cm_entity_dissolver");
-	
-	PrecacheSound("buttons/lever7.wav", true);
-	PrecacheSound("buttons/combine_button_locked.wav", true);
 }
 
 public void OnMapEnd()
@@ -346,9 +342,9 @@ public Action Command_AutoBuild(int iClient, int iArgs)
 			
 			Entity_GetRenderColor(iProp, iColor);
 			
-			Cel_GetEntityAngles(iProp, fAngles);
+			Entity_GetAbsAngles(iProp, fAngles);
 			
-			Cel_GetEntityOrigin(iProp, fOrigin);
+			Entity_GetAbsOrigin(iProp, fOrigin);
 			
 			for(int i = 0; i < StringToInt(sArgs[0]); i++)
 			{
@@ -420,7 +416,7 @@ public Action Command_Color(int iClient, int iArgs)
 						Cel_SetRainbow(i, true);
 					}else if(StrEqual(sColor, "error", false))
 					{
-						Cel_SetColorFade(i, true, 255, 4, 0, 24, 2, 0);
+						Cel_SetColorFade(i, true, 255, 32, 0, 0, 0, 0);
 					}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 					{
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
@@ -487,18 +483,11 @@ public Action Command_Color(int iClient, int iArgs)
 				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", "rainbow");
 			}else if(StrEqual(sColor, "error", false))
 			{
-				Cel_SetColorFade(iProp, true, 255, 4, 0, 24, 2, 0);
+				Cel_SetColorFade(iProp, true, 255, 32, 0, 0, 0, 0);
 				
 				Cel_ChangeBeam(iClient, iProp);
 				
 				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", "error");
-			}else if(StrEqual(sColor, "copy", false))
-			{
-				Cel_GetColor(iProp, g_iCopiedColor[iClient]);
-				
-				Cel_ChangeBeam(iClient, iProp);
-				
-				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "CopiedColor");
 			}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 			{
 				ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
@@ -620,9 +609,6 @@ public Action Command_Delete(int iClient, int iArgs)
 			if(Cel_IsMusicActive(iProp))
 			Cel_KillSound(iProp);
 			
-			if(Cel_IsTrigger(iProp))
-			Cel_RemoveLinkToBits(iProp);
-			
 			Cel_RemovalBeam(iClient, iProp);
 			
 			Cel_ReplyToCommandEntity(iClient, iProp, "%t", "Remove");
@@ -657,9 +643,6 @@ public Action Command_DeleteAll(int iClient, int iArgs)
 			
 			if(Cel_IsMusicActive(i))
 			Cel_KillSound(i);
-			
-			if(Cel_IsTrigger(i))
-			Cel_RemoveLinkToBits(i);
 			
 			AcceptEntityInput(i, "kill");
 			
@@ -1043,9 +1026,9 @@ public Action Command_Replace(int iClient, int iArgs)
 			
 			Entity_GetRenderColor(iProp, iColor);
 			
-			Cel_GetEntityAngles(iProp, fAngles);
+			Entity_GetAbsAngles(iProp, fAngles);
 			
-			Cel_GetEntityOrigin(iProp, fOrigin);
+			Entity_GetAbsOrigin(iProp, fOrigin);
 			
 			Cel_SubFromPropCount(iClient);
 			
@@ -1144,8 +1127,8 @@ public Action Command_Rotate(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityOrigin(iProp, fOrigin);
-		Cel_GetEntityAngles(iProp, fPropAngles);
+		Entity_GetAbsOrigin(iProp, fOrigin);
+		Entity_GetAbsAngles(iProp, fPropAngles);
 		
 		fAngles[0] = fPropAngles[0] += fAddAngles[0];
 		fAngles[1] = fPropAngles[1] += fAddAngles[1];
@@ -1159,6 +1142,8 @@ public Action Command_Rotate(int iClient, int iArgs)
 		}
 		
 		TE_SetupBeamRingPoint(fOrigin, 0.0, 15.0, Cel_GetBeamMaterial(), Cel_GetHaloMaterial(), 0, 15, 0.5, 3.0, 0.0, g_iOrange, 10, 0); TE_SendToAll();
+		
+		PrecacheSound("buttons/lever7.wav");
 		
 		EmitSoundToAll("buttons/lever7.wav", iProp, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	} else {
@@ -1348,9 +1333,9 @@ public Action Command_Stack(int iClient, int iArgs)
 			
 			Entity_GetRenderColor(iProp, iColor);
 			
-			Cel_GetEntityAngles(iProp, fAngles);
+			Entity_GetAbsAngles(iProp, fAngles);
 			
-			Cel_GetEntityOrigin(iProp, fOrigin);
+			Entity_GetAbsOrigin(iProp, fOrigin);
 			
 			for(int i = 0; i < StringToInt(sArgs[0]); i++)
 			{
@@ -1431,8 +1416,8 @@ public Action Command_StackInfo(int iClient, int iArgs)
 				}else{
 					g_iStackInfoStatus[iClient] = 0;
 					
-					Cel_GetEntityOrigin(g_iStackInfoEnt[iClient], fOrigin[0]);
-					Cel_GetEntityOrigin(iEntity, fOrigin[1]);
+					Entity_GetAbsOrigin(g_iStackInfoEnt[iClient], fOrigin[0]);
+					Entity_GetAbsOrigin(iEntity, fOrigin[1]);
 					
 					g_iStackInfoEnt[iClient] = -1;
 					
@@ -1507,8 +1492,8 @@ public Action Command_StartCopy(int iClient, int iArgs)
 			Cel_ReplyToCommand(iClient, "%t", "CantReplace");
 		}
 		
-		Cel_GetEntityAngles(iProp, fAngles);
-		Cel_GetEntityOrigin(iProp, fOrigin[0]);
+		Entity_GetAbsAngles(iProp, fAngles);
+		Entity_GetAbsOrigin(iProp, fOrigin[0]);
 		GetClientAbsOrigin(iClient, fOrigin[1]);
 		
 		g_fCopyOrigin[iClient][0] = fOrigin[0][0] - fOrigin[1][0];
@@ -1556,7 +1541,7 @@ public Action Command_StartGrab(int iClient, int iArgs)
 	
 	if (Cel_CheckOwner(iClient, iProp))
 	{
-		Cel_GetEntityOrigin(iProp, fOrigin[0]);
+		Entity_GetAbsOrigin(iProp, fOrigin[0]);
 		GetClientAbsOrigin(iClient, fOrigin[1]);
 		
 		g_fCopyMoveOrigin[iClient][0] = fOrigin[0][0] - fOrigin[1][0];
@@ -1797,7 +1782,7 @@ public int Native_ChangePositionRelativeToOrigin(Handle hPlugin, int iNumParams)
 	
 	GetNativeArray(2, fAddOrigin, 3);
 	
-	Cel_GetEntityOrigin(iEntity, fOrigin);
+	Entity_GetAbsOrigin(iEntity, fOrigin);
 	
 	fFinalOrigin[0] = fOrigin[0] += fAddOrigin[0];
 	fFinalOrigin[1] = fOrigin[1] += fAddOrigin[1];
@@ -1928,7 +1913,7 @@ public int Native_DropEntityToFloor(Handle hPlugin, int iNumParams)
 	float fBounds[3], fDropOrigin[3], fEntityOrigin[3];
 	int iEntity = GetNativeCell(1);
 	
-	Cel_GetEntityOrigin(iEntity, fEntityOrigin);
+	Entity_GetAbsOrigin(iEntity, fEntityOrigin);
 	Entity_GetMinSize(iEntity, fBounds);
 	
 	Handle hTraceRay = TR_TraceRayFilterEx(fEntityOrigin, g_fDown, (MASK_SHOT_HULL|MASK_SHOT), RayType_Infinite, Cel_FilterPlayer, iEntity);
@@ -2404,6 +2389,8 @@ public int Native_IsLocked(Handle hPlugin, int iNumParams)
 	
 	if(g_bLocked[iEntity])
 	{
+		PrecacheSound("buttons/combine_button_locked.wav");
+		
 		EmitSoundToAll("buttons/combine_button_locked.wav", iEntity, 2, 100, 0, 1.0, 100, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	}
 	

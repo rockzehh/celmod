@@ -390,7 +390,7 @@
 		"magnet"	"prop_physics_override|models/props_wasteland/cranemagnet01a.mdl"
 		"magnifyinglamp"	"prop_physics_override|models/props_c17/light_magnifyinglamp02.mdl"
 		"masterinterface"	"prop_physics_override|models/props_combine/masterinterface.mdl"
-		"mattress"	"prop_ragdoll|models/props_c17/furnituremattress001a.mdl"
+		"mattress"	"prop_physics_override|models/props_c17/furnituremattress001a.mdl"
 		"medicfemale1"	"cycler|models/humans/group03m/female_01.mdl"
 		"medicfemale2"	"cycler|models/humans/group03m/female_02.mdl"
 		"medicfemale3"	"cycler|models/humans/group03m/female_03.mdl"

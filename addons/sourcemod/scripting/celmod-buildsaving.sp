@@ -15,8 +15,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_LoadBuild", Native_LoadBuild);
 	CreateNative("Cel_SaveBuild", Native_SaveBuild);
 	
-	g_bLate = bLate;
-	
 	return APLRes_Success;
 }
 
@@ -99,10 +97,10 @@ public Action Command_SaveBuild(int iClient, int iArgs)
 
 public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 {
-	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sEnt[32], sFile[PLATFORM_MAX_PATH], sKey[32], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sTemp[256];
+	char sAuthID[64], sBuffer[3][PLATFORM_MAX_PATH], sFile[PLATFORM_MAX_PATH], sPropName[64], sRelPath[PLATFORM_MAX_PATH], sSaveName[96], sTemp[256];
 	float fEnt[2][3], fOrigin[3];
-	int iClient = GetNativeCell(1), iControllerEntity = -1, iControllerID = -1, iProp = -1;
-	StringMap smControllers = new StringMap(), smLinked = new StringMap();
+	
+	int iClient = GetNativeCell(1), iProp = -1;
 	
 	GetNativeString(2, sSaveName, sizeof(sSaveName));
 	
@@ -214,24 +212,6 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 						kvLoadBuild.GetString("soundpath", sTemp, sizeof(sTemp));
 						iProp = Cel_SpawnSound(iClient, sTemp, kvLoadBuild.GetNum("speed"), fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
 					}
-					case ENTTYPE_TRIGGER:
-					{
-						if(StrEqual(sBuffer[0], "bit_trigger_button"))
-						{
-							iProp = Cel_SpawnButton(iClient, fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						}else{
-							//iProp = Cel_SpawnTrigger(iClient, fEnt[0], fOrigin, kvLoadBuild.GetNum("c1"), kvLoadBuild.GetNum("c2"), kvLoadBuild.GetNum("c3"), kvLoadBuild.GetNum("c4"));
-						}
-						
-						iControllerID = kvLoadBuild.GetNum("controllerid", -1);
-						
-						if(iControllerID != -1)
-						{
-							IntToString(iControllerID, sKey, sizeof(sKey));
-						
-							smControllers.SetValue(sKey, EntIndexToEntRef(iProp));	
-						}
-					}
 					case ENTTYPE_UNKNOWN:
 					{
 						kvLoadBuild.GetString("propname", sPropName, sizeof(sPropName));
@@ -249,41 +229,12 @@ public int Native_LoadBuild(Handle hPlugin, int iNumParams)
 				Cel_SetRenderFX(iProp, view_as<RenderFx>(kvLoadBuild.GetNum("renderfx")));
 				Cel_SetOwner(iClient, iProp);
 				
-				iControllerEntity = kvLoadBuild.GetNum("controllerentity", -1);
-				
-				if(iControllerEntity != -1)
-				{
-					IntToString(iControllerEntity, sKey, sizeof(sKey));
-							
-					smLinked.SetValue(sKey, EntIndexToEntRef(iProp));
-				}
-				
 				Cel_SetColorFade(iProp, view_as<bool>(kvLoadBuild.GetNum("colorfading")), kvLoadBuild.GetNum("fc1-1"), kvLoadBuild.GetNum("fc1-2"), kvLoadBuild.GetNum("fc1-3"), kvLoadBuild.GetNum("fc2-1"), kvLoadBuild.GetNum("fc2-2"), kvLoadBuild.GetNum("fc2-3"));
 				Cel_SetRainbow(iProp, view_as<bool>(kvLoadBuild.GetNum("colorrainbow")));
 			}
 			
 			while (kvLoadBuild.GotoNextKey());
 		}
-		
-		StringMapSnapshot smsLinked = smLinked.Snapshot();
-		
-		for (int i = 0; i < smsLinked.Length; i++)
-		{
-			int iControlledEnt, iControllerEnt;
-			
-			smsLinked.GetKey(i, sKey, sizeof(sKey));
-			
-			if(!smControllers.GetValue(sKey, iControllerEnt))
-				continue;
-				
-			smLinked.GetValue(sKey, iControlledEnt);
-			
-			Cel_LinkBit(EntRefToEntIndex(iControllerEnt), EntRefToEntIndex(iControlledEnt));
-		}
-		
-		delete smControllers;
-		delete smLinked;
-		delete smsLinked;
 		
 		if(!kvLoadBuild.GotoNextKey())
 		{
@@ -385,9 +336,9 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 					Entity_GetName(i, sBuffer[1], sizeof(sBuffer[]));
 					Entity_GetModel(i, sBuffer[2], sizeof(sBuffer[]));
 					
-					Cel_GetEntityAngles(i, fEnt[0]);
+					Entity_GetAbsAngles(i, fEnt[0]);
 					
-					Cel_GetEntityOrigin(i, fEnt[1]);
+					Entity_GetAbsOrigin(i, fEnt[1]);
 					
 					fOrigin[0] = fEnt[1][0] - fMiddle[0];
 					fOrigin[1] = fEnt[1][1] - fMiddle[1];
@@ -512,8 +463,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							
 							fEnt[0][1] -= 180;
 							
-							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							
 							kvSaveBuild.SetString("musicpath", sMusicPath);
 							
 							kvSaveBuild.SetNum("loop", view_as<int>(Cel_IsMusicLooping(i)));
@@ -534,19 +483,6 @@ public int Native_SaveBuild(Handle hPlugin, int iNumParams)
 							
 							kvSaveBuild.SetNum("speed", Cel_GetSoundSpeed(i));
 						}
-						case ENTTYPE_TRIGGER:
-						{
-							fEnt[0][1] -= 180;
-							
-							kvSaveBuild.SetFloat("a2", fEnt[0][1]);
-							
-							kvSaveBuild.SetNum("controllerid", i);
-						}
-					}
-					
-					if(Cel_GetControllerEntity(i) != -1)
-					{
-						kvSaveBuild.SetNum("controllerentity", Cel_GetControllerEntity(i));
 					}
 					
 					kvSaveBuild.Rewind();

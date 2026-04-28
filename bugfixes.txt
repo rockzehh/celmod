@@ -1,0 +1,19 @@
+Celmod bugfix:
+health charger doesnt give health
+error color goes fully black
+Coop missing translations.
+rainbow doesn't save time position for save.
+effect emitter doesn't register what state it's in on first use.
+gravity numbers are really weird.
+ladder faces away on spawn.
+shop missing translations.
+lock/unlock semi-broken on bits.
+button faces away on spawn.
+links don't support multiple objects.
+cant make link on music/sound cels.
+replace missing translations.
+item for sale doesn't show price.
+cant buy own item, says im not owner.
+internet doesn't show url in hud.
+non-solid is funky.
+hud cuts into team hud element, move hud up more when on opposite side.

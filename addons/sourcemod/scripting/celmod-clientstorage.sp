@@ -26,8 +26,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int iErr
 	CreateNative("Cel_SetClientSettingInt", Native_SetClientSettingInt);
 	CreateNative("Cel_SetClientSettingString", Native_SetClientSettingString);
 	
-	g_bLate = bLate;
-	
 	return APLRes_Success;
 }
 

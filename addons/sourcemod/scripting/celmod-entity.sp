@@ -253,7 +253,7 @@ public Action Command_Alpha(int iClient, int iArgs)
 	
 	GetCmdArg(1, sAlpha, sizeof(sAlpha));
 	
-	int iAlpha = StringToInt(sAlpha) < 50 ? 255 : StringToInt(sAlpha);
+	int iAlpha = StringToInt(sAlpha) < 50 ? 255 : StringToInt(sAlpha) > 255 ? 255 : StringToInt(sAlpha);
 	
 	if (iArgs > 1)
 	{

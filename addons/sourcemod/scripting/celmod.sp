@@ -9,7 +9,6 @@
 
 #pragma newdecls required
 
-bool g_bBetaBranchUpdates;
 bool g_bLate;
 bool g_bIsFlying[MAXPLAYERS + 1];
 bool g_bNoKill[MAXPLAYERS + 1];
@@ -21,7 +20,6 @@ char g_sDownloadPath[PLATFORM_MAX_PATH];
 char g_sOverlayPath[PLATFORM_MAX_PATH];
 char g_sSpawnDB[PLATFORM_MAX_PATH];
 
-ConVar g_cvBetaBranchUpdates;
 ConVar g_cvCelLimit;
 ConVar g_cvDownloadPath;
 ConVar g_cvOverlayPath;
@@ -92,7 +90,7 @@ public void OnLibraryAdded(const char[] sName)
 {
 	if (StrEqual(sName, "updater"))
 	{
-		Updater_AddPlugin(g_bBetaBranchUpdates ? UPDATE_BETA_URL : UPDATE_URL);
+		Updater_AddPlugin(UPDATE_URL);
 	}
 }
 
@@ -165,7 +163,6 @@ public void OnPluginStart()
 	RegConsoleCmd("v_spawn", Command_Spawn, "|CelMod| Spawns a prop by name.");
 	
 	CreateConVar("celmod", "1", "Notifies the server that the plugin is running.");
-	g_cvBetaBranchUpdates = CreateConVar("cm_use_beta_branch", "1", "Chooses which branch to use for updates. Only changed at startup.");
 	g_cvCelLimit = CreateConVar("cm_max_player_cels", "20", "Maxiumum number of cel entities a client is allowed.");
 	g_cvDownloadPath = CreateConVar("cm_download_list_path", "data/celmod/downloads.txt", "Path for the download list for clients.");
 	g_cvPropLimit = CreateConVar("cm_max_player_props", "160", "Maxiumum number of props a player is allowed to spawn.");
@@ -177,7 +174,6 @@ public void OnPluginStart()
 	g_cvOverlayPath.AddChangeHook(CM_OnConVarChanged);
 	g_cvPropLimit.AddChangeHook(CM_OnConVarChanged);
 	
-	g_bBetaBranchUpdates = g_cvBetaBranchUpdates.BoolValue;
 	Cel_SetCelLimit(g_cvCelLimit.IntValue);
 	g_cvDownloadPath.GetString(g_sDownloadPath, sizeof(g_sDownloadPath));
 	g_cvOverlayPath.GetString(g_sOverlayPath, sizeof(g_sOverlayPath));
@@ -187,7 +183,7 @@ public void OnPluginStart()
 	
 	if (LibraryExists("updater"))
 	{
-		Updater_AddPlugin(g_bBetaBranchUpdates ? UPDATE_BETA_URL : UPDATE_URL);
+		Updater_AddPlugin(UPDATE_URL);
 	}
 	
 	ConCommand_RemoveFlags("r_screenoverlay", FCVAR_CHEAT);

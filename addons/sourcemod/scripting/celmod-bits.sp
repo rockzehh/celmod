@@ -12,8 +12,6 @@ AmmoCrateType g_actAmmoCrateType[MAXENTITIES + 1];
 ChargerType g_ctChargerType[MAXENTITIES + 1];
 WeaponBitType g_wbtWeaponType[MAXENTITIES + 1];
 
-ControlTriggerType g_cttTriggerType[MAXENTITIES + 1];
-
 bool g_bCreatingLink[MAXPLAYERS + 1];
 bool g_bHasLink[MAXENTITIES + 1];
 
@@ -78,6 +76,8 @@ public void OnPluginStart()
 	RegConsoleCmd("v_charger", Command_SpawnChargerBit, "|CelMod| Creates a health/suit charger bit that will give health/suit to the player.");
 	RegConsoleCmd("v_link", Command_Link, "|CelMod| Creates a link between a trigger bit and an entity.");
 	RegConsoleCmd("v_wep", Command_SpawnWeaponBit, "|CelMod| Creates a weapon bit that will give a weapon when the player touches it.");
+	
+	SetConVarInt(FindConVar("sk_healthcharger"), 100, true);
 }
 
 public void OnClientPutInServer(int iClient)

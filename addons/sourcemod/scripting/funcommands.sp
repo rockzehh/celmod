@@ -141,7 +141,6 @@ void RegisterCvars()
 	g_Cvar_FireBombMode = CreateConVar("sm_firebomb_mode", "0", "Who is targetted by the FireBomb? 0 = Target only, 1 = Target's team, 2 = Everyone", 0, true, 0.0, true, 2.0);
 	
 	// ice
-	//CelMod Compatability
 	g_Cvar_FreezeDuration = CreateConVar("sm_freezeplayer_duration", "10.0", "Sets the default duration for sm_freeze and freezebomb victims", 0, true, 1.0, true, 120.0);	
 	g_Cvar_FreezeBombTicks = CreateConVar("sm_freezebomb_ticks", "10.0", "Sets how long the freezebomb fuse is.", 0, true, 5.0, true, 120.0);
 	g_Cvar_FreezeBombRadius = CreateConVar("sm_freezebomb_radius", "600", "Sets the freezebomb blast radius.", 0, true, 50.0, true, 3000.0);
@@ -156,14 +155,11 @@ void RegisterCmds()
 	RegAdminCmd("sm_timebomb", Command_TimeBomb, ADMFLAG_SLAY, "sm_timebomb <#userid|name> [0/1]");
 	RegAdminCmd("sm_burn", Command_Burn, ADMFLAG_SLAY, "sm_burn <#userid|name> [time]");
 	RegAdminCmd("sm_firebomb", Command_FireBomb, ADMFLAG_SLAY, "sm_firebomb <#userid|name> [0/1]");
-	//CelMod Compatability
-	RegAdminCmd("sm_pfreeze", Command_Freeze, ADMFLAG_SLAY, "sm_pfreeze <#userid|name> [time]");
+	RegAdminCmd("sm_freezeplayer", Command_Freeze, ADMFLAG_SLAY, "sm_freezeplayer <#userid|name> [time]");
 	RegAdminCmd("sm_freezebomb", Command_FreezeBomb, ADMFLAG_SLAY, "sm_freezebomb <#userid|name> [0/1]");
-	//CelMod Compatability
-	RegAdminCmd("sm_pgravity", Command_Gravity, ADMFLAG_SLAY, "sm_pgravity <#userid|name> [amount] - Leave amount off to reset. Amount is 0.0 through 5.0");
+	RegAdminCmd("sm_playergravity", Command_Gravity, ADMFLAG_SLAY, "sm_playergravity <#userid|name> [amount] - Leave amount off to reset. Amount is 0.0 through 5.0");
 	RegAdminCmd("sm_blind", Command_Blind, ADMFLAG_SLAY, "sm_blind <#userid|name> [amount] - Leave amount off to reset.");
-	//CelMod Compatability
-	RegAdminCmd("sm_pnoclip", Command_NoClip, ADMFLAG_SLAY|ADMFLAG_CHEATS, "sm_pnoclip <#userid|name>");
+	RegAdminCmd("sm_adminnoclip", Command_NoClip, ADMFLAG_SLAY|ADMFLAG_CHEATS, "sm_adminnoclip <#userid|name>");
 	RegAdminCmd("sm_drug", Command_Drug, ADMFLAG_SLAY, "sm_drug <#userid|name> [0/1]");
 }
 
@@ -323,14 +319,11 @@ public void OnAdminMenuReady(Handle aTopMenu)
 		hTopMenu.AddItem("sm_timebomb", AdminMenu_TimeBomb, player_commands, "sm_timebomb", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_burn", AdminMenu_Burn, player_commands, "sm_burn", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_firebomb", AdminMenu_FireBomb, player_commands, "sm_firebomb", ADMFLAG_SLAY);
-		//CelMod Compatability
-		hTopMenu.AddItem("sm_pfreeze", AdminMenu_Freeze, player_commands, "sm_pfreeze", ADMFLAG_SLAY);
+		hTopMenu.AddItem("sm_freezeplayer", AdminMenu_Freeze, player_commands, "sm_freezeplayer", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_freezebomb", AdminMenu_FreezeBomb, player_commands, "sm_freezebomb", ADMFLAG_SLAY);
-		//CelMod Compatability
-		hTopMenu.AddItem("sm_pgravity", AdminMenu_Gravity, player_commands, "sm_pgravity", ADMFLAG_SLAY);
+		hTopMenu.AddItem("sm_playergravity", AdminMenu_Gravity, player_commands, "sm_playergravity", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_blind", AdminMenu_Blind, player_commands, "sm_blind", ADMFLAG_SLAY);
-		//CelMod Compatability
-		hTopMenu.AddItem("sm_pnoclip", AdminMenu_NoClip, player_commands, "sm_pnoclip", ADMFLAG_SLAY);
+		hTopMenu.AddItem("sm_adminnoclip", AdminMenu_NoClip, player_commands, "sm_adminnoclip", ADMFLAG_SLAY);
 		hTopMenu.AddItem("sm_drug", AdminMenu_Drug, player_commands, "sm_drug", ADMFLAG_SLAY);
 	}
 }

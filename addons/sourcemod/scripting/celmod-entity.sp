@@ -416,7 +416,7 @@ public Action Command_Color(int iClient, int iArgs)
 						Cel_SetRainbow(i, true);
 					}else if(StrEqual(sColor, "error", false))
 					{
-						Cel_SetColorFade(i, true, 255, 32, 0, 0, 0, 0);
+						Cel_SetColorFade(i, true, 255, 0, 0, 16, 16, 16);
 					}else if (Cel_CheckColorDB(sColor, sColorString, sizeof(sColorString)))
 					{
 						ExplodeString(sColorString, "|", sColorBuffer, 3, sizeof(sColorBuffer[]));
@@ -483,7 +483,7 @@ public Action Command_Color(int iClient, int iArgs)
 				Cel_ReplyToCommandEntity(iClient, iProp, "%t", "SetColor", "rainbow");
 			}else if(StrEqual(sColor, "error", false))
 			{
-				Cel_SetColorFade(iProp, true, 255, 32, 0, 0, 0, 0);
+				Cel_SetColorFade(iProp, true, 255, 0, 0, 16, 16, 16);
 				
 				Cel_ChangeBeam(iClient, iProp);
 				
@@ -1029,8 +1029,6 @@ public Action Command_Replace(int iClient, int iArgs)
 			Entity_GetAbsAngles(iProp, fAngles);
 			
 			Entity_GetAbsOrigin(iProp, fOrigin);
-			
-			Cel_SubFromPropCount(iClient);
 			
 			int iReplaceProp = Cel_SpawnProp(iClient, sAlias, sSpawnBuffer[0], sSpawnBuffer[1], fAngles, fOrigin, iColor[0], iColor[1], iColor[2], iColor[3]);
 			
@@ -1740,19 +1738,6 @@ public void Frame_Rainbow(any iProp)
 	
 	if (Cel_IsEntity(iProp) && IsValidEntity(iProp) && g_bRainbow[iProp])
 	{
-		/*float fTime = (GetGameTime() - g_fRainbowTime[iProp]) * ((2.0 * M_PI) / PERIOD);
-
-		iColor[0] = RoundToFloor((Cosine(fTime) + 1.0) * 127.5);
-		iColor[1] = RoundToFloor((Cosine(fTime - (2.0 * M_PI / 3.0)) + 1.0) * 127.5);
-		iColor[2] = RoundToFloor((Cosine(fTime - 2*(2.0 * M_PI / 3.0)) + 1.0) * 127.5);
-
-		Cel_SetColor(iProp, iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
-
-		if(Cel_GetEntityType(iProp) == ENTTYPE_EFFECT)
-		{
-			Cel_SetColor(Cel_GetEffectAttachment(iProp), iColor[0], iColor[1], iColor[2], g_iColor[iProp][3]);
-		}*/
-		
 		float fHue = (GetGameTime() - g_fRainbowTime[iProp]) * (360.0 / PERIOD);
 		
 		HSVtoRGB(fHue, 1.0, 1.0, iColor);

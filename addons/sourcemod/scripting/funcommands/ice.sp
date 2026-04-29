@@ -487,8 +487,7 @@ public Action Command_Freeze(int client, int args)
 {
 	if (args < 1)
 	{
-		//CelMod Compatability
-		ReplyToCommand(client, "[SM] Usage: sm_pfreeze <#userid|name> [time]");
+		ReplyToCommand(client, "[SM] Usage: sm_freezeplayer <#userid|name> [time]");
 		return Plugin_Handled;
 	}
 

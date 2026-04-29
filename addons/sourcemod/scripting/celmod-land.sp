@@ -21,7 +21,6 @@ int g_iCurrentLandOwner[MAXPLAYERS + 1];
 int g_iHalo = -1;
 int g_iLand = -1;
 int g_iLandEntOwner[MAXENTITIES + 1];
-int g_iLandOverlay[MAXPLAYERS + 1] = {-1, ...};
 int g_iLaser = -1;
 int g_iPhys = -1;
 
@@ -364,61 +363,6 @@ public int Native_CreateLand(Handle hPlugin, int iNumParams)
 	HookSingleEntityOutput(iEnt, "OnStartTouch", EntOut_LandOnStartTouch);
 	HookSingleEntityOutput(iEnt, "OnTrigger", EntOut_LandOnTrigger);
 	HookSingleEntityOutput(iEnt, "OnEndTouch", EntOut_LandOnEndTouch);
-	
-	// Create visible floor overlay at bottom (tiling via material proxy)
-    int iOverlay = CreateEntityByName("info_overlay");
-    if (iOverlay != -1)
-    {
-        // Use your server's VMT style - change path if you made a custom one
-        PrecacheDecal("celmod/landskins/s9");
-        DispatchKeyValue(iOverlay, "material", "celmod/landskins/s9");  // Or "custom/land_floor" for your copy with proxy
-
-        DispatchKeyValue(iOverlay, "RenderOrder", "0");  // Draw order (0-3)
-        DispatchKeyValue(iOverlay, "angles", "0 0 0");    // Flat horizontal
-
-        // UVs 0-1 across full quad → proxy scale=16 will tile it ~16x denser
-        DispatchKeyValue(iOverlay, "uvpoints", "0 0 1 0 1 1 0 1");
-
-        // Set up the 4 corner positions in world space for the overlay quad
-        // Slightly above bottom Z to prevent clipping
-        float fBottomZ = fMin[2] + 0.1;
-
-        char sOrigin[64], sU[64], sV[64];
-        Format(sOrigin, sizeof(sOrigin), "%f %f %f", fMin[0], fMin[1], fBottomZ);  // Bottom-left as basis origin
-
-        // Basis U (along X, right)
-        Format(sU, sizeof(sU), "%f %f %f", fMax[0] - fMin[0], 0.0, 0.0);
-        DispatchKeyValue(iOverlay, "BasisU", sU);
-
-        // Basis V (along Y, forward)
-        Format(sV, sizeof(sV), "%f %f %f", 0.0, fMax[1] - fMin[1], 0.0);
-        DispatchKeyValue(iOverlay, "BasisV", sV);
-
-        // Basis Origin (anchor at one corner)
-        DispatchKeyValue(iOverlay, "BasisOrigin", sOrigin);
-
-        // Normal pointing up for floor projection
-        DispatchKeyValue(iOverlay, "BasisNormal", "0 0 1");
-
-        // Optional: If you want to parent it to the trigger so it moves/deletes together (recommended)
-        char sTargetName[32];
-        Format(sTargetName, sizeof(sTargetName), "land_trigger_%d", iEnt);
-        DispatchKeyValue(iEnt, "targetname", sTargetName);  // Give trigger a name if not already
-
-        DispatchKeyValue(iOverlay, "parentname", sTargetName);
-        SetVariantString(sTargetName);
-        AcceptEntityInput(iOverlay, "SetParent");
-
-        DispatchSpawn(iOverlay);
-        ActivateEntity(iOverlay);
-
-        // Store for cleanup
-        g_iLandOverlay[iClient] = iOverlay;
-    }
-    else
-    {
-        LogError("Failed to create info_overlay for land floor (client %d)", iClient);
-    }
 	
 	g_iLandEntOwner[iEnt] = iClient;
 	g_liLand[iClient].iLandEntity = iEnt;

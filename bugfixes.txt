@@ -1,6 +1,4 @@
 Celmod bugfix:
-health charger doesnt give health
-error color goes fully black
 Coop missing translations.
 rainbow doesn't save time position for save.
 effect emitter doesn't register what state it's in on first use.

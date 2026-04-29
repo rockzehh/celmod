@@ -130,8 +130,7 @@ public Action Command_NoClip(int client, int args)
 {
 	if (args < 1)
 	{
-		//CelMod Compatability
-		ReplyToCommand(client, "[SM] Usage: sm_pnoclip <#userid|name>");
+		ReplyToCommand(client, "[SM] Usage: sm_adminnoclip <#userid|name>");
 		return Plugin_Handled;
 	}
 

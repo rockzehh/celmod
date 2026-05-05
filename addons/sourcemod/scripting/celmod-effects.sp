@@ -77,7 +77,7 @@ public Action Command_Effect(int iClient, int iArgs)
 	
 	Cel_GetCrosshairHitOrigin(iClient, fOrigin);
 	
-	int iEffect = Cel_SpawnEffect(iClient, fOrigin, etEffectType, true, 255, 255, 255, 255);
+	int iEffect = Cel_SpawnEffect(iClient, fOrigin, etEffectType, false, 255, 255, 255, 255);
 	
 	Call_StartForward(g_hOnEffectSpawn);
 	

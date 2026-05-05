@@ -135,6 +135,11 @@
 	{
 		"en"			"Usage: {green}[tag]renderfx{default} <rendermode>"
 	}
+	
+	"CMD_Replace"
+	{
+		"en"			"Usage: {green}[tag]replace{default} <prop name>"
+	}
 
 	"CMD_Rotate"
 	{
@@ -247,6 +252,16 @@
 		"#format"		"{1:s},{2:s}"
 		"en"			"Player {green}{1}{default} connecting from {green}{2}{default}"
 	}
+	
+	"CoopOff"
+	{
+		"en"			"Cooperative land mode off."
+	}
+	
+	"CoopOn"
+	{
+		"en"			"Cooperative land mode on."
+	}
 
 	"CreateAxis"
 	{
@@ -265,12 +280,12 @@
 
 	"DeathmatchOff"
 	{
-		"en"			"Deathmatch mode off."
+		"en"			"Deathmatch land mode off."
 	}
 
 	"DeathmatchOn"
 	{
-		"en"			"Deathmatch mode on."
+		"en"			"Deathmatch land mode on."
 	}
 
 	"DisableMotion"
@@ -473,6 +488,17 @@
 		"en"			"Song {green}{1}{default} not found."
 	}
 	
+	"ShopOff"
+	{
+		"en"			"Shop land mode off."
+	}
+	
+	"ShopOn"
+	{
+		"en"			"Shop land mode on."
+	}
+
+	
 	"SoundNotFound"
 	{
 		"#format"		"{1:s}"
@@ -605,6 +631,12 @@
 	{
 		"#format"		"{1:s}"
 		"en"			"Removed prop {green}{1}{default} from blacklist."
+	}
+	
+	"ReplacedModel"
+	{
+		"#format"		"{1:s}"
+		"en"			"Replaced [type] with prop {green}{1}{default}."
 	}
 
 	"SaleCanceled"
@@ -817,5 +849,10 @@
 	"Unlocked"
 	{
 		"en"			"You have unlocked [type]."
+	}
+	
+	"WelcomeServer"
+	{
+		"en"			"Welcome to the {blue}|CelMod|{default} server!"
 	}
 }

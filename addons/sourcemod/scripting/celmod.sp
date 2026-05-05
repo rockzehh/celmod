@@ -233,6 +233,8 @@ public void OnClientPutInServer(int iClient)
 	g_bIsFlying[iClient] = false;
 	
 	ClientCommand(iClient, "r_screenoverlay %s", g_sOverlayPath);
+	
+	CreateTimer(0.5, Timer_WelcomeServer, iClient);
 }
 
 public void OnClientDisconnect(int iClient)
@@ -306,7 +308,7 @@ public Action Dev_GetPos(int iClient, int iArgs)
 	GetClientAbsAngles(iClient, fAng);
 	GetClientAbsOrigin(iClient, fPos);
 	
-	PrintToChat(iClient, "ANG: %f.f %f.f %f.f POS: %f.f %f.f %f.f", fAng[0], fAng[1], fAng[2], fPos[0], fPos[1], fPos[2]);
+	PrintToChat(iClient, "ANG: %f.f %f.f %f.f\nPOS: %f.f %f.f %f.f", fAng[0], fAng[1], fAng[2], fPos[0], fPos[1], fPos[2]);
 	
 	return Plugin_Handled;
 }
@@ -1235,4 +1237,11 @@ public int Native_SubFromPropCount(Handle hPlugin, int iNumParams)
 	Cel_SetPropCount(iClient, iFinalCount);
 	
 	return true;
+}
+
+//Timers:
+public Action Timer_WelcomeServer(Handle hTimer, any iClient)
+{
+	CPrintToChat(iClient, "%t", "WelcomeServer");
+	return Plugin_Continue;
 }

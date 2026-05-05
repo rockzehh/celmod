@@ -392,13 +392,11 @@ public bool Cel_FilterPlayer(int iEntity, int iContentsMask, any aData)
 
 stock void Cel_FixSpawnPosition(int iEntity, float fOrigin[3])
 {
-	float fMins[3];
-	
-	GetEntPropVector(iEntity, Prop_Send, "m_vecMinsPreScaled", fMins);
-	
-	fOrigin[2] = fOrigin[2] - fMins[2];
+	fOrigin[2] = fOrigin[2] += 300;
 	
 	TeleportEntity(iEntity, fOrigin, NULL_VECTOR, NULL_VECTOR);
+	
+	Cel_DropEntityToFloor(iEntity);
 }
 
 stock void HSVtoRGB(float fH, float fS, float fV, int iRGB[3])

@@ -565,6 +565,20 @@ public Action Timer_HUD(Handle hTimer)
 								
 								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
 							}
+						} else if (Cel_GetEntityType(iEntity) == ENTTYPE_INTERNET)
+						{
+							Cel_GetInternetURL(iEntity, sPropName, sizeof(sPropName));
+							
+							if (Cel_CheckOwner(i, iEntity))
+							{
+								Format(sHUDMessage, sizeof(sHUDMessage), "Cel: Internet\nURL: '%s'", sPropName);
+								
+								Cel_GetHudColor(i, iHUDColor);
+							} else {
+								Format(sHUDMessage, sizeof(sHUDMessage), "Owner: %N\nCel: Internet\nURL: '%s'", Cel_GetOwner(iEntity), sPropName);
+								
+								Cel_GetHudColor(Cel_GetOwner(iEntity), iHUDColor);
+							}
 						} else {
 							Cel_GetEntityTypeName(Cel_GetEntityType(iEntity), sCelBuffer, sizeof(sCelBuffer));
 							
@@ -627,7 +641,7 @@ public Action Timer_HUD(Handle hTimer)
 					Cel_GetHudColor(i, iHUDColor);
 				}
 				
-				Cel_SendHudMessage(i, 1, g_bHudLeft[i] ? -2.010 : 2.010, -0.110, iHUDColor[0], iHUDColor[1], iHUDColor[2], iHUDColor[3], 0, 0.6, 0.01, 0.2, 0.01, sHUDMessage);
+				Cel_SendHudMessage(i, 1, g_bHudLeft[i] ? -2.010 : 2.010, (g_bHudLeft[i] && GetConVarBool(FindConVar("mp_teamplay"))) ? -0.170 : -0.110, iHUDColor[0], iHUDColor[1], iHUDColor[2], iHUDColor[3], 0, 0.6, 0.01, 0.2, 0.01, sHUDMessage);
 			}
 		}
 	}

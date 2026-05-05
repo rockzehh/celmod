@@ -1015,7 +1015,8 @@ public Action Command_Replace(int iClient, int iArgs)
 	
 	if(!Cel_CheckEntityCatagory(iProp, ENTCATAGORY_PROP))
 	{
-		Cel_ReplyToCommand(iClient, "%t", "CantReplace");
+		Cel_ReplyToCommand(iClient, "%t", "CantUseCommand-Entity");
+		return Plugin_Handled;
 	}
 	
 	if (Cel_CheckOwner(iClient, iProp))
